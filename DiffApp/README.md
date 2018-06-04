@@ -1,1 +1,1 @@
-# Hor-diff
+# Hor-diff app

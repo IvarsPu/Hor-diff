@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv="content-type" content="text/html"; charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Horizon REST servisu izmaiņas</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+
+	<script src="jquery-ui-dependencies/jquery.fancytree.ui-deps.js"></script> 
+
+	<link href="skin-win8/ui.fancytree.css" rel="stylesheet">
+	<script src="jquery.fancytree.js"></script>
+	
+	<script src="mockup_tree_data.js"></script>	
+
+
+	<style type="text/css">
+	span.fancytree-node.service_ok span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/folder_page.gif");
+	}		
+	span.fancytree-node.service_changed span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/customFolder1.gif");
+	}	
+	span.fancytree-node.doc_ok span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/accept.png");
+	}	
+	span.fancytree-node.doc_changed span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/exclamation.png");
+	}	
+
+	body {
+		padding-top: 20px; 
+	}
+	
+	.col-sm-3, .col-sm-5 {
+		padding-right: 0px;
+	}
+
+	.link-panel-body {
+	  padding-top: 5px;	
+	  padding-right: 10px;
+	}
+	
+	.tree-panel {
+		padding-top: 0px; 
+	}	
+    
+
+		
+	</style>
+
+
+</head>
+
+<body height="100%">
+	<div class="container-fluid" >
+
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="panel panel-default"  style="height: 130px">
+					<div class="panel-heading">Horizon REST versiju izmaiņas</div>
+
+					<div class="panel-body">	
+						<b>Versija 1:</b>&nbsp;&nbsp;510.8<br/>
+						<b>Versija 2:</b>&nbsp;&nbsp;515.3			   
+					</div>
+				</div>									
+			</div>
+			<div class="col-sm-5">
+				<div class="panel panel-default"  style="height: 130px">
+					<div class="panel-heading">Servisa informācija</div>
+
+					<div class="panel-body">									
+						<b>Servisa apraksts:</b>&nbsp;&nbsp;Krājumi \ Nomenklatūra<br/>							
+						<b>REST ceļš:</b>&nbsp;&nbsp;/rest/TNdmNom/{pk}/attachments/TNdmNomAttachmentSL.xsd<br/>	
+						<b>Izmaiņu statuss:</b>&nbsp;&nbsp;Modificēts<br/>						
+
+					</div>
+				</div>									
+			</div>
+			<div class="col-sm-4">
+				<div class="panel panel-default" style="height: 130px">
+						<div class="panel-heading">Servisu filtri</div>
+
+						<div class="panel-body">	
+							<div class="radio">
+							  <label><input type="radio" name="optradio" checked="true">Rādīt visus</label>
+							</div>
+							<div class="radio">
+							  <label><input type="radio" name="optradio">Rādīt tikai izmainītos</label>
+							</div>						
+						</div>
+				</div>					
+			</div>			
+	
+		</div>			
+
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="panel panel-default" >
+					<div class="panel-heading">Horizon REST servisi</div>
+					
+					<div class="link-panel-body" align = "right">
+						<a href="#">Izvērst visu</a>&nbsp;\&nbsp;<a href="#">Sakļaut visu</a>		   
+					</div>
+					<div class="panel-body tree-panel" id="tree" style='overflow:auto; '>
+								   
+					</div>
+				</div>			
+			</div>
+			<div id="change_panel" class="col-sm-9">
+				<div class="panel panel-default scroll_section" >
+					<div id="change_header" class="panel-heading">Izmaiņas</div>
+					<div id="change_content" style='overflow:auto;'><img src="diff.png"  />
+				
+				</div>
+			
+			</div>
+		</div>			
+	</div>	
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	  setDivSize();  
+	 
+	  $(window).resize(function(){
+		setDivSize();	
+	  });
+	});
+
+	function setDivSize() {
+		var divTop = $('#change_panel').position().top  + $('#change_content').position().top; 
+		var newHeight = $(window).height() - divTop - 25;
+		
+		$('#change_content').height(newHeight);
+		$('#tree').height(newHeight - 40);	
+	}
+</script>
+	
+</body>
+</html>

@@ -1,0 +1,7 @@
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.exe.config
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.exe
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.pdb
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.csprojAssemblyReference.cache
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.csproj.CoreCompileInputs.cache
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.exe
+c:\users\jekabs.leinis\source\repos\HtmlXmlTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.pdb

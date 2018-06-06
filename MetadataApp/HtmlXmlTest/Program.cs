@@ -46,7 +46,7 @@
         {
             LinkList allLinks = new LinkList
             {
-                Links = (from link in xmlDocument.Elements("link")
+                Links = (from link in xmlDocument.Descendants("link")
                          select new Link
                          {
                              Href = link.Element("href").Value,

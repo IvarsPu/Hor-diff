@@ -18,7 +18,7 @@
 		<service name="TNdmNom" description="Nomenklatūra">
 			<service_schema name="TNdmNom.wad"/>		
 			<data_schema name="TNdmNom.xsd"/>
-			<resource name="attachments">	
+			<resource name="attachments" path="{pk}/attachments">	
 				<data_schema name="TNdmNomAttachmentSL.xsd"/>
 				<data_schema name="TdmAttachmentBL.xsd"/>				
 			</resource>			

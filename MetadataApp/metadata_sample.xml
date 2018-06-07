@@ -1,0 +1,27 @@
+<rest_api_metadata version="510" release="36">
+	<service name="global" description="Sistēmas resursi bez nepieciešamas autentificēšanās">
+		<data_schema name="global.xsd"/>
+	</service>
+	<service_group name="Virsgrāmata">
+		<service name="TdmPDok" description="Reģistrs">
+			<service_schema name="TdmPDok.wadl"/>		
+			<data_schema name="TdmPDok.xsd"/>			
+		</service>
+		<service_group name="Kontrolings">
+			<service name="TdmCODokBL" description="VG dokuments">
+				<service_schema name="TdmCODokBL.wad"/>		
+				<data_schema name="TdmCODokBL.xsd"/>		
+			</service>	
+		</service_group>		
+	</service_group>	
+	<service_group name="Krājumi">
+		<service name="TNdmNom" description="Nomenklatūra">
+			<service_schema name="TNdmNom.wad"/>		
+			<data_schema name="TNdmNom.xsd"/>
+			<resource name="attachments">	
+				<data_schema name="TNdmNomAttachmentSL.xsd"/>
+				<data_schema name="TdmAttachmentBL.xsd"/>				
+			</resource>			
+		</service>	
+	</service_group>	
+</rest_api_metadata>

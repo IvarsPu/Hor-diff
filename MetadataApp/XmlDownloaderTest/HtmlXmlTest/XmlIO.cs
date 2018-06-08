@@ -21,7 +21,10 @@
             //Console.WriteLine(path + fileName);
             await Task.Run(() =>
             {
-                xmlDocument.Result.Save(path + fileName);
+                if (xmlDocument.Result != null)
+                {
+                    xmlDocument.Result.Save(path + fileName);
+                }
             });
 
             // .NET Core 2.0 Has SaveAsync
@@ -29,7 +32,14 @@
 
         internal async Task<XDocument> LoadAsync(Task<string> stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
         {
-            return await Task.Run<XDocument>(() => XDocument.Parse(stringDocument.Result, loadOptions));
+            return await Task.Run<XDocument>(() =>
+            {
+                XDocument xDocument = null;
+                if (stringDocument.Result != null) {
+                    xDocument = XDocument.Parse(stringDocument.Result, loadOptions);
+                }
+                return xDocument;
+            });
 
         }
 

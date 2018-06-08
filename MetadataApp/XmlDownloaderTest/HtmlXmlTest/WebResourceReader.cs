@@ -5,7 +5,6 @@
     using System.IO;
     using System.Net;
     using System.Net.Http;
-    using System.Text.RegularExpressions;
     using System.Xml;
 
     internal class WebResourceReader
@@ -17,6 +16,14 @@
             WebResponse myResponse = GetResponseFromSite(url);
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
+
+            XmlWriter xmlWriter = XmlWriter.Create(localPath + "metadata.xml");
+            xmlWriter.WriteStartDocument();
+
+            xmlWriter.WriteStartElement("rest_api_metadata");
+            xmlWriter.WriteAttributeString("release", "36"); // EXAMPLE DATA
+            xmlWriter.WriteAttributeString("version", "510"); // EXAMPLE DATA
+
 
             Console.WriteLine(localPath);
 
@@ -43,6 +50,9 @@
 
                             Directory.CreateDirectory(localPath);
                             Console.WriteLine(localPath);
+
+                            xmlWriter.WriteStartElement("service_group");
+                            xmlWriter.WriteAttributeString("name", desc);
                         }
                         else if (xmlReader.Name == "link")
                         {
@@ -52,6 +62,8 @@
 
                             tempLink.Href = xmlReader.Value;
 
+                            xmlReader.Read();
+
                             while (xmlReader.NodeType != XmlNodeType.Text)
                                 xmlReader.Read();
 
@@ -60,6 +72,11 @@
                             tempLink.Filepath = localPath;
 
                             links.Add(tempLink);
+
+                            xmlWriter.WriteStartElement("service");
+                            xmlWriter.WriteAttributeString("description", tempLink.Description);
+                            xmlWriter.WriteAttributeString("href", tempLink.Href);
+                            xmlWriter.WriteEndElement();
                         }
 
                         // Console.WriteLine(xmlReader.Name + " EN");
@@ -74,7 +91,10 @@
                             var lastFolder = Path.GetDirectoryName(localPath);
                             var pathWithoutLastFolder = Path.GetDirectoryName(lastFolder);
                             localPath = pathWithoutLastFolder + "\\";
+
+                            xmlWriter.WriteEndElement();
                         }
+
 
                         // Console.WriteLine("END " + xmlReader.Name);
                         break;
@@ -83,15 +103,23 @@
             xmlReader.Close();
             myResponse.Close();
 
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Close();
+
             return links;
         }
 
         private static void FixFilename(ref string filename)
         {
-            Regex regexSet = new Regex(@"([:*?\<>|])");
             filename = filename.Replace("\\", "&");
             filename = filename.Replace("/", "&");
-            filename = regexSet.Replace(filename, "$");
+            filename = filename.Replace(":", "$");
+            filename = filename.Replace("*", "$");
+            filename = filename.Replace("?", "$");
+            filename = filename.Replace("\"", "$");
+            filename = filename.Replace("<", "$");
+            filename = filename.Replace(">", "$");
+            filename = filename.Replace("|", "$");
             filename = filename.Replace(" ", "_");
         }
 

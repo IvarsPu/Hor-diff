@@ -1,7 +1,0 @@
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.csprojAssemblyReference.cache
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.csproj.CoreCompileInputs.cache
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.exe.config
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.exe
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\bin\Debug\HtmlXmlTest.pdb
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.exe
-C:\Users\agnis.salmins\Desktop\Hor-diff-master\MetadataApp\XmlDownloaderTest\HtmlXmlTest\obj\Debug\HtmlXmlTest.pdb

@@ -46,11 +46,35 @@
             for (int currentElement = 0; currentElement < totalElementCount; currentElement++)
             {
                 currentService = currentElement % serviceCount;
-                taskList.Add(xmlIOs[currentService].SaveAsync(xmlIOs[currentService].LoadAsync(httpClients[currentService].GetStringAsync(urlPath[currentElement])), localPath[currentElement], localFilename[currentElement]));
+                taskList.Add(xmlIOs[currentService].SaveAsync(xmlIOs[currentService].LoadAsync(this.GetHttpResonse(httpClients[currentService], urlPath[currentElement])), localPath[currentElement], localFilename[currentElement]));
             }
 
             await Task.WhenAll(taskList.ToArray());
 
+        }
+
+        private async Task<string> GetHttpResonse(HttpClient client, string url)
+        {
+            string responseString = null;
+            try
+            {
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    responseString = await response.Content.ReadAsStringAsync();
+                } else
+                {
+                    Console.WriteLine("Error code {0} while attempting to fetch {1}", response.StatusCode, url);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception {0} while attempting to fetch {1}", e, url);
+            }
+
+            return responseString;
         }
 
     }

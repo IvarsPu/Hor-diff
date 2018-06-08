@@ -5,6 +5,7 @@
     using System.IO;
     using System.Net;
     using System.Net.Http;
+    using System.Text.RegularExpressions;
     using System.Xml;
 
     internal class WebResourceReader
@@ -111,15 +112,10 @@
 
         private static void FixFilename(ref string filename)
         {
+            Regex regexSet = new Regex(@"([:*?\<>|])");
             filename = filename.Replace("\\", "&");
             filename = filename.Replace("/", "&");
-            filename = filename.Replace(":", "$");
-            filename = filename.Replace("*", "$");
-            filename = filename.Replace("?", "$");
-            filename = filename.Replace("\"", "$");
-            filename = filename.Replace("<", "$");
-            filename = filename.Replace(">", "$");
-            filename = filename.Replace("|", "$");
+            filename = regexSet.Replace(filename, "$");
             filename = filename.Replace(" ", "_");
         }
 

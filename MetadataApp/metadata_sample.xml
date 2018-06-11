@@ -24,4 +24,10 @@
 			</resource>			
 		</service>	
 	</service_group>	
+	<service_group name="Līgumi">
+		<service name="TdmAprPakLigBL" description="Aprūpējamo līgums">
+			<service_schema name="TdmAprPakLigBL.wad"/>		
+			<data_schema name="TdmAprPakLigBL.xsd" status="error" error_message="cdsData: Cannot perform this operation on a closed dataset"/>		
+		</service>	
+	</service_group>	
 </rest_api_metadata>

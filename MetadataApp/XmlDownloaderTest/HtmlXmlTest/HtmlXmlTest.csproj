@@ -57,13 +57,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DownloadData.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="LinkList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebResourceLoader.cs" />
-    <Compile Include="WebResourceReader.cs" />
+    <Compile Include="XmlData.cs" />
     <Compile Include="XmlIO.cs" />
+    <Compile Include="XmlProcesser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

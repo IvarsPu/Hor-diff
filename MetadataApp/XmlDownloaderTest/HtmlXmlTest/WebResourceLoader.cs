@@ -38,7 +38,7 @@
                 xmlIOs.Add(new XmlIO());
             }
 
-            for (int currentElement = 0; currentElement < 50; currentElement++)
+            for (int currentElement = 0; currentElement < totalElementCount; currentElement++)
             {
                 currentService = currentElement % serviceCount;
 

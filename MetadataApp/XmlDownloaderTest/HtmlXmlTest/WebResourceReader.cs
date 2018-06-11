@@ -74,9 +74,13 @@
 
                             links.Add(tempLink);
 
+                            string name = tempLink.Href;
+                            int i = name.LastIndexOf("/");
+                            name = name.Substring(i + 1);
+
                             xmlWriter.WriteStartElement("service");
                             xmlWriter.WriteAttributeString("description", tempLink.Description);
-                            xmlWriter.WriteAttributeString("href", tempLink.Href);
+                            xmlWriter.WriteAttributeString("name", name);
                             xmlWriter.WriteEndElement();
                         }
 

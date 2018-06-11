@@ -14,7 +14,8 @@
         {
             List<Link> links = new List<Link>();
 
-            WebResponse myResponse = GetResponseFromSite(url);
+            WebResourceLoader webResourceLoader = new WebResourceLoader();
+            WebResponse myResponse = webResourceLoader.GetResponseFromSite(url).Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
 
@@ -121,22 +122,6 @@
             filename = filename.Replace("/", "&");
             filename = regexSet.Replace(filename, "$");
             filename = filename.Replace(" ", "_");
-        }
-
-        private static WebResponse GetResponseFromSite(string urlPath)
-        {
-            WebRequest request = WebRequest.Create(urlPath);
-            var credentials = new NetworkCredential("test", "testrest");
-            var handler = new HttpClientHandler { Credentials = credentials };
-            using (var client = new HttpClient(handler))
-            {
-                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-                Console.WriteLine(urlPath);
-            }
-
-            WebResponse response = request.GetResponse();
-
-            return response;
         }
     }
 }

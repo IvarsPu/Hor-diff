@@ -1,8 +1,8 @@
 ﻿namespace HtmlXmlTest
 {
-    internal class File
+    internal class XmlFile
     {
-        public File(string name, string filename, bool attachment = false, string errorMSG = null)
+        public XmlFile(string name, string filename, bool attachment = false, string errorMSG = null)
         {
             this.Set(name, filename, attachment, errorMSG);
         }

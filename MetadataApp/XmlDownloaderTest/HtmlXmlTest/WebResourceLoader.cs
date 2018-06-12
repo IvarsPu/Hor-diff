@@ -35,6 +35,7 @@
             for (int z = 0; z < serviceCount; z++)
             {
                 httpClients.Add(new HttpClient(handler));
+                httpClients[z].Timeout = TimeSpan.FromHours(24);
                 xmlIOs.Add(new XmlIO());
             }
 
@@ -86,9 +87,27 @@
                     }
                 }
             }
+            catch (TaskCanceledException ex)
+            {
+                if (ex.CancellationToken.IsCancellationRequested)
+                {
+                    Console.WriteLine("Something canceled task whilst fetching {0}", url);
+                }
+                else
+                {
+                    Console.WriteLine("Timeout whilst fetching {0}", url);
+                }
+
+                CancellationTokenSource source = new CancellationTokenSource();
+                source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                responseData = await this.GetHttpResonse(client, url, ++tryCount);
+            }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception: {0} while attempting to fetch {1}", ex, url);
+                Console.WriteLine("Exception: {0} while attempting to fetch {1}", ex.Message, url);
+                CancellationTokenSource source = new CancellationTokenSource();
+                source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                responseData = await this.GetHttpResonse(client, url, ++tryCount);
             }
 
             return responseData;

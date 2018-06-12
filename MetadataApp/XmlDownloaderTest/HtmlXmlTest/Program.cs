@@ -2,21 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
 
     internal class Program
     {
         private static void Main(string[] args)
         {
-
             WebResourceLoader webResourceLoader = new WebResourceLoader();
             string rootUrl = "https://intensapp003.internal.visma.com/rest/";
             string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";

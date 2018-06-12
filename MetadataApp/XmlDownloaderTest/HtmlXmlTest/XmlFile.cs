@@ -2,7 +2,7 @@
 {
     internal class XmlFile
     {
-        public XmlFile(string name, string filename, bool attachment = false, string errorMSG = null)
+        public XmlFile(string name, string filename, string attachment = null, string errorMSG = null)
         {
             this.Name = name;
             this.Filename = filename;
@@ -14,7 +14,7 @@
 
         public string Filename { get; set; }
 
-        public bool Attachment { get; set; }
+        public string Attachment { get; set; }
 
         public string ErrorMSG { get; set; }
     }

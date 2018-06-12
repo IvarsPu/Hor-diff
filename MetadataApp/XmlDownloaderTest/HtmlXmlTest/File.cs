@@ -2,17 +2,8 @@
 {
     internal class File
     {
-        public File(string name, string filename)
-        {
-            this.Set(name, filename, false, null);
-        }
 
-        public File(string name, string filename, bool attachment)
-        {
-            this.Set(name, filename, attachment, null);
-        }
-
-        public File(string name, string filename, bool attachment, string errorMSG)
+        public File(string name, string filename, bool attachment = false, string errorMSG = null)
         {
             this.Set(name, filename, attachment, errorMSG);
         }

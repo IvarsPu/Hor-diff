@@ -18,7 +18,6 @@
         {
 
             WebResourceLoader webResourceLoader = new WebResourceLoader();
-            // XmlIO xmlIO = new XmlIO();
             string rootUrl = "https://intensapp003.internal.visma.com/rest/";
             string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
 
@@ -42,22 +41,5 @@
             Console.WriteLine("Complete!");
             Console.ReadKey();
         }
-
-        private static LinkList XmlToLinkList(XDocument xmlDocument)
-        {
-            LinkList allLinks = new LinkList
-            {
-                /*
-                Links = (from link in xmlDocument.Descendants("link")
-                         select new Link
-                         {
-                             Href = link.Element("href").Value,
-                             Description = link.Element("description").Value,
-                         }).ToList()
-                 */
-
-            };
-            return allLinks;
-        }   
     }
 }

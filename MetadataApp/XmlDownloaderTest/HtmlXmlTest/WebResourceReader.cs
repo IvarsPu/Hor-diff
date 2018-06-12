@@ -26,7 +26,6 @@
             xmlWriter.WriteAttributeString("release", "36"); // EXAMPLE DATA
             xmlWriter.WriteAttributeString("version", "510"); // EXAMPLE DATA
 
-
             Console.WriteLine(localPath);
 
             while (xmlReader.Read())
@@ -60,14 +59,18 @@
                         {
                             Link tempLink = new Link();
                             while (xmlReader.NodeType != XmlNodeType.Text)
+                            {
                                 xmlReader.Read();
+                            }
 
                             tempLink.Href = xmlReader.Value;
 
                             xmlReader.Read();
 
                             while (xmlReader.NodeType != XmlNodeType.Text)
+                            {
                                 xmlReader.Read();
+                            }
 
                             tempLink.Description = xmlReader.Value;
 
@@ -101,11 +104,11 @@
                             xmlWriter.WriteEndElement();
                         }
 
-
                         // Console.WriteLine("END " + xmlReader.Name);
                         break;
                 }
             }
+
             xmlReader.Close();
             myResponse.Close();
 

@@ -66,9 +66,14 @@
                 Task<DownloadData> stringXmlDocTask = this.GetHttpResonse(httpClients[currentService], urlPath[currentElement]);
                 Task<XmlData> xmlDocTask = xmlIOs[currentService].LoadAsync(stringXmlDocTask);
                 taskList.Add(xmlIOs[currentService].SaveAsync(xmlDocTask, localPath[currentElement], localFilename[currentElement]));
+                if (currentElement > 1 && currentElement % 200 == 0)
+                {
+                    await Task.WhenAll(taskList.ToArray());
+                    Console.WriteLine(currentElement);
+                }
             }
 
-            await Task.WhenAll(taskList.ToArray());
+            
             for (int i = 0; i < taskList.Count; i++)
             {
                 if (taskList[i].Result != string.Empty)

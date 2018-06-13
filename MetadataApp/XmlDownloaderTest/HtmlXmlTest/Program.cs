@@ -28,7 +28,7 @@
             }
             try
             {
-                //webResourceLoader.FetchMultipleXmlAndSaveToDisk(serverXmlPath, localFilePath, localFileName, 10).Wait();
+                webResourceLoader.FetchMultipleXmlAndSaveToDisk(serverXmlPath, localFilePath, localFileName, 10).Wait();
             }
             catch (Exception ex)
             {
@@ -37,11 +37,11 @@
             }
             XmlIO xmlIO = new XmlIO();
             List<string> filepaths = xmlIO.GetfileList(rootLocalPath);
-            List<string> ResourcePathsSingle = xmlIO.FindAttachments(filepaths);
-            List<string> ResourcePathsDouble = xmlIO.DublicateData(ResourcePathsSingle);
-            List<string> attachmentNames = xmlIO.GetAttachmentNames(ResourcePathsSingle);
-            List<string> attachmentPaths = xmlIO.attachmentPathGen(ResourcePathsDouble, attachmentNames);
-            List<string> attachmentUrls = WebResourceLoader.GetAttachmentUrls(attachmentNames, ResourcePathsDouble, rootUrl);
+            List<string> resourcePathsSingle = xmlIO.FindAttachments(filepaths);
+            List<string> resourcePathsDouble = xmlIO.DublicateData(resourcePathsSingle);
+            List<string> attachmentNames = xmlIO.GetAttachmentNames(resourcePathsSingle);
+            List<string> attachmentPaths = xmlIO.attachmentPathGen(resourcePathsDouble, attachmentNames);
+            List<string> attachmentUrls = WebResourceLoader.GetAttachmentUrls(attachmentNames, resourcePathsDouble, rootUrl);
             foreach (string path in attachmentUrls)
             {
                 Console.WriteLine(path);

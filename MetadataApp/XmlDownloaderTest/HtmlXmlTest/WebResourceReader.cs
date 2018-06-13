@@ -13,7 +13,8 @@
         public static List<Link> MainReader(string url, string localPath)
         {
             List<Link> links = new List<Link>();
-
+            XmlIO xmlIO = new XmlIO();
+            xmlIO.CreateFolder(localPath);
             WebResourceLoader webResourceLoader = new WebResourceLoader();
             WebResponse myResponse = webResourceLoader.GetResponseFromSite(url).Result;
             Stream myStream = myResponse.GetResponseStream();
@@ -26,7 +27,7 @@
             xmlWriter.WriteAttributeString("release", "36"); // EXAMPLE DATA
             xmlWriter.WriteAttributeString("version", "510"); // EXAMPLE DATA
 
-            Console.WriteLine(localPath);
+            //Console.WriteLine(localPath);
 
             while (xmlReader.Read())
             {
@@ -49,8 +50,8 @@
 
                             localPath += desc + "\\";
 
-                            Directory.CreateDirectory(localPath);
-                            Console.WriteLine(localPath);
+                            xmlIO.CreateFolder(localPath);
+                            //Console.WriteLine(localPath);
 
                             xmlWriter.WriteStartElement("service_group");
                             xmlWriter.WriteAttributeString("name", desc);
@@ -74,7 +75,7 @@
 
                             tempLink.Description = xmlReader.Value;
 
-                            tempLink.Filepath = localPath;
+                            tempLink.Filepath = localPath + tempLink.Href.Substring(5) + "//";
 
                             links.Add(tempLink);
 

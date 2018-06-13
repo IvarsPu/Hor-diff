@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
+    using System.Configuration;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
@@ -11,10 +11,28 @@
 
     internal class WebResourceLoader
     {
+        internal static List<string> GetAttachmentUrls(List<string> attachmentNames, List<string> attachmentPaths, string baseUrl)
+        {
+            List<string> attachmentUrls = new List<string>();
+            for (int i = 0; i < attachmentNames.Count; i++)
+            {
+                string currentPath = attachmentPaths[i];
+                string folderName = currentPath.Substring(currentPath.LastIndexOf("\\") + 1, currentPath.Length - currentPath.LastIndexOf("\\") - 6);
+                attachmentUrls.Add(baseUrl + string.Format("{0}/42069420/attachments/{1}", folderName, attachmentNames[i]));
+            }
+
+            return attachmentUrls;
+        }
+
+
+
+
         internal async Task<WebResponse> GetResponseFromSite(string urlPath)
         {
             WebRequest request = WebRequest.Create(urlPath);
-            request.Credentials = new NetworkCredential("test", "testrest");
+            string login = ConfigurationManager.ConnectionStrings["Login"].ConnectionString;
+            string password = ConfigurationManager.ConnectionStrings["Password"].ConnectionString;
+            request.Credentials = new NetworkCredential(login, password);
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             WebResponse response = await request.GetResponseAsync();
 
@@ -23,7 +41,9 @@
 
         internal async Task FetchMultipleXmlAndSaveToDisk(List<string> urlPath, List<string> localPath, List<string> localFilename, int serviceCount)
         {
-            var credentials = new NetworkCredential("test", "testrest");
+            string login = ConfigurationManager.ConnectionStrings["Login"].ConnectionString;
+            string password = ConfigurationManager.ConnectionStrings["Password"].ConnectionString;
+            var credentials = new NetworkCredential(login, password);
             var handler = new HttpClientHandler { Credentials = credentials };
             var client = new HttpClient(handler);
             XDocument currentDocument = new XDocument();
@@ -71,7 +91,7 @@
                 else
                 {
                     Console.WriteLine("Error code {0} on try {1} whilst attempting to fetch {2}", response.StatusCode, tryCount + 1, url);
-                    if (tryCount < 2 && (response == null || response.StatusCode != HttpStatusCode.BadRequest))
+                    if (tryCount < 2 && (response == null || response.StatusCode != HttpStatusCode.NotFound || response.StatusCode != HttpStatusCode.InternalServerError))
                     {
                         CancellationTokenSource source = new CancellationTokenSource();
                         source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));

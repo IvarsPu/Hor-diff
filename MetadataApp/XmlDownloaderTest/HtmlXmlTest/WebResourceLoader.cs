@@ -39,13 +39,13 @@
             return response;
         }
 
-        internal async Task<List<XmlData>> FetchMultipleXmlAndSaveToDisk(List<string> urlPath, List<string> localPath, List<string> localFilename, int serviceCount)
+        internal async Task<List<XmlFile>> FetchMultipleXmlAndSaveToDisk(List<string> urlPath, List<string> localPath, List<string> localFilename, int serviceCount)
         {
             XDocument currentDocument = new XDocument();
             List<HttpClient> httpClients = this.GetHttpClients(serviceCount);
             List<XmlIO> xmlIOs = this.GetXmlIOs(serviceCount);
             List<Task<XmlData>> taskList = new List<Task<XmlData>>();
-            List<XmlData> allXmlData = new List<XmlData>();
+            List<XmlFile> allXmlData = new List<XmlFile>();
             int totalElementCount = urlPath.Count;
             int currentService;
 
@@ -66,7 +66,7 @@
             for (int i = 0; i < taskList.Count; i++)
             {
                 Console.WriteLine(taskList[i].Result.Error);
-                allXmlData.Add(taskList[i].Result);
+                allXmlData.Add(new XmlFile(taskList[i].Result.XDocument, localFilename[i], false, taskList[i].Result.Error));
             }
 
             return allXmlData;

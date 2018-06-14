@@ -44,10 +44,18 @@ versionButton2.addEventListener('change', function(e) {
 }, false);
 }
 
+function loadDoc(path) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", path, true);
+    xhttp.send();
+    console.log(xhttp.responseText);
+}
+
+
     function readTextFile(file)
     {     
          var rawFile = new XMLHttpRequest();
-         rawFile.open("GET", file, false);
+         rawFile.open("GET", "../" + file, false);
          rawFile.onreadystatechange = function ()
          {
              if(rawFile.readyState === 4)

@@ -13,8 +13,8 @@
             AttachmentLoader attachmentLoader = new AttachmentLoader();
             string rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
             string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
-            List<XmlData> wadlAndXmsData = new List<XmlData>();
-            List<XmlData> attachmentData = new List<XmlData>();
+            List<XmlFile> wadlAndXmsData = new List<XmlFile>();
+            List<XmlFile> attachmentData = new List<XmlFile>();
             List<Link> myLinks = WebResourceReader.MainReader(rootUrl, rootLocalPath);
             List<string> serverXmlPath = new List<string>();
             List<string> localFilePath = new List<string>();

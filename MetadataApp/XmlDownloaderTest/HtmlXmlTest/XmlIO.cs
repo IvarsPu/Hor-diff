@@ -55,11 +55,11 @@
                 return await Task.Run<XmlData>(() =>
                 {
                     XmlData xmlData = new XmlData();
-                    if (stringDocument.Result.Error == string.Empty && stringDocument.Result.ResponseString.Result != null)
+                    if (stringDocument.Result.Error == string.Empty && stringDocument.Result.ResponseTask.Result != null)
                     {
                         try
                         {
-                            xmlData.XDocument = XDocument.Parse(stringDocument.Result.ResponseString.Result, loadOptions);
+                            xmlData.XDocument = XDocument.Parse(stringDocument.Result.ResponseTask.Result, loadOptions);
                         }
                         catch (Exception ex)
                         {

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>&#13;&#10;
-<rest_api_metadata release="36" version="510">&#13;&#10;
+<rest_api_metadata release="36" version="510">
     <service description="Sistēmas resursi bez nepieciešamas autentificēšanās" name="global" />
     <service description="Lietotāja resursi" name="user" />
     <service description="Horizon UML modelis" name="umlmodel" />
@@ -14,9 +14,9 @@
         <service description="Kontu atlikumu pārgrāmatošana" name="TdmGParGram" />
         <service description="Virsgrāmatas sākuma atlikums" name="TdmgSakAtlikBL" />
         <service description="Objektu dimensiju saraksti" name="TdmDimObjSL" />
-        <service description="Objektu dimensijas" name="TdmDimObjBL" />
+        <service description="Objektu dimensidas" name="TdmDimObjBL" />
         <service description="Kontu plāns" name="TdmAccEdList" />
-		<service description="Idk" name="BlaXmlasdsd" />
+        <service description="Idk" name="BlaXmlasdsd" />
         <service description="Kontu grupas" name="TdmAccGrpList" />
         <service description="Struktūrvienība" name="TdmStrvList" />
         <service description="Izmaksu postenis" name="TdmIzmPantList" />

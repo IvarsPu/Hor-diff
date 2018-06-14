@@ -36,7 +36,7 @@ versionButton2.addEventListener('change', function(e) {
         VersionText2 = fileReader.result
         //console.log(VersionText2);
 		if (VersionText1 != null && VersionText2 != null) {
-			DoDiff(VersionText1, VersionText2);
+			DoDiff(VersionText1, VersionText2, 3);
 		}
     }
     fileReader.readAsText(fileTobeRead);
@@ -44,37 +44,42 @@ versionButton2.addEventListener('change', function(e) {
 }, false);
 }
 
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
+
 function loadDoc(path) {
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", path, true);
     xhttp.send();
     console.log(xhttp.responseText);
+	return xhttp.responseText;
 }
 
 
-    function readTextFile(file)
-    {     
-         var rawFile = new XMLHttpRequest();
-         rawFile.open("GET", "../" + file, false);
-         rawFile.onreadystatechange = function ()
-         {
-             if(rawFile.readyState === 4)
-             {
-                 if(rawFile.status === 200 || rawFile.status == 0)
-                 {
-                     VersionText1 = rawFile.responseText;
-                     
-                 }
-             }
-         }    
-    }
-
-
-function DoDiff(first, second){
+function DoDiff(first, second, type){
 var color = '',
-    span = null;
+    span = null,
+	diff;
 	console.log("Diff called");
+	
 
+switch(type){
+	case 1: 
+	diff = JsDiff.diffChars(VersionText1, VersionText2);
+	break;
+	case 2:
+	diff = JsDiff.diffWords(VersionText1, VersionText2);
+	break;
+	case 3:
+	diff = JsDiff.diffLines(VersionText1, VersionText2, false, true);
+	break;
+}
+	
 //var diff = JsDiff.diffLines(first, second);
 var diff = JsDiff.diffLines(VersionText1, VersionText2);
 /*
@@ -85,6 +90,7 @@ myDiff.tokenize = function(value) {
 var diff = myDiff.diff(first, second);
 var diff = JsDiff.diffLines(VersionText1, VersionText2);
 .replace(String.fromCharCode(13, 10),"\n");
+.replace(">","><br>");
 */
 var  display = document.getElementById('change_content'),
     fragment = document.createDocumentFragment();

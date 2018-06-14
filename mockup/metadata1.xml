@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>&#13;&#10;
-<rest_api_metadata release="36" version="510">&#13;&#10;
+﻿<?xml version="1.0" encoding="utf-8"?>
+<rest_api_metadata release="36" version="510">
     <service description="Sistēmas resursi bez nepieciešamas autentificēšanās" name="global" />
     <service description="Lietotāja resursi" name="user" />
     <service description="Horizon UML modelis" name="umlmodel" />

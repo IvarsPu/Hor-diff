@@ -80,15 +80,14 @@
                 var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
-                    responseData.ResponseString = response.Content.ReadAsStringAsync();
+                    responseData.ResponseTask = response.Content.ReadAsStringAsync();
                 }
                 else
                 {
                     if (tryCount < 2 && (response == null || (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.InternalServerError)))
                     {
                         Logger.Log(string.Format("Error code {0} on try {1} whilst attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
-                        CancellationTokenSource source = new CancellationTokenSource();
-                        source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                        await Task.Delay(1000);
                         responseData = await this.GetHttpResonse(client, url, ++tryCount);
                     }
                     else if (tryCount >= 2 || (response.StatusCode != HttpStatusCode.NotFound || response.StatusCode != HttpStatusCode.InternalServerError))
@@ -113,16 +112,14 @@
                     Logger.Log(string.Format("Timeout whilst fetching {0}", url));
                 }
 
-                CancellationTokenSource source = new CancellationTokenSource();
-                source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                await Task.Delay(1000);
                 responseData = await this.GetHttpResonse(client, url, ++tryCount);
             }
             catch (Exception ex)
             {
                 Logger.Log(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, url));
 
-                CancellationTokenSource source = new CancellationTokenSource();
-                source.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                await Task.Delay(1000);
                 responseData = await this.GetHttpResonse(client, url, ++tryCount);
             }
 

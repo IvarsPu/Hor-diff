@@ -7,10 +7,10 @@
 
     internal class AttachmentLoader
     {
-        internal List<XmlData> GetAllAttachments(string rootLocalPath, string rootUrl)
+        internal List<XmlFile> GetAllAttachments(string rootLocalPath, string rootUrl)
         {
             WebResourceLoader webResourceLoader = new WebResourceLoader();
-            List<XmlData> attachmentData = new List<XmlData>();
+            List<XmlFile> attachmentData = new List<XmlFile>();
             List<string> filepaths = this.GetWadlfileList(rootLocalPath);
             List<string> resourcePathsSingle = this.FindAttachments(filepaths);
             List<string> resourcePathsDouble = this.DublicateData(resourcePathsSingle);
@@ -18,6 +18,11 @@
             List<string> attachmentPaths = this.AttachmentPathGen(resourcePathsDouble);
             List<string> attachmentUrls = WebResourceLoader.GetAttachmentUrls(attachmentNames, resourcePathsDouble, rootUrl);
             attachmentData = webResourceLoader.FetchMultipleXmlAndSaveToDisk(attachmentUrls, attachmentPaths, attachmentNames, 10).Result;
+            foreach (XmlFile attachment in attachmentData)
+            {
+                attachment.Attachment = true;
+            }
+
             return attachmentData;
         }
 

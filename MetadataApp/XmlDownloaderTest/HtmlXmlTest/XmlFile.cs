@@ -1,16 +1,18 @@
-﻿namespace HtmlXmlTest
+﻿
+namespace HtmlXmlTest
 {
+    using System.Xml.Linq;
     internal class XmlFile
     {
-        public XmlFile(string name, string filename, bool attachment = false, string errorMSG = null)
+        public XmlFile(XDocument xDocument, string filename, bool attachment = false, string errorMSG = null)
         {
-            this.Name = name;
+            this.XDocument = xDocument;
             this.Filename = filename;
             this.Attachment = attachment;
             this.ErrorMSG = errorMSG;
         }
 
-        public string Name { get; set; }
+        public XDocument XDocument { get; set; }
 
         public string Filename { get; set; }
 

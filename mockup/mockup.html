@@ -19,6 +19,8 @@
 	<script src="jquery.fancytree.js"></script>
 	
 	<script src="mockup_tree_data.js"></script>	
+	<script src="diff.js"></script>	
+	<script src="main.js"></script>	
 
 
 	<style type="text/css">
@@ -68,12 +70,13 @@
 
 		<div class="row">
 			<div class="col-sm-3">
-				<div class="panel panel-default"  style="height: 130px">
+				<div class="panel panel-default"  style="height: 220px">
 					<div class="panel-heading">Horizon REST versiju izmaiņas</div>
 
 					<div class="panel-body">	
-						<b>Versija 1:</b>&nbsp;&nbsp;510.8<br/>
-						<b>Versija 2:</b>&nbsp;&nbsp;515.3			   
+						<b>Versija 1:</b>&nbsp;&nbsp;510.8   <input type="file" id="versionButton1" /> <br/> 
+						<b>Versija 2:</b>&nbsp;&nbsp;515.3	 <input type="file" id="versionButton2" /> <br/> 
+						
 					</div>
 				</div>									
 			</div>
@@ -122,8 +125,8 @@
 			<div id="change_panel" class="col-sm-9">
 				<div class="panel panel-default scroll_section" >
 					<div id="change_header" class="panel-heading">Izmaiņas</div>
-					<div id="change_content" style='overflow:auto;'><img src="diff.png"  />
-				
+					<div id="change_content" style='overflow:auto;'>
+					</div>
 				</div>
 			
 			</div>

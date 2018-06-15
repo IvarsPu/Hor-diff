@@ -8,6 +8,8 @@
     {
         private static void Main(string[] args)
         {
+            // Sorry, we just didn't have enough time to make it pretty & readable
+
             XmlIO xmlIO = new XmlIO();
             WebResourceLoader webResourceLoader = new WebResourceLoader();
             AttachmentLoader attachmentLoader = new AttachmentLoader();
@@ -15,7 +17,7 @@
             string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
             List<XmlFile> wadlAndXmsData = new List<XmlFile>();
             List<XmlFile> attachmentData = new List<XmlFile>();
-            List<Link> myLinks = WebResourceReader.MainReader(rootUrl, ref rootLocalPath);
+            List<Link> myLinks = WebResourceReader.MainReader(rootUrl, rootLocalPath);
             List<string> serverXmlPath = new List<string>();
             List<string> localFilePath = new List<string>();
             List<string> localFileName = new List<string>();
@@ -39,11 +41,6 @@
             }
 
             attachmentData = attachmentLoader.GetAllAttachments(rootLocalPath, rootUrl);
-
-            XmlFile xmlFile = new XmlFile();
-            xmlFile.AddFilesToXml(rootLocalPath + "metadata.xml", wadlAndXmsData);
-            xmlFile.AddFilesToXml(rootLocalPath + "metadata.xml", attachmentData);
-
             Console.WriteLine("Complete!");
             Console.ReadKey();
         }

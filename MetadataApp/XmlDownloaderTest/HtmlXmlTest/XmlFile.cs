@@ -72,8 +72,11 @@ namespace HtmlXmlTest
                     newElem.SetAttribute("status", "error");
                 }
 
-                node.AppendChild(newElem);
-                xml.Save(xmlPath);
+                if (!xmlFile.ErrorMSG.Contains("nav atrasts!"))
+                {
+                    node.AppendChild(newElem);
+                    xml.Save(xmlPath);
+                }
             }
         }
 

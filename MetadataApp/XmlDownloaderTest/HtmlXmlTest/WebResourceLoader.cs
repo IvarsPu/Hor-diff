@@ -49,7 +49,7 @@
             int totalElementCount = urlPath.Count;
             int currentService;
 
-            for (int currentElement = 0; currentElement < totalElementCount; currentElement++)// && currentElement < x for testing purposes
+            for (int currentElement = 0; currentElement < totalElementCount && currentElement < 100; currentElement++)// && currentElement < x for testing purposes
             {
                 currentService = currentElement % serviceCount;
 

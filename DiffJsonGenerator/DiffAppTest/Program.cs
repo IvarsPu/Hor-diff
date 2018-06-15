@@ -13,6 +13,7 @@ namespace DiffAppTest
     {
         static void Main(string[] args)
         {
+            string versonRelease = "515.3"; // [version.release]
             const int MAX_DEEPNESS = 5;
             int deepness = 0;
 
@@ -28,7 +29,7 @@ namespace DiffAppTest
 
             Schema schema = new Schema();
 
-            string filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest";
+            string filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease;
 
             XmlReader xmlReader = XmlReader.Create(filePath + "\\metadata.xml");
 
@@ -116,7 +117,7 @@ namespace DiffAppTest
             string json = JsonConvert.SerializeObject(elementLists[0]);
             //json = string.Format("var ontJson = {0}; $(function(){{$(\"#tree\").fancytree({{source: ontJson}});}});", json);//var ontJson = {0}; $(function(){$(\"#tree\").fancytree({source: ontJson});});
             
-            string jsonFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\mockup_tree_data.json";
+            string jsonFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease +"\\mockup_tree_data.json";
             File.WriteAllText(jsonFilePath, json);
 
             Console.WriteLine("Complete!");

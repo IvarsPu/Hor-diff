@@ -10,11 +10,9 @@
 
     internal class WebResourceReader
     {
-        public static List<Link> MainReader(string url, string localPath)
+        public static List<Link> MainReader(string url, ref string rootLocalPath)
         {
             List<Link> links = new List<Link>();
-            XmlIO xmlIO = new XmlIO();
-            xmlIO.CreateFolder(localPath);
             WebResourceLoader webResourceLoader = new WebResourceLoader();
             WebResponse myResponse = webResourceLoader.GetResponseFromSite(url + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
@@ -34,6 +32,12 @@
             value = value.Remove(index);
             index = value.LastIndexOf(".");
             string version = value.Substring(index + 1);
+
+            rootLocalPath += version + "." + release + "\\";
+            string localPath = rootLocalPath;
+
+            XmlIO xmlIO = new XmlIO();
+            xmlIO.CreateFolder(localPath);
 
             XmlWriter xmlWriter = XmlWriter.Create(localPath + "metadata.xml");
             xmlWriter.WriteStartDocument();

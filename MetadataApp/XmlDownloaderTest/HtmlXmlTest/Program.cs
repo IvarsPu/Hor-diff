@@ -15,7 +15,7 @@
             string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
             List<XmlFile> wadlAndXmsData = new List<XmlFile>();
             List<XmlFile> attachmentData = new List<XmlFile>();
-            List<Link> myLinks = WebResourceReader.MainReader(rootUrl, rootLocalPath);
+            List<Link> myLinks = WebResourceReader.MainReader(rootUrl, ref rootLocalPath);
             List<string> serverXmlPath = new List<string>();
             List<string> localFilePath = new List<string>();
             List<string> localFileName = new List<string>();

@@ -16,18 +16,36 @@
             XmlIO xmlIO = new XmlIO();
             xmlIO.CreateFolder(localPath);
             WebResourceLoader webResourceLoader = new WebResourceLoader();
-            WebResponse myResponse = webResourceLoader.GetResponseFromSite(url).Result;
+            WebResponse myResponse = webResourceLoader.GetResponseFromSite(url + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
+
+            string value = string.Empty;
+            while (xmlReader.Read())
+            {
+                if (xmlReader.NodeType == XmlNodeType.Text)
+                {
+                    value = xmlReader.Value;
+                }
+            }
+
+            int index = value.LastIndexOf(".");
+            string release = value.Substring(index + 1);
+            value = value.Remove(index);
+            index = value.LastIndexOf(".");
+            string version = value.Substring(index + 1);
 
             XmlWriter xmlWriter = XmlWriter.Create(localPath + "metadata.xml");
             xmlWriter.WriteStartDocument();
 
             xmlWriter.WriteStartElement("rest_api_metadata");
-            xmlWriter.WriteAttributeString("release", "36"); // EXAMPLE DATA
-            xmlWriter.WriteAttributeString("version", "510"); // EXAMPLE DATA
+            xmlWriter.WriteAttributeString("release", release);
+            xmlWriter.WriteAttributeString("version", version);
 
-            //Console.WriteLine(localPath);
+            webResourceLoader = new WebResourceLoader();
+            myResponse = webResourceLoader.GetResponseFromSite(url).Result;
+            myStream = myResponse.GetResponseStream();
+            xmlReader = XmlReader.Create(myStream);
 
             while (xmlReader.Read())
             {

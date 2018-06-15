@@ -117,7 +117,7 @@ namespace DiffAppTest
             string json = JsonConvert.SerializeObject(elementLists[0]);
             //json = string.Format("var ontJson = {0}; $(function(){{$(\"#tree\").fancytree({{source: ontJson}});}});", json);//var ontJson = {0}; $(function(){$(\"#tree\").fancytree({source: ontJson});});
             
-            string jsonFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease +"\\mockup_tree_data.json";
+            string jsonFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease +"\\" + versonRelease + ".json";
             File.WriteAllText(jsonFilePath, json);
 
             Console.WriteLine("Complete!");

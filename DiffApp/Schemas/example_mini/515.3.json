@@ -1,0 +1,233 @@
+[
+	{
+		"title": "/rest/umlmodel",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035ddd33b65d94"
+		}]
+	},
+	{
+		"title": "/rest/system",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+
+	{
+		"title": "Virsgrāmata",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Finanšu pārskati",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Budžeti",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Kontrolings",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Krājumi",
+		"extraClasses": "service_ok",
+		"children": [{
+				"title": "Dummy",
+				"extraClasses": "doc_ok",
+				"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+			},
+			{
+				"title": "TNdmNom",
+				"extraClasses": "service_ok",
+				"children": [{
+						"title": "TNdmNom.wadl",
+						"extraClasses": "doc_ok",
+						"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+					},
+					{
+						"title": "TNdmNom.xsd",
+						"extraClasses": "doc_ok",
+						"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+					},
+					{
+						"title": "attachments",
+						"extraClasses": "service_ok",
+						"children": [{
+								"title": "TdmAttachmentBL.xsd",
+								"extraClasses": "doc_ok",
+								"hash" : "cf23df2207d99a74fbe12e3eba035e633b65d94"
+							},
+							{
+								"title": "TNdmNomAttachmentSL.xsd",
+								"extraClasses": "doc_ok",
+								"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+								
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"title": "Norēķini",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Uzņēmums",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Banka",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Kase",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Cirsmas",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Pamatlīdzekļi",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Personāls/algas",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Ražošana",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Īpašumu apsaimniekošana",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Saskaņošana",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Sistēma",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Līzings",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Projektu uzskaite",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Transporta procesu vadība",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	},
+	{
+		"title": "Aizņēmumi/Galvojumi",
+		"extraClasses": "service_ok",
+		"children": [{
+			"title": "Dummy",
+			"extraClasses": "doc_ok",
+			"hash" : "cf23df2207d99a74fbe169e3eba035e633b65d94"
+		}]
+	}
+]

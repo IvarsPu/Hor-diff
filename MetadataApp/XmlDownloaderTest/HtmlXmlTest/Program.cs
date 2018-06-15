@@ -39,6 +39,11 @@
             }
 
             attachmentData = attachmentLoader.GetAllAttachments(rootLocalPath, rootUrl);
+
+            XmlFile xmlFile = new XmlFile();
+            xmlFile.AddFilesToXml(rootLocalPath + "metadata.xml", wadlAndXmsData);
+            xmlFile.AddFilesToXml(rootLocalPath + "metadata.xml", attachmentData);
+
             Console.WriteLine("Complete!");
             Console.ReadKey();
         }

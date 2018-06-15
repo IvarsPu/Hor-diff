@@ -49,7 +49,7 @@
             int totalElementCount = urlPath.Count;
             int currentService;
 
-            for (int currentElement = 0; currentElement < totalElementCount; currentElement++)
+            for (int currentElement = 0; currentElement < totalElementCount; currentElement++)// && currentElement < x for testing purposes
             {
                 currentService = currentElement % serviceCount;
 
@@ -66,7 +66,20 @@
             for (int i = 0; i < taskList.Count; i++)
             {
                 Console.WriteLine(taskList[i].Result.Error);
-                allXmlData.Add(new XmlFile(taskList[i].Result.XDocument, localFilename[i], false, taskList[i].Result.Error));
+
+                string folderName = urlPath[i];
+                Console.WriteLine(folderName);
+                int index = folderName.IndexOf("/42069420/attachments/");
+                if (index == -1)
+                {
+                    index = folderName.LastIndexOf("/");
+                }
+
+                folderName = folderName.Remove(index);
+                folderName = folderName.Substring(folderName.LastIndexOf("/") + 1);
+
+                Console.WriteLine(folderName);
+                allXmlData.Add(new XmlFile(folderName, localFilename[i], false, taskList[i].Result.Error));
             }
 
             return allXmlData;

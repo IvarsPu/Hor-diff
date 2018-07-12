@@ -54,12 +54,14 @@
                 currentService = currentElement % serviceCount;
 
                 Task<DownloadData> stringXmlDocTask = this.GetHttpResonse(httpClients[currentService], urlPath[currentElement]);
-                Task<XmlData> xmlDocTask = xmlIOs[currentService].LoadAsync(stringXmlDocTask);
-                taskList.Add(xmlIOs[currentService].SaveAsync(xmlDocTask, localPath[currentElement], localFilename[currentElement]));
-                if (currentElement > 1 && currentElement % 200 == 0)
+
+                Task<XmlData> xmlDocTask = xmlIOs[currentService].ParseXmlAsync(stringXmlDocTask);
+
+                taskList.Add(xmlIOs[currentService].SaveXmlAsync(xmlDocTask, localPath[currentElement], localFilename[currentElement]));
+                if (currentElement > 1 && currentElement % serviceCount == 0)
                 {
                     await Task.WhenAll(taskList.ToArray());
-                    Console.WriteLine(currentElement);
+                    Logger.LogProgress((int) (((float) currentElement) / ((float) 100) * 100) + "% Done");
                 }
             }
 
@@ -69,7 +71,7 @@
 
                 string folderName = urlPath[i];
                 Console.WriteLine(folderName);
-                int index = folderName.IndexOf("/42069420/attachments/");
+                int index = folderName.IndexOf("/42069420/attachments/"); // 42069420 used as random pk
                 if (index == -1)
                 {
                     index = folderName.LastIndexOf("/");
@@ -99,17 +101,25 @@
                 {
                     if (tryCount < 2 && (response == null || (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.InternalServerError)))
                     {
-                        Logger.Log(string.Format("Error code {0} on try {1} whilst attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
+                        Logger.LogError(string.Format("Error code {0} on try {1} while attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
                         await Task.Delay(1000);
                         responseData = await this.GetHttpResonse(client, url, ++tryCount);
                     }
                     else if (tryCount >= 2 || (response.StatusCode != HttpStatusCode.NotFound || response.StatusCode != HttpStatusCode.InternalServerError))
                     {
-                        Logger.Log(string.Format("Error code {0} on try {1} whilst attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
-                        XDocument errorMsg = XDocument.Parse(await response.Content.ReadAsStringAsync());
-                        foreach (XElement element in errorMsg.Descendants("message"))
+                        Logger.LogError(string.Format("Error code {0} on try {1} while attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
+
+                        try
                         {
-                            responseData.Error = element.Value;
+                            XDocument errorMsg = XDocument.Parse(await response.Content.ReadAsStringAsync());
+                            foreach (XElement element in errorMsg.Descendants("message"))
+                            {
+                                responseData.Error += " " + element.Value;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            responseData.Error = string.Format("Error code {0} while attempting to fetch {1}", response.StatusCode,  url);
                         }
                     }
                 }
@@ -118,11 +128,11 @@
             {
                 if (ex.CancellationToken.IsCancellationRequested)
                 {
-                    Logger.Log(string.Format("Something canceled task whilst fetching {0}", url));
+                    Logger.LogError(string.Format("Something canceled task while fetching {0}", url));
                 }
                 else
                 {
-                    Logger.Log(string.Format("Timeout whilst fetching {0}", url));
+                    Logger.LogError(string.Format("Timeout while fetching {0}", url));
                 }
 
                 await Task.Delay(1000);
@@ -130,7 +140,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Log(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, url));
+                Logger.LogError(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, url));
 
                 await Task.Delay(1000);
                 responseData = await this.GetHttpResonse(client, url, ++tryCount);

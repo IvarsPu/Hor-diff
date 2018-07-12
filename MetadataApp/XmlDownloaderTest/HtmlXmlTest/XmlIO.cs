@@ -17,7 +17,7 @@
             }
         }
 
-        internal async Task<XmlData> SaveAsync(Task<XmlData> xDocument, string path, string fileName)
+        internal async Task<XmlData> SaveXmlAsync(Task<XmlData> xDocument, string path, string fileName)
         {
             this.CreateFolder(path);
             // Console.WriteLine(path + fileName);
@@ -33,7 +33,7 @@
                         }
                         catch (Exception ex)
                         {
-                            Logger.Log(string.Format("Exception: {0} whilst saving {1}{2}", ex.Message, path, fileName));
+                            Logger.LogError(string.Format("Exception: {0} while saving {1}{2}", ex.Message, path, fileName));
                             throw;
                         }
                     }
@@ -41,14 +41,14 @@
             }
             catch (Exception ex)
             {
-                Logger.Log(string.Format("Exception: {0} whilst saving {1}{2}", ex.Message, path, fileName));
+                Logger.LogError(string.Format("Exception: {0} while saving {1}{2}", ex.Message, path, fileName));
             }
 
             return xDocument.Result;
 
         }
 
-        internal async Task<XmlData> LoadAsync(Task<DownloadData> stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
+        internal async Task<XmlData> ParseXmlAsync(Task<DownloadData> stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
         {
             try
             {
@@ -63,7 +63,7 @@
                         }
                         catch (Exception ex)
                         {
-                            Logger.Log(string.Format("Exception: {0} whilst parsing {1}", ex.Message, stringDocument));
+                            Logger.LogError(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
                             throw;
                         }
                     }
@@ -77,7 +77,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Log(string.Format("Exception: {0} whilst parsing {1}", ex.Message, stringDocument));
+                Logger.LogError(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
                 throw;
             }
         }

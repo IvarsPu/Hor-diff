@@ -9,7 +9,7 @@
 
     internal class XmlIO
     {
-        internal void CreateFolder(string path)
+        internal static void CreateFolder(string path)
         {
             if (!Directory.Exists(path))
             {
@@ -17,69 +17,33 @@
             }
         }
 
-        internal async Task<XmlData> SaveXmlAsync(Task<XmlData> xDocument, string path, string fileName)
+        internal void SaveXml(XmlData xDocument, string path, string fileName)
         {
-            this.CreateFolder(path);
-            // Console.WriteLine(path + fileName);
+            CreateFolder(path);
+
             try
             {
-                await Task.Run(() =>
-                {
-                    if (xDocument.Result.Error == string.Empty && xDocument.Result.XDocument != null)
-                    {
-                        try
-                        {
-                            xDocument.Result.XDocument.Save(path + fileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError(string.Format("Exception: {0} while saving {1}{2}", ex.Message, path, fileName));
-                            throw;
-                        }
-                    }
-                });
+                xDocument.XDocument.Save(path + fileName);
             }
             catch (Exception ex)
             {
-                Logger.LogError(string.Format("Exception: {0} while saving {1}{2}", ex.Message, path, fileName));
+                throw new Exception(string.Format("Exception: {0} while saving {1}\\{2}", ex.Message, path, fileName));
             }
-
-            return xDocument.Result;
-
         }
 
-        internal async Task<XmlData> ParseXmlAsync(Task<DownloadData> stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
+        internal XmlData ParseXml(DownloadData stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
         {
-            try
-            {
-                return await Task.Run<XmlData>(() =>
+            XmlData xmlData = new XmlData();
+                try
                 {
-                    XmlData xmlData = new XmlData();
-                    if (stringDocument.Result.Error == string.Empty && stringDocument.Result.ResponseTask.Result != null)
-                    {
-                        try
-                        {
-                            xmlData.XDocument = XDocument.Parse(stringDocument.Result.ResponseTask.Result, loadOptions);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
-                            throw;
-                        }
-                    }
-                    else
-                    {
-                        xmlData.Error = stringDocument.Result.Error;
-                    }
+                    xmlData.XDocument = XDocument.Parse(stringDocument.ResponseTask.Result, loadOptions);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
+                }
 
-                    return xmlData;
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
-                throw;
-            }
+            return xmlData;
         }
     }
 }

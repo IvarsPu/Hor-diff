@@ -10,10 +10,10 @@
 
     internal class WebResourceReader
     {
-        public static List<Link> MainReader(string url, ref string rootLocalPath, ref string metadataPath)
+        public static List<RestService> LoadRestServices(string url, ref string rootLocalPath, ref string metadataPath)
         {
-            List<Link> links = new List<Link>();
-            WebResourceLoader webResourceLoader = new WebResourceLoader();
+            List<RestService> services = new List<RestService>();
+            WebResourceLoader webResourceLoader = new WebResourceLoader(url);
             WebResponse myResponse = webResourceLoader.GetResponseFromSite(url + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
@@ -37,7 +37,7 @@
             string localPath = rootLocalPath;
 
             XmlIO xmlIO = new XmlIO();
-            xmlIO.CreateFolder(localPath);
+            XmlIO.CreateFolder(localPath);
 
             metadataPath = localPath + "metadata.xml";
             XmlWriter xmlWriter = XmlWriter.Create(metadataPath);
@@ -47,7 +47,6 @@
             xmlWriter.WriteAttributeString("release", release);
             xmlWriter.WriteAttributeString("version", version);
 
-            webResourceLoader = new WebResourceLoader();
             myResponse = webResourceLoader.GetResponseFromSite(url).Result;
             myStream = myResponse.GetResponseStream();
             xmlReader = XmlReader.Create(myStream);
@@ -73,7 +72,7 @@
 
                             localPath += desc + "\\";
 
-                            xmlIO.CreateFolder(localPath);
+                            XmlIO.CreateFolder(localPath);
                             //Console.WriteLine(localPath);
 
                             xmlWriter.WriteStartElement("service_group");
@@ -81,13 +80,13 @@
                         }
                         else if (xmlReader.Name == "link")
                         {
-                            Link tempLink = new Link();
+                            RestService service = new RestService();
                             while (xmlReader.NodeType != XmlNodeType.Text)
                             {
                                 xmlReader.Read();
                             }
 
-                            tempLink.Href = xmlReader.Value;
+                            service.Href = xmlReader.Value;
 
                             xmlReader.Read();
 
@@ -96,19 +95,21 @@
                                 xmlReader.Read();
                             }
 
-                            tempLink.Description = xmlReader.Value;
+                            service.Description = xmlReader.Value;
+ 
 
-                            tempLink.Filepath = localPath + tempLink.Href.Substring(5) + "//";
-
-                            links.Add(tempLink);
-
-                            string name = tempLink.Href;
+                            string name = service.Href;
                             int i = name.LastIndexOf("/");
-                            name = name.Substring(i + 1);
+                            service.Name = name.Substring(i + 1);
+
+
+                            service.Filepath = localPath + service.Name + "\\";
+
+                            services.Add(service);
 
                             xmlWriter.WriteStartElement("service");
-                            xmlWriter.WriteAttributeString("description", tempLink.Description);
-                            xmlWriter.WriteAttributeString("name", name);
+                            xmlWriter.WriteAttributeString("description", service.Description);
+                            xmlWriter.WriteAttributeString("name", service.Name);
                             xmlWriter.WriteEndElement();
                         }
 
@@ -139,7 +140,7 @@
             xmlWriter.WriteEndDocument();
             xmlWriter.Close();
 
-            return links;
+            return services;
         }
 
         private static void FixFilename(ref string filename)

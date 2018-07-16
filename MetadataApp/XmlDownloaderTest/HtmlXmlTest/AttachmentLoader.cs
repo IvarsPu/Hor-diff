@@ -9,7 +9,7 @@
     {
         internal List<XmlFile> GetAllAttachments(string rootLocalPath, string rootUrl)
         {
-            WebResourceLoader webResourceLoader = new WebResourceLoader();
+            WebResourceLoader webResourceLoader = new WebResourceLoader(rootUrl);
             List<XmlFile> attachmentData = new List<XmlFile>();
             List<string> filepaths = this.GetWadlfileList(rootLocalPath);
             List<string> resourcePathsSingle = this.FindAttachments(filepaths);
@@ -79,7 +79,7 @@
             return attachmentPaths;
         }
 
-        internal List<string> GetAttachmentNames(List<string> attachmentPaths) // Don't touch, it works
+        internal List<string> GetAttachmentNames(List<string> attachmentPaths) 
         {
             List<string> attachmentNames = new List<string>();
             List<XElement> attachments = new List<XElement>();

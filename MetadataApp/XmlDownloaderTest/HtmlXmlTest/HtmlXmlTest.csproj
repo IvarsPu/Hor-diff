@@ -61,11 +61,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileLoadTask.cs" />
     <Compile Include="JsonGenerator.cs" />
-    <Compile Include="DownloadData.cs" />
     <Compile Include="JsonClasses.cs" />
-    <Compile Include="Link.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,7 +70,6 @@
     <Compile Include="ServiceLoadState.cs" />
     <Compile Include="WebResourceLoader.cs" />
     <Compile Include="WebResourceReader.cs" />
-    <Compile Include="XmlData.cs" />
     <Compile Include="XmlFile.cs" />
     <Compile Include="XmlIO.cs" />
   </ItemGroup>

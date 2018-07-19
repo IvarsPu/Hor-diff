@@ -17,33 +17,30 @@
             }
         }
 
-        internal void SaveXml(XmlData xDocument, string path, string fileName)
+        internal void SaveXml(XmlFile xmlFile)
         {
-            CreateFolder(path);
+            CreateFolder(xmlFile.LocalPath);
 
             try
             {
-                xDocument.XDocument.Save(path + fileName);
+                xmlFile.XDocument.Save(xmlFile.LocalPath + xmlFile.Filename);
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Exception: {0} while saving {1}\\{2}", ex.Message, path, fileName));
+                throw new Exception(string.Format("Exception: {0} while saving {1}\\{2}", ex.Message, xmlFile.LocalPath, xmlFile.Filename));
             }
         }
 
-        internal XmlData ParseXml(DownloadData stringDocument, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
+        internal void ParseXml(XmlFile xmlFile, LoadOptions loadOptions = LoadOptions.PreserveWhitespace)
         {
-            XmlData xmlData = new XmlData();
-                try
-                {
-                    xmlData.XDocument = XDocument.Parse(stringDocument.ResponseTask.Result, loadOptions);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(string.Format("Exception: {0} while parsing {1}", ex.Message, stringDocument));
-                }
-
-            return xmlData;
+            try
+            {
+                xmlFile.XDocument = XDocument.Parse(xmlFile.HttpResponse, loadOptions);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Exception: {0} while parsing {1}", ex.Message, xmlFile.HttpResponse));
+            }
         }
     }
 }

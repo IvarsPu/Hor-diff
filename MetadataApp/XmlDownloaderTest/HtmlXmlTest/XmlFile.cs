@@ -4,18 +4,25 @@ namespace HtmlXmlTest
     using System.Collections.Generic;
     using System.Xml;
     using System.Xml.Linq;
+
     internal class XmlFile
     {
-        public XmlFile(string name, string localPath, string filename, bool attachment = false, string errorMSG = null)
+        public XmlFile(string serviceName, string url, string localPath, string filename, bool attachment = false)
         {
-            this.Name = name;
+            this.ServiceName = serviceName;
+            this.Url = url;
             this.LocalPath = localPath;
             this.Filename = filename;
             this.Attachment = attachment;
-            this.ErrorMSG = errorMSG;
         }
 
-        public string Name { get; set; }
+        public string ServiceName { get; set; }
+
+        public string HttpResponse { get; set; }
+
+        public XDocument XDocument { get; set; }
+
+        public string Url { get; set; }
 
         public string LocalPath { get; set; }
 
@@ -23,8 +30,13 @@ namespace HtmlXmlTest
 
         public bool Attachment { get; set; }
 
-        public string ErrorMSG { get; set; }
+        public string Error { get; set; } = string.Empty;
 
-        public int HttpResultCode { get; set; }
+        public int HttpResultCode { get; set; } = -1;
+
+
+
+
+
     }
 }

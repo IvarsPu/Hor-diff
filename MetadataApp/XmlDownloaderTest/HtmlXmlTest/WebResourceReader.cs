@@ -164,20 +164,9 @@
                 {
                     string xPath = null;
 
-                    try
-                    {
-                        xPath = string.Format(
-                            "//service[@name='{0}']",
-                            xmlFile.Name);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("XmlFile object:" + xmlFile);
-                        Console.WriteLine("XmlFile service name:" + xmlFile.Name);
-                        Console.WriteLine("XmlFile service Filename:" + xmlFile.Filename);
-                    }
-
+                    xPath = string.Format("//service[@name='{0}']", xmlFile.ServiceName);
                     XmlNode node = xml.SelectSingleNode(xPath);
+                    string schema = GetSchema(xmlFile.Filename);
 
                     if (xmlFile.Attachment)
                     {
@@ -189,40 +178,43 @@
                             newAttachment.SetAttribute("name", "attachments");
 
                             node = xml.SelectSingleNode(xPath);
-
                             node.AppendChild(newAttachment);
-
                             node = newAttachment;
                         }
                     }
 
-                    string schema = GetSchema(xmlFile.Filename);
+                    // Remove previous load data
+                    xPath = string.Format("//{0}[@name='{1}']", schema, xmlFile.Filename);
+                    XmlNode checkNode = node.SelectSingleNode(xPath);
+                    if (checkNode != null)
+                    {
+                        node.RemoveChild(checkNode);
+                    }
 
                     XmlElement newElem = xml.CreateElement(schema);
                     newElem.SetAttribute("name", xmlFile.Filename);
 
                     int hashCode = -1;
 
-                    if (xmlFile.ErrorMSG == string.Empty)
+                    if (xmlFile.Error == string.Empty)
                     {
                         try
                         {
-                            XmlDocument xmlDoc = new XmlDocument();
-                            xmlDoc.Load(xmlFile.LocalPath + "\\" + xmlFile.Filename);
-                            hashCode = xmlDoc.InnerXml.GetHashCode();
+                            hashCode = xmlFile.HttpResponse.GetHashCode();
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError(string.Format("Failed to get service {0} file {1} hash. {2}", xmlFile.Name, xmlFile.Filename, ex.Message));
+                            Logger.LogError(string.Format("Failed to get service {0} file {1} hash. {2}", xmlFile.ServiceName, xmlFile.Filename, ex.Message));
                         }
                     }
 
                     newElem.SetAttribute("hashCode", hashCode.ToString());
 
-                    if ((xmlFile.ErrorMSG != null) && (xmlFile.ErrorMSG != string.Empty))
+                    if ((xmlFile.Error != null) && (xmlFile.Error != string.Empty))
                     {
-                        newElem.SetAttribute("error_message", xmlFile.ErrorMSG);
+                        newElem.SetAttribute("error_message", xmlFile.Error);
                         newElem.SetAttribute("status", "error");
+                        newElem.SetAttribute("http_code", xmlFile.HttpResultCode.ToString());
                     }
 
                     node.AppendChild(newElem);

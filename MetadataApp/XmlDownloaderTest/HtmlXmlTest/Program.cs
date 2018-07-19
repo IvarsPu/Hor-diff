@@ -36,17 +36,20 @@
 
             //ServiceLoadState serviceState = this.LoadRestServiceTestState();
             ServiceLoadState serviceState = this.LoadRestServiceLoadState();
-            int initialServiceCount;
+
+            serviceState.Services.RemoveRange(100, serviceState.Services.Count - 100);
+            serviceState.CalcStatistics();
+
+            int remainingServiceCount = 0;
             Logger.LogPath = this.rootLocalPath;
 
-            do
+            while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
             {
-                initialServiceCount = serviceState.PendingLoadServices;
+                remainingServiceCount = serviceState.PendingLoadServices;
                 serviceState = this.LoadRestServiceMetadata(serviceState);
                 serviceState.Services = this.GetPendingServices(serviceState.Services);
                 serviceState.CalcStatistics();
             }
-            while (initialServiceCount != serviceState.PendingLoadServices && serviceState.PendingLoadServices > 0);
         }
 
         public ServiceLoadState LoadRestServiceTestState()
@@ -69,9 +72,9 @@
             }
 
             RestService service = new RestService();
-            service.Href = "https://intensapp003.internal.visma.com/rest/";
+            service.Href = this.rootUrl;
             service.Name = "TsarVDocIzd";
-            service.Filepath = "C:\\Users\\ivars.purvins\\Desktop\\rest\\520.1\\Avansa_norēķini\\TsarVDocIzd";
+            service.Filepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\520.1\\Avansa_norēķini\\TsarVDocIzd";
             services.Add(service);
 
             loadState.CalcStatistics();

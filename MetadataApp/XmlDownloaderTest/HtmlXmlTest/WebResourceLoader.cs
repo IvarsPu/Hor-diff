@@ -55,46 +55,55 @@
                 "TdmDimObjBL"
             };
 
-            int servicesCount = services.Count;
 
-            for (int currentElement = 0; currentElement < servicesCount; currentElement++)
+            try
             {
-                currentService = currentElement % serviceCount;
-                RestService service = services[currentElement];
+                int servicesCount = services.Count;
 
-                if (!noSchemaServices.Contains(service.Name))
+                for (int currentElement = 0; currentElement < servicesCount; currentElement++)
                 {
-                    taskList.Add(this.LoadServiceMetadata(httpClients[currentService], xmlIOs[currentService], service, xmlFileList));
+                    currentService = currentElement % serviceCount;
+                    RestService service = services[currentElement];
 
-                    // Log status
-                    if (currentElement > 1 && currentElement % 10 == 0)
+                    if (!noSchemaServices.Contains(service.Name))
                     {
-                        await Task.WhenAll(taskList.ToArray());
-                        Logger.LogProgress(currentElement + " services loaded");
+                        taskList.Add(this.LoadServiceMetadata(httpClients[currentService], xmlIOs[currentService], service, xmlFileList));
+
+                        // Log status
+                        if (currentElement > 1 && currentElement % 10 == 0)
+                        {
+                            await Task.WhenAll(taskList.ToArray());
+                            Logger.LogProgress(currentElement + " services loaded");
+                        }
+
+                        // Store the state
+                        if (currentElement > 1 && currentElement % 200 == 0)
+                        {
+                            await Task.WhenAll(taskList.ToArray());
+
+                            // Update downloaded file metadata
+                            WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
+
+                            // Store load statuss and clean up
+                            this.StoreLoadState(services);
+                            taskList.Clear();
+                        }
                     }
-
-                    // Store the state
-                    if (currentElement > 1 && currentElement % 200 == 0)
+                    else
                     {
-                        await Task.WhenAll(taskList.ToArray());
-
-                        // Update downloaded file metadata
-                        WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
-
-                        // Store load statuss and clean up
-                        this.StoreLoadState(services);
-                        taskList.Clear();
+                        service.LoadStatus = ServiceLoadStatus.Loaded;
                     }
                 }
-                else
-                {
-                    service.LoadStatus = ServiceLoadStatus.Loaded;
-                }
+
+                await Task.WhenAll(taskList.ToArray());
+                WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
+                this.StoreLoadState(services);
             }
-
-            await Task.WhenAll(taskList.ToArray());
-            WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
-            this.StoreLoadState(services);
+            catch (Exception ex)
+            {
+                Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
+                Logger.LogError(ex.StackTrace);
+            }
 
             return services;
         }
@@ -149,17 +158,17 @@
             return this.rootLocalPath + "LoadState.bin";
         }
 
-        internal List<FileLoadTask> GetAttachmentLoadTasks(RestService service, XmlData wadlXmlData)
+        internal List<XmlFile> GetAttachmentLoadTasks(RestService service, XmlFile wadlXmlFile)
         {
+            List<XmlFile> loadTasks = new List<XmlFile>();
+
             List<string> attachmentNames = new List<string>();
             List<XElement> attachments = new List<XElement>();
             string xmlNameSpace = "{http://wadl.dev.java.net/2009/02}";
             string localPath, url;
 
-            List<FileLoadTask> loadTasks = new List<FileLoadTask>();
-
             attachments.AddRange(
-                from el in wadlXmlData.XDocument.Descendants()
+                from el in wadlXmlFile.XDocument.Descendants()
                 where el.Name.LocalName == "resource" && el.Attribute("path") != null && el.Attribute("path").Value == "attachments"
                 select el);
 
@@ -176,28 +185,27 @@
             foreach (string fileName in attachmentNames)
             {
                 url = this.rootUrl + string.Format("{0}/42069420/attachments/{1}", service.Name, fileName);
-                FileLoadTask fileLoad = new FileLoadTask(url, localPath, fileName);
-                fileLoad.Attachment = true;
+                XmlFile fileLoad = new XmlFile(service.Name, url, localPath, fileName, true);
                 loadTasks.Add(fileLoad);
             }
 
             return loadTasks;
         }
 
-        internal List<FileLoadTask> GetQueryLoadTask(RestService service, XmlData wadlXmlData)
+        internal List<XmlFile> GetQueryLoadTask(RestService service, XmlFile wadlXmFile)
         {
             List<XElement> queries = new List<XElement>();
-            List<FileLoadTask> loadTasks = new List<FileLoadTask>();
+            List<XmlFile> loadTasks = new List<XmlFile>();
 
             queries.AddRange(
-                from el in wadlXmlData.XDocument.Descendants()
+                from el in wadlXmFile.XDocument.Descendants()
                 where el.Name.LocalName == "resource" && el.Attribute("path") != null && el.Attribute("path").Value == "query"
                 select el);
 
             if (queries.Count > 0)
             {
                 string url = this.rootUrl + string.Format("{0}/query", service.Name);
-                FileLoadTask fileLoad = new FileLoadTask(url, service.Filepath, "query.xml");
+                XmlFile fileLoad = new XmlFile(service.Name, url, service.Filepath, "query.xml");
                 loadTasks.Add(fileLoad);
             }
 
@@ -207,8 +215,6 @@
         internal async Task<RestService> LoadServiceMetadata(HttpClient client, XmlIO parser, RestService service, List<XmlFile> xmlFileList)
         {
             string filename;
-            XmlData xmlData;
-            List<FileLoadTask> loadTasks;
             List<XmlFile> serviceXmlFiles = new List<XmlFile>();
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
@@ -216,28 +222,26 @@
             try
             {
                 filename = service.Name + ".wadl";
-                xmlData = await this.LoadXmlFile(client, parser, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename);
-                serviceXmlFiles.Add(new XmlFile(service.Name, service.Filepath, filename, false, xmlData.Error));
-                bool wadlLoaded = xmlData.Error == string.Empty;
+                XmlFile xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename));
+                serviceXmlFiles.Add(xmlFile);
+                bool wadlLoaded = xmlFile.Error == string.Empty;
 
                 if (wadlLoaded)
                 {
-                    loadTasks = this.GetAttachmentLoadTasks(service, xmlData);
-                    loadTasks.AddRange(this.GetQueryLoadTask(service, xmlData));
+                    List<XmlFile> loadTasks = this.GetAttachmentLoadTasks(service, xmlFile);
+                    loadTasks.AddRange(this.GetQueryLoadTask(service, xmlFile));
                     await this.LoadXmlFiles(client, parser, loadTasks);
-                    foreach (FileLoadTask task in loadTasks)
-                    {
-                        serviceXmlFiles.Add(new XmlFile(service.Name, task.LocalFolder, task.Filename, task.Attachment, task.Error));
-                    }
+
+                    serviceXmlFiles.AddRange(loadTasks);
                 }
 
                 filename = service.Name + ".xsd";
-                xmlData = await this.LoadXmlFile(client, parser, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename);
-                serviceXmlFiles.Add(new XmlFile(service.Name, service.Filepath, filename, false, xmlData.Error));
+                xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename));
+                serviceXmlFiles.Add(xmlFile);
 
-                foreach (XmlFile xmlFile in serviceXmlFiles)
+                foreach (XmlFile file in serviceXmlFiles)
                 {
-                    if (xmlFile.ErrorMSG != string.Empty)
+                    if (xmlFile.Error != string.Empty)
                     {
                         service.LoadStatus = ServiceLoadStatus.LoadedWithErrors;
                         break;
@@ -264,63 +268,60 @@
             return service;
         }
 
-        private async Task<List<FileLoadTask>> LoadXmlFiles(HttpClient client, XmlIO parser, List<FileLoadTask> loadFiles)
+        private async Task<List<XmlFile>> LoadXmlFiles(HttpClient client, XmlIO parser, List<XmlFile> loadFiles)
         {
-            foreach (FileLoadTask loadFile in loadFiles)
+            foreach (XmlFile loadFile in loadFiles)
             {
-                loadFile.FileXmlData = await this.LoadXmlFile(client, parser, loadFile.Url, loadFile.LocalFolder + "\\", loadFile.Filename);
-                loadFile.Error = loadFile.FileXmlData.Error;
+                await this.LoadXmlFile(client, parser, loadFile);
             }
 
             return loadFiles;
         }
 
-        private async Task<XmlData> LoadXmlFile(HttpClient client, XmlIO parser, string url, string localFolder, string filename)
+        private async Task<XmlFile> LoadXmlFile(HttpClient client, XmlIO parser, XmlFile xmlFile)
         {
-            XmlData xmlDocTask;
+
             try
             {
-                DownloadData stringXmlDocTask = await this.GetHttpResonse(client, url);
-                xmlDocTask = parser.ParseXml(stringXmlDocTask);
-                parser.SaveXml(xmlDocTask, localFolder, filename);
+                await this.GetHttpResonse(client, xmlFile);
+                parser.ParseXml(xmlFile);
+                parser.SaveXml(xmlFile);
             }
             catch (Exception ex)
             {
-                xmlDocTask = new XmlData();
-                xmlDocTask.Error = ex.Message;
+                xmlFile.Error = ex.Message;
             }
 
-            return xmlDocTask;
+            return xmlFile;
         }
 
-        private async Task<DownloadData> GetHttpResonse(HttpClient client, string url, int tryCount = 0)
+        private async Task<XmlFile> GetHttpResonse(HttpClient client, XmlFile xmlFile, int tryCount = 0)
         {
-            DownloadData responseData = new DownloadData();
             try
             {
-                var response = await client.GetAsync(url);
+                var response = await client.GetAsync(xmlFile.Url);
+                if (response != null)
+                {
+                    xmlFile.HttpResultCode = (int)response.StatusCode;
+                }
+
                 if (response.IsSuccessStatusCode)
                 {
-                    responseData.ResponseTask = response.Content.ReadAsStringAsync();
+                    xmlFile.HttpResponse = await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    if (tryCount < 2 && (response == null || (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.InternalServerError)))
+                    if (tryCount < 2)
                     {
                         if (tryCount == 0)
                         {
-                            Logger.LogError(string.Format("Error code {0} on try {1} while attempting to fetch {2}", response.StatusCode, tryCount + 1, url));
+                            Logger.LogError(string.Format("HTTP error code {0} while attempting to fetch {1}", xmlFile.HttpResultCode, xmlFile.Url));
                         }
 
-                        if (response.StatusCode == HttpStatusCode.BadRequest)
-                        {
-                            // Don't call again
-                            responseData.Error = string.Format("Error code {0} while attempting to fetch {1}", response.StatusCode, url);
-                        }
-                        else
+                        if (response.StatusCode != HttpStatusCode.BadRequest)
                         {
                             await Task.Delay(1000);
-                            responseData = await this.GetHttpResonse(client, url, ++tryCount);
+                            await this.GetHttpResonse(client, xmlFile, ++tryCount);
                         }
                     }
                     else if (tryCount >= 2 || (response.StatusCode != HttpStatusCode.NotFound || response.StatusCode != HttpStatusCode.InternalServerError))
@@ -330,12 +331,12 @@
                             XDocument errorMsg = XDocument.Parse(await response.Content.ReadAsStringAsync());
                             foreach (XElement element in errorMsg.Descendants("message"))
                             {
-                                responseData.Error += " " + element.Value;
+                                xmlFile.Error += " " + element.Value;
                             }
                         }
                         catch (Exception ex)
                         {
-                            responseData.Error = string.Format("Error {0} while attempting to fetch {1}", ex.Message,  url);
+                            xmlFile.Error = string.Format("Error {0} while attempting to fetch {1}", ex.Message, xmlFile.Url);
                         }
                     }
                 }
@@ -344,33 +345,33 @@
             {
                 if (ex.CancellationToken.IsCancellationRequested)
                 {
-                    Logger.LogError(string.Format("Something canceled task while fetching {0}", url));
+                    Logger.LogError(string.Format("Something canceled task while fetching {0}", xmlFile.Url));
                 }
                 else
                 {
-                    Logger.LogError(string.Format("Timeout while fetching {0}", url));
+                    Logger.LogError(string.Format("Timeout while fetching {0}", xmlFile.Url));
                 }
 
                 await Task.Delay(1000);
-                responseData = await this.GetHttpResonse(client, url, ++tryCount);
+                await this.GetHttpResonse(client, xmlFile, ++tryCount);
             }
             catch (Exception ex)
             {
                 if (tryCount == 0)
                 {
-                    Logger.LogError(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, url));
+                    Logger.LogError(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, xmlFile.Url));
                 }
 
                 await Task.Delay(1000);
-                responseData = await this.GetHttpResonse(client, url, ++tryCount);
+                await this.GetHttpResonse(client, xmlFile, ++tryCount);
             }
 
-            if (responseData.Error != string.Empty)
+            if (xmlFile.Error != string.Empty)
             {
-                throw new Exception(responseData.Error);
+                throw new Exception(xmlFile.Error);
             }
 
-            return responseData;
+            return xmlFile;
         }
 
         private List<HttpClient> GetHttpClients(int count)

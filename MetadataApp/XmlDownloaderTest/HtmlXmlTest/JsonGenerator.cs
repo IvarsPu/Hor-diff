@@ -60,12 +60,11 @@
                                 folders[deepness] = new Folder();
                             }
                         }
-                        else if ((xmlReader.Name == "service_schema") || (xmlReader.Name == "data_schema"))
+                        else if (xmlReader.Name.Contains("_schema"))
                         {
                             schema.title = name;
 
                             filePath += "\\" + name;
-                            Console.WriteLine(filePath);
 
                             if (xmlReader.GetAttribute("status") == "error")
                             {
@@ -76,16 +75,7 @@
                             else
                             {
                                 schema.extraClasses = "doc_ok";
-
-                                XmlDocument xmlDoc = new XmlDocument();
-
-                                xmlDoc.Load(filePath);
-
-                                string xmlContents = xmlDoc.InnerXml;
-
-                                int hashCode = xmlContents.GetHashCode();
-
-                                schema.hashCode = hashCode;
+                                schema.hashCode = Convert.ToInt32(xmlReader.GetAttribute("hashCode"));
                             }
 
                             int removeId = filePath.LastIndexOf("\\");

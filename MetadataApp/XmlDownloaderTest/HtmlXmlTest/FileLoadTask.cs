@@ -24,7 +24,8 @@
         public XmlData FileXmlData { get; set; }
 
         public string Error { get; set; }
-        
+
+        public bool Attachment { get; set; } = false;
 
     }
 }

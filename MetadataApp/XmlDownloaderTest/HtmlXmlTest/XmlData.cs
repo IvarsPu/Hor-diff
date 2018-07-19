@@ -8,5 +8,7 @@
         internal XDocument XDocument { get; set; }
 
         internal string Error { get; set; } = string.Empty;
+
+        internal int HttpResultCode { get; set; }
     }
 }

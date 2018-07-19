@@ -5,45 +5,180 @@
     using System.Configuration;
     using System.Threading;
     using System.Threading.Tasks;
+    using static HtmlXmlTest.RestService;
 
     internal class Program
     {
-        private static void Main(string[] args)
+        private string rootUrl;
+        private string rootLocalPath;
+        private string metadataPath;
+        private WebResourceLoader webResourceLoader;
+
+        public static void Main(string[] args)
         {
             Program prog = new Program();
-            prog.LoadRestServiceMetadata();
 
+            prog.DoTheJob(args);
+
+            Console.WriteLine("Work complete!");
+            Console.WriteLine("Press any key to close the window");
             Console.ReadKey();
         }
 
-        public async void LoadRestServiceMetadata()
+        public void DoTheJob(string[] args)
         {
 
-            string rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
-            string rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
-            string metadataPath = null;
-            List<XmlFile> attachmentData = new List<XmlFile>();
+            this.rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
+            this.rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
+
+            // Set the initial log path in root until the version folder is not known
+            Logger.LogPath = this.rootLocalPath;
+
+            //ServiceLoadState serviceState = this.LoadRestServiceTestState();
+            ServiceLoadState serviceState = this.LoadRestServiceLoadState();
+            int initialServiceCount;
+            Logger.LogPath = this.rootLocalPath;
+
+            do
+            {
+                initialServiceCount = serviceState.PendingLoadServices;
+                serviceState = this.LoadRestServiceMetadata(serviceState);
+                serviceState.Services = this.GetPendingServices(serviceState.Services);
+                serviceState.CalcStatistics();
+            }
+            while (initialServiceCount != serviceState.PendingLoadServices && serviceState.PendingLoadServices > 0);
+        }
+
+        public ServiceLoadState LoadRestServiceTestState()
+        {
+            ServiceLoadState loadState = new ServiceLoadState();
+            List<RestService> services = new List<RestService>();
+            loadState.Services = services;
 
             try
             {
-                Logger.LogInfo("Loading REST service structure");
-                List<RestService> services = WebResourceReader.LoadRestServices(rootUrl, ref rootLocalPath, ref metadataPath);
+                Logger.LogInfo("Getting REST service structure");
+                WebResourceReader.LoadRestServices(this.rootUrl, ref this.rootLocalPath, ref this.metadataPath);
 
-                Logger.LogInfo("Loading REST service metadata");
-                WebResourceLoader webResourceLoader = new WebResourceLoader(rootUrl);
-                await webResourceLoader.LoadServiceMetadata(services, metadataPath);
-
-                Logger.LogInfo("Generating json tree data");
-                JsonGenerator.generateJSONMetadata(rootLocalPath, metadataPath);
-                Console.WriteLine("Work complete!");
+                this.webResourceLoader = new WebResourceLoader(this.rootUrl, this.rootLocalPath);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex.Message);
+                Logger.LogError(ex.StackTrace);
             }
+
+            RestService service = new RestService();
+            service.Href = "https://intensapp003.internal.visma.com/rest/";
+            service.Name = "TsarVDocIzd";
+            service.Filepath = "C:\\Users\\ivars.purvins\\Desktop\\rest\\520.1\\Avansa_norēķini\\TsarVDocIzd";
+            services.Add(service);
+
+            loadState.CalcStatistics();
+
+            return loadState;
         }
 
- 
+        public ServiceLoadState LoadRestServiceLoadState()
+        {
+            ServiceLoadState loadState = null;
+            List<RestService> services = null;
 
+            try
+            {
+                Logger.LogInfo("Getting REST service structure");
+                services = WebResourceReader.LoadRestServices(this.rootUrl, ref this.rootLocalPath, ref this.metadataPath);
+                loadState = new ServiceLoadState();
+                loadState.Services = services;
+
+                this.webResourceLoader = new WebResourceLoader(this.rootUrl, this.rootLocalPath);
+                ServiceLoadState savedState = this.webResourceLoader.GetServiceLoadState();
+
+                if (savedState != null)
+                {
+                    Logger.LogInfo("Have found previous service load state");
+                    this.LogState(savedState);
+                    savedState = this.AskForUsingLoadState(savedState);
+                }
+
+                if (savedState != null)
+                {
+                    loadState = savedState;
+                }
+
+                loadState.CalcStatistics();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+                Logger.LogError(ex.StackTrace);
+            }
+
+            return loadState;
+        }
+
+        public ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
+        {
+            List<RestService> services = loadState.Services;
+            try
+            {
+                Logger.LogInfo(string.Format("Loading REST metadata for {0} services", services.Count));
+                this.webResourceLoader.LoadServiceMetadata(services, this.metadataPath).Wait();
+
+                Logger.LogInfo("Generating json tree data");
+                JsonGenerator.generateJSONMetadata(this.rootLocalPath, this.metadataPath);
+
+                this.LogState(loadState);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+                Logger.LogError(ex.StackTrace);
+            }
+
+            return loadState;
+        }
+
+        private void LogState(ServiceLoadState loadState)
+        {
+            loadState.CalcStatistics();
+            Logger.LogInfo("Loaded: " + loadState.Loaded);
+            Logger.LogInfo("Loaded With Errors: " + loadState.LoadedWithErrors);
+            Logger.LogInfo("Failed: " + loadState.Failed);
+            Logger.LogInfo("Pending Load: " + loadState.NotLoaded);
+        }
+
+        private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
+        {
+            ServiceLoadState result = loadState;
+            Console.WriteLine("Press y to continue load or any other key to start new load:");
+            ConsoleKeyInfo keyInfo = Console.ReadKey();
+
+            if (keyInfo.KeyChar == 'y')
+            {
+                result.Services = this.GetPendingServices(loadState.Services);
+            }
+            else
+            {
+                result = null;
+            }
+
+            return result;
+        }
+
+        private List<RestService> GetPendingServices(List<RestService> services)
+        {
+            List<RestService> result = new List<RestService>();
+
+            foreach (RestService service in services)
+            {
+                if (service.LoadStatus != ServiceLoadStatus.Loaded)
+                {
+                    result.Add(service);
+                }
+            }
+
+        return result;
+        }
     }
 }

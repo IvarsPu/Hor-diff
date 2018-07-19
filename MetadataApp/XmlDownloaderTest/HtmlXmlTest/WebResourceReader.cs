@@ -13,7 +13,7 @@
         public static List<RestService> LoadRestServices(string url, ref string rootLocalPath, ref string metadataPath)
         {
             List<RestService> services = new List<RestService>();
-            WebResourceLoader webResourceLoader = new WebResourceLoader(url);
+            WebResourceLoader webResourceLoader = new WebResourceLoader(url, rootLocalPath);
             WebResponse myResponse = webResourceLoader.GetResponseFromSite(url + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
@@ -96,7 +96,7 @@
                             }
 
                             service.Description = xmlReader.Value;
- 
+
 
                             string name = service.Href;
                             int i = name.LastIndexOf("/");
@@ -156,69 +156,105 @@
         {
             XmlDocument xml = new XmlDocument();
 
-            xml.Load(xmlPath);
-
-            foreach (XmlFile xmlFile in xmlFiles)
+            lock (xmlFiles)
             {
-                string xPath = string.Format(
-                    "//service[@name='{0}']",
-                    xmlFile.Name);
+                xml.Load(xmlPath);
 
-                XmlNode node = xml.SelectSingleNode(xPath);
-
-                if (xmlFile.Attachment)
+                foreach (XmlFile xmlFile in xmlFiles)
                 {
-                    node = xml.SelectSingleNode(xPath + "/resource");
-                    if (node == null)
+                    string xPath = null;
+
+                    try
                     {
-                        XmlElement newAttachment = xml.CreateElement("resource");
-                        newAttachment.SetAttribute("path", "{pk}/attachments");
-                        newAttachment.SetAttribute("name", "attachments");
-
-                        node = xml.SelectSingleNode(xPath);
-
-                        node.AppendChild(newAttachment);
-
-                        node = newAttachment;
+                        xPath = string.Format(
+                            "//service[@name='{0}']",
+                            xmlFile.Name);
                     }
-                }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("XmlFile object:" + xmlFile);
+                        Console.WriteLine("XmlFile service name:" + xmlFile.Name);
+                        Console.WriteLine("XmlFile service Filename:" + xmlFile.Filename);
+                    }
 
-                string schema = string.Empty;
-                if (IsXSD(xmlFile.Filename))
-                {
-                    schema = "data_schema";
-                }
-                else
-                {
-                    schema = "service_schema";
-                }
+                    XmlNode node = xml.SelectSingleNode(xPath);
 
-                XmlElement newElem = xml.CreateElement(schema);
-                newElem.SetAttribute("name", xmlFile.Filename);
+                    if (xmlFile.Attachment)
+                    {
+                        node = xml.SelectSingleNode(xPath + "/resource");
+                        if (node == null)
+                        {
+                            XmlElement newAttachment = xml.CreateElement("resource");
+                            newAttachment.SetAttribute("path", "{pk}/attachments");
+                            newAttachment.SetAttribute("name", "attachments");
 
-                if ((xmlFile.ErrorMSG != null) && (xmlFile.ErrorMSG != string.Empty))
-                {
-                    newElem.SetAttribute("error_message", xmlFile.ErrorMSG);
-                    newElem.SetAttribute("status", "error");
-                }
+                            node = xml.SelectSingleNode(xPath);
 
-                if (!xmlFile.ErrorMSG.Contains("nav atrasts!"))
-                {
+                            node.AppendChild(newAttachment);
+
+                            node = newAttachment;
+                        }
+                    }
+
+                    string schema = GetSchema(xmlFile.Filename);
+
+                    XmlElement newElem = xml.CreateElement(schema);
+                    newElem.SetAttribute("name", xmlFile.Filename);
+
+                    int hashCode = -1;
+
+                    if (xmlFile.ErrorMSG == string.Empty)
+                    {
+                        try
+                        {
+                            XmlDocument xmlDoc = new XmlDocument();
+                            xmlDoc.Load(xmlFile.LocalPath + "\\" + xmlFile.Filename);
+                            hashCode = xmlDoc.InnerXml.GetHashCode();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError(string.Format("Failed to get service {0} file {1} hash. {2}", xmlFile.Name, xmlFile.Filename, ex.Message));
+                        }
+                    }
+
+                    newElem.SetAttribute("hashCode", hashCode.ToString());
+
+                    if ((xmlFile.ErrorMSG != null) && (xmlFile.ErrorMSG != string.Empty))
+                    {
+                        newElem.SetAttribute("error_message", xmlFile.ErrorMSG);
+                        newElem.SetAttribute("status", "error");
+                    }
+
                     node.AppendChild(newElem);
-                    xml.Save(xmlPath);
                 }
+
+                xml.Save(xmlPath);
+
+                // Clear xml files added to metadata.xml
+                xmlFiles.Clear();
             }
         }
 
-        private static bool IsXSD(string filename)
+        private static string GetSchema(string filename)
         {
             int i = filename.LastIndexOf(".");
             string extension = filename.Substring(i);
+            string schema = "other_schema";
 
             if (extension == ".xsd")
-                return true;
-            else
-                return false;
+            {
+                schema = "data_schema";
+            }
+            else if (extension == ".wadl")
+            {
+                schema = "service_schema";
+            }
+            else if (filename == "query.xml")
+            {
+                schema = "query_schema";
+            }
+
+            return schema;
         }
     }
 }

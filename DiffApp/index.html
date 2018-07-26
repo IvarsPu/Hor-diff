@@ -30,11 +30,16 @@
 	span.fancytree-node.service_changed span.fancytree-icon {
 		background-position: 0 0;
 		background-image: url("skin-custom/customFolder1.gif");
-	}	
-	span.fancytree-node.doc_ok span.fancytree-icon {
-		background-position: 0 0;
-		background-image: url("skin-custom/accept.png");
-	}	
+	}
+    span.fancytree-node.service_new span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/newFolder.gif");
+    }
+
+    span.fancytree-node.doc_ok span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/accept.png");
+    }	
 	span.fancytree-node.doc_changed span.fancytree-icon {
 		background-position: 0 0;
 		background-image: url("skin-custom/exclamation.png");
@@ -43,10 +48,19 @@
 		background-position: 0 0;
 		background-image: url("skin-custom/error.png");
 	}
+    span.fancytree-node.doc_deleted span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/cancel.png");
+    }
+    span.fancytree-node.doc_deleted span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/cancel.png");
+    }
 
-	body {
-		padding-top: 20px; 
-	}
+        cancel.png
+        body {
+            padding-top: 20px;
+        }
 	
 	.col-sm-3, .col-sm-5 {
 		padding-right: 0px;
@@ -81,15 +95,16 @@
 
 		<div class="row">
 			<div class="col-sm-3">
-				<div class="panel panel-default"  style="height: 220px">
+				<div class="panel panel-default"  style="height: 130px; ">
 					<div class="panel-heading">Horizon REST versiju izmaiņas</div>
 
-					<div class="panel-body">	
-						<b>Versija 1:</b>&nbsp;&nbsp;<select id="Version1"> </select>
-						<br/> 
-						<b>Versija 2:</b>&nbsp;&nbsp;<select id="Version2"> </select>
-						<br/> 
-					</div>
+                    <div class="panel-body" style="padding-left: 20px;">
+                        <b>1. Versija:</b>&nbsp;&nbsp;<select id="Version1"> </select>
+                        <br />
+                        <b>2. Versija:</b>&nbsp;&nbsp;<select id="Version2"> </select>
+
+                        <div style="padding-top: 5px;" align="right"><input type="checkbox" id="ignore_namespaces" name="ignore_namespaces">&nbsp;Ignorēt namespace izmaiņas</div>
+                    </div>
 				</div>									
 			</div>
 			<div class="col-sm-5">
@@ -104,20 +119,20 @@
 				</div>									
 			</div>
 			<div class="col-sm-4">
-				<div class="panel panel-default" style="height: 150px">
+				<div class="panel panel-default" style="height: 130px">
 						<div class="panel-heading">Servisu filtri</div>
 
-						<div class="panel-body">	
-							<div class="radio">
-							  <label><input type="radio" id="chars" name="optradio" value="1">Izmaiņas pēc simboliem</label>
-							</div>
-							<div class="radio">
-							  <label><input type="radio" id="names" name="optradio" value="2">Izmaiņas pēc vārdiem</label>
-							</div>	
-							<div class="radio">
-							  <label><input type="radio" id="lines" name="optradio" value="3" checked="true">Izmaiņas pēc rindām</label>
-							</div>							
-						</div>
+                        <div class="panel-body"  style="padding-top: 0px;">
+                            <div class="radio">
+                                <label><input type="radio" id="chars" name="optradio" value="1" checked="true">Visi</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" id="lines" name="optradio" value="2">Modificētie</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" id="lines" name="optradio" value="3"">Kļūdainie</label>
+                            </div>
+                        </div>
 				</div>					
 			</div>			
 	
@@ -129,7 +144,7 @@
 					<div class="panel-heading">Horizon REST servisi</div>
 					
 					<div class="link-panel-body" align = "right">
-						<a href="#">Izvērst visu</a>&nbsp;\&nbsp;<a href="#">Sakļaut visu</a>		   
+						<a href="#" id="expand_tree">Izvērst visu</a>&nbsp;\&nbsp;<a href="#" id="colapse_tree">Sakļaut visu</a>		   
 					</div>
 					<div class="panel-body tree-panel" id="tree" style='overflow:auto; '>
 								   

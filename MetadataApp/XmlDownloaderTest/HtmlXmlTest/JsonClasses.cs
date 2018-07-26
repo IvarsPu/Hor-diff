@@ -15,6 +15,10 @@
         public string extraClasses { get; set; }
 
         public int hashCode { get; set; }
+
+        public int httpCode { get; set; }
+
+        public string error { get; set; }
     }
 
     public class Folder : IElement
@@ -23,6 +27,8 @@
 
         public string extraClasses { get; set; }
 
+        public string description { get; set; }
+        
         public IList<IElement> children { get; set; }
     }
 }

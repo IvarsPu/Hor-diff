@@ -46,6 +46,11 @@
                         {
                             folders[deepness].title = name;
 
+                            if (xmlReader.Name == "service")
+                            {
+                                folders[deepness].description = xmlReader.GetAttribute("description");
+                            }
+                            
                             folders[deepness].extraClasses = "service_ok";
 
                             if (!xmlReader.IsEmptyElement)
@@ -63,14 +68,15 @@
                         else if (xmlReader.Name.Contains("_schema"))
                         {
                             schema.title = name;
+                            schema.httpCode = Convert.ToInt32(xmlReader.GetAttribute("http_code"));
 
                             filePath += "\\" + name;
 
                             if (xmlReader.GetAttribute("status") == "error")
                             {
                                 schema.extraClasses = "doc_error";
-
                                 schema.hashCode = -1;
+                                schema.error = xmlReader.GetAttribute("error_message");
                             }
                             else
                             {

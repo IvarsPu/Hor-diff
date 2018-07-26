@@ -29,17 +29,16 @@
         {
 
             this.rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
-            this.rootLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\";
+            this.rootLocalPath = ConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
 
             // Set the initial log path in root until the version folder is not known
             Logger.LogPath = this.rootLocalPath;
 
-            //ServiceLoadState serviceState = this.LoadRestServiceTestState();
+            // ServiceLoadState serviceState = this.LoadRestServiceTestState();
             ServiceLoadState serviceState = this.LoadRestServiceLoadState();
 
-            serviceState.Services.RemoveRange(100, serviceState.Services.Count - 100);
-            serviceState.CalcStatistics();
-
+            //serviceState.Services.RemoveRange(100, serviceState.Services.Count - 100);
+           // serviceState.CalcStatistics();
             int remainingServiceCount = 0;
             Logger.LogPath = this.rootLocalPath;
 
@@ -73,8 +72,8 @@
 
             RestService service = new RestService();
             service.Href = this.rootUrl;
-            service.Name = "TsarVDocIzd";
-            service.Filepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\520.1\\Avansa_norēķini\\TsarVDocIzd";
+            service.Name = "TdmGrExEvtSar";
+            service.Filepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\525.0\\Avansa_norēķini\\TdmGrExEvtSar";
             services.Add(service);
 
             loadState.CalcStatistics();
@@ -125,11 +124,11 @@
             List<RestService> services = loadState.Services;
             try
             {
-                Logger.LogInfo(string.Format("Loading REST metadata for {0} services", services.Count));
+                Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
                 this.webResourceLoader.LoadServiceMetadata(services, this.metadataPath).Wait();
 
-                Logger.LogInfo("Generating json tree data");
-                JsonGenerator.generateJSONMetadata(this.rootLocalPath, this.metadataPath);
+             //   Logger.LogInfo("Generating json tree data");
+             //   JsonGenerator.generateJSONMetadata(this.rootLocalPath, this.metadataPath);
 
                 this.LogState(loadState);
             }
@@ -146,9 +145,9 @@
         {
             loadState.CalcStatistics();
             Logger.LogInfo("Loaded: " + loadState.Loaded);
-            Logger.LogInfo("Loaded With Errors: " + loadState.LoadedWithErrors);
+            Logger.LogInfo("Loaded with errors: " + loadState.LoadedWithErrors);
             Logger.LogInfo("Failed: " + loadState.Failed);
-            Logger.LogInfo("Pending Load: " + loadState.NotLoaded);
+            Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
         }
 
         private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
@@ -157,11 +156,7 @@
             Console.WriteLine("Press y to continue load or any other key to start new load:");
             ConsoleKeyInfo keyInfo = Console.ReadKey();
 
-            if (keyInfo.KeyChar == 'y')
-            {
-                result.Services = this.GetPendingServices(loadState.Services);
-            }
-            else
+            if (keyInfo.KeyChar != 'y')
             {
                 result = null;
             }

@@ -7,9 +7,28 @@
     using System.Net.Http;
     using System.Text.RegularExpressions;
     using System.Xml;
+    using System.Linq;
+    using System.Xml.Linq;
 
-    internal class WebResourceReader
+    class WebResourceReader
     {
+        public static void test()
+        {
+            XmlFile xmlFile = new XmlFile("", "", "", "query.xml");
+            xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query.xml", LoadOptions.None);
+
+            int hash1 = GetNoNamspaceHash(xmlFile);
+
+             xmlFile = new XmlFile("", "", "", "query1.xml");
+            xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query1.xml", LoadOptions.None);
+
+            int hash2 = GetNoNamspaceHash(xmlFile);
+
+            
+            Console.WriteLine("test Result: " + (hash1 == hash2));
+        }
+
+
         public static List<RestService> LoadRestServices(string url, ref string rootLocalPath, ref string metadataPath)
         {
             List<RestService> services = new List<RestService>();
@@ -143,15 +162,6 @@
             return services;
         }
 
-        private static void FixFilename(ref string filename)
-        {
-            Regex regexSet = new Regex(@"([:*?\<>|])");
-            filename = filename.Replace("\\", "&");
-            filename = filename.Replace("/", "&");
-            filename = regexSet.Replace(filename, "$");
-            filename = filename.Replace(" ", "_");
-        }
-
         public static void AddFilesToXml(string xmlPath, List<XmlFile> xmlFiles)
         {
             XmlDocument xml = new XmlDocument();
@@ -184,7 +194,7 @@
                     }
 
                     // Remove previous load data
-                    xPath = string.Format("//{0}[@name='{1}']", schema, xmlFile.Filename);
+                    xPath = string.Format("{0}[@name='{1}']", schema, xmlFile.Filename);
                     XmlNode checkNode = node.SelectSingleNode(xPath);
                     if (checkNode != null)
                     {
@@ -195,20 +205,14 @@
                     newElem.SetAttribute("name", xmlFile.Filename);
 
                     int hashCode = -1;
-
-                    if (xmlFile.Error == string.Empty)
+                    if (xmlFile.HttpResponse != null)
                     {
-                        try
-                        {
-                            hashCode = xmlFile.HttpResponse.GetHashCode();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError(string.Format("Failed to get service {0} file {1} hash. {2}", xmlFile.ServiceName, xmlFile.Filename, ex.Message));
-                        }
+                        hashCode = xmlFile.HttpResponse.GetHashCode();
                     }
 
                     newElem.SetAttribute("hashCode", hashCode.ToString());
+                    int noNamspaceHash = GetNoNamspaceHash(xmlFile);
+                    newElem.SetAttribute("noNamspaceHashCode", noNamspaceHash.ToString());
 
                     if ((xmlFile.Error != null) && (xmlFile.Error != string.Empty))
                     {
@@ -224,7 +228,84 @@
 
                 // Clear xml files added to metadata.xml
                 xmlFiles.Clear();
+
             }
+        }
+
+        private static int GetNoNamspaceHash(XmlFile xmlFile)
+        {
+            int hash = -1;
+
+            if (xmlFile.Error == string.Empty && xmlFile.XDocument != null)
+            {
+                try
+                {
+                    if (xmlFile.Filename.Contains(".wadl"))
+                    {
+                        CleanUpTag(xmlFile.XDocument, "application");
+                    }
+                    else if (xmlFile.Filename.Contains(".xsd"))
+                    {
+                        CleanUpTag(xmlFile.XDocument, "schema");
+                        RemoveTags(xmlFile.XDocument, "import");
+                    }
+                    else if (xmlFile.Filename.Contains(".xml"))
+                    {
+                        CleanUpTag(xmlFile.XDocument, "collection");
+                    }
+
+                    string result = xmlFile.XDocument.ToString();
+                    result = result.Replace(" ", "");
+                    result = result.Replace("\r\n", "");
+                    hash = result.GetHashCode();
+
+                } catch (Exception ex)
+                {
+                    Logger.LogError(string.Format("Failed to calc NoNamspaceHash for service {0} file {1}", xmlFile.Filename, xmlFile.ServiceName));
+                    Logger.LogError(ex.Message);
+                    Logger.LogError(ex.StackTrace);
+                }
+            }
+
+            return hash;
+        }
+
+        private static void CleanUpTag(XDocument doc, string name)
+        {
+            List<XElement> clearNodes = new List<XElement>();
+
+            // Replace element with clear copy
+            clearNodes.AddRange(
+                from el in doc.Descendants()
+                where el.Name.LocalName == name
+                select el);
+
+            foreach (XElement elem in clearNodes)
+            {
+                var childs = elem.Descendants();
+                XElement newElem = new XElement(elem.Name.LocalName);
+                newElem.Add(childs);
+                elem.ReplaceWith(newElem);
+            }
+
+            // Clean up remaining namespaces created during node replacemant
+            doc.Descendants()
+              .Attributes()
+              .Where(x => x.IsNamespaceDeclaration)
+              .Remove();
+
+            foreach (var elem in doc.Descendants())
+            {
+                elem.Name = elem.Name.LocalName;
+            }
+        }
+
+        private static void RemoveTags(XDocument doc, string name)
+        {
+            doc.Descendants()
+              .Elements()
+              .Where(x => x.Name.LocalName == name)
+              .Remove();
         }
 
         private static string GetSchema(string filename)
@@ -247,6 +328,15 @@
             }
 
             return schema;
+        }
+
+        private static void FixFilename(ref string filename)
+        {
+            Regex regexSet = new Regex(@"([:*?\<>|])");
+            filename = filename.Replace("\\", "&");
+            filename = filename.Replace("/", "&");
+            filename = regexSet.Replace(filename, "$");
+            filename = filename.Replace(" ", "_");
         }
     }
 }

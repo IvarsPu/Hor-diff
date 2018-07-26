@@ -59,25 +59,26 @@
             try
             {
                 int servicesCount = services.Count;
+                int currentRestService = -1;
 
-                for (int currentElement = 0; currentElement < servicesCount; currentElement++)
+                foreach (RestService service in services)
                 {
-                    currentService = currentElement % serviceCount;
-                    RestService service = services[currentElement];
-
-                    if (!noSchemaServices.Contains(service.Name))
+                    if (!noSchemaServices.Contains(service.Name) && service.LoadStatus != ServiceLoadStatus.Loaded)
                     {
+                        currentRestService++;
+                        currentService = currentRestService % serviceCount;
+
                         taskList.Add(this.LoadServiceMetadata(httpClients[currentService], xmlIOs[currentService], service, xmlFileList));
 
                         // Log status
-                        if (currentElement > 1 && currentElement % 10 == 0)
+                        if (currentRestService > 1 && currentRestService % 10 == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
-                            Logger.LogProgress(currentElement + " services loaded");
+                            Logger.LogProgress(currentRestService + " services loaded");
                         }
 
                         // Store the state
-                        if (currentElement > 1 && currentElement % 200 == 0)
+                        if (currentRestService > 1 && currentRestService % 200 == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
 
@@ -241,7 +242,7 @@
 
                 foreach (XmlFile file in serviceXmlFiles)
                 {
-                    if (xmlFile.Error != string.Empty)
+                    if (file.Error != string.Empty)
                     {
                         service.LoadStatus = ServiceLoadStatus.LoadedWithErrors;
                         break;
@@ -324,19 +325,23 @@
                             await this.GetHttpResonse(client, xmlFile, ++tryCount);
                         }
                     }
-                    else if (tryCount >= 2 || (response.StatusCode != HttpStatusCode.NotFound || response.StatusCode != HttpStatusCode.InternalServerError))
+                    else if (tryCount >= 2 && response != null)
                     {
                         try
                         {
                             XDocument errorMsg = XDocument.Parse(await response.Content.ReadAsStringAsync());
                             foreach (XElement element in errorMsg.Descendants("message"))
                             {
-                                xmlFile.Error += " " + element.Value;
+                                if (xmlFile.Error.Trim() != element.Value)
+                                {
+                                    xmlFile.Error += " " + element.Value;
+                                }
                             }
                         }
                         catch (Exception ex)
                         {
                             xmlFile.Error = string.Format("Error {0} while attempting to fetch {1}", ex.Message, xmlFile.Url);
+                            Logger.LogError(xmlFile.Error);
                         }
                     }
                 }

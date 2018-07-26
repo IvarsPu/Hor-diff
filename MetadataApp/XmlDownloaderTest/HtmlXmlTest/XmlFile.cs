@@ -2,6 +2,7 @@
 namespace HtmlXmlTest
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -34,8 +35,18 @@ namespace HtmlXmlTest
 
         public int HttpResultCode { get; set; } = -1;
 
+        public bool Exists {
+            get
+            {
+                return File.Exists(this.LocalPath + this.Filename);
+            }
+         }
 
-
+        internal void LoadLocalFile()
+        {
+            this.XDocument = XDocument.Load(this.LocalPath + this.Filename, LoadOptions.None);
+            this.HttpResponse = this.XDocument.ToString();
+        }
 
 
     }

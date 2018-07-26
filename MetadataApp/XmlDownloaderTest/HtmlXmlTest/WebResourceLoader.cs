@@ -282,15 +282,21 @@
         private async Task<XmlFile> LoadXmlFile(HttpClient client, XmlIO parser, XmlFile xmlFile)
         {
 
-            try
+            if (!xmlFile.Exists)
             {
-                await this.GetHttpResonse(client, xmlFile);
-                parser.ParseXml(xmlFile);
-                parser.SaveXml(xmlFile);
-            }
-            catch (Exception ex)
+                try
+                {
+                    await this.GetHttpResonse(client, xmlFile);
+                    parser.ParseXml(xmlFile);
+                    parser.SaveXml(xmlFile);
+                }
+                catch (Exception ex)
+                {
+                    xmlFile.Error = ex.Message;
+                }
+            } else
             {
-                xmlFile.Error = ex.Message;
+                xmlFile.LoadLocalFile();
             }
 
             return xmlFile;

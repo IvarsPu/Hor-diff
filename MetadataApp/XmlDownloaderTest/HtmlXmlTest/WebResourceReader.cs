@@ -52,7 +52,7 @@
             index = value.LastIndexOf(".");
             string version = value.Substring(index + 1);
 
-            rootLocalPath += version + "." + release + "\\";
+            rootLocalPath += version + "\\" + release + "\\";
             string localPath = rootLocalPath;
 
             XmlIO xmlIO = new XmlIO();

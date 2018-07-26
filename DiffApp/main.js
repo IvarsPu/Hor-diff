@@ -18,6 +18,7 @@ $(document).ready(function() {
 	loadVersionsAjax();
 	
 	$("#Version1").change(function() {
+		versionPath = $("#Version1 option:selected").val().replace(".", "/");
 		var url = "rest/" + $("#Version1 option:selected").val() + "/metadata.xml";
 		getFileAjax( url, "xml", JsonVersion1);		
 	});
@@ -447,7 +448,7 @@ function getVersionList(xmlVersions) {
 
 			if (releases) {
 				releases.children().each(function() {
-					versionName = version + "." + $(this).attr('name');
+					versionName = version + "/" + $(this).attr('name');
 					versionArray.push(versionName);
 				});
 			}

@@ -443,12 +443,12 @@ function getVersionList(xmlVersions) {
 	if (versions) {
 
 		versions.children().each(function() {
-			var version = $(this).attr('name');
-			var releases = $(this).find('releases');
-
-			if (releases) {
-				releases.children().each(function() {
-					versionName = version + "/" + $(this).attr('name');
+			var version = $(this);
+			var versionName = $(this).attr('name');
+			
+			if (version.children()) {
+				version.children().each(function() {
+					versionName = versionName + "/" + $(this).attr('name');
 					versionArray.push(versionName);
 				});
 			}

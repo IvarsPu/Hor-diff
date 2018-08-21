@@ -9,31 +9,39 @@
     using System.Xml;
     using System.Linq;
     using System.Xml.Linq;
+    using System.Xml.XPath;
 
-    class WebResourceReader
+    internal class XmlMetadata
     {
-        public static void test()
+        private AppContext appContext;
+        private string prevRelease;
+        private string prevVersionMetaXmlPath;
+        private XmlDocument prevVersionMetaXml;
+
+        public XmlMetadata(AppContext appContext)
         {
-            XmlFile xmlFile = new XmlFile("", "", "", "query.xml");
-            xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query.xml", LoadOptions.None);
-
-            int hash1 = GetNoNamspaceHash(xmlFile);
-
-             xmlFile = new XmlFile("", "", "", "query1.xml");
-            xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query1.xml", LoadOptions.None);
-
-            int hash2 = GetNoNamspaceHash(xmlFile);
-
-            
-            Console.WriteLine("test Result: " + (hash1 == hash2));
+            this.appContext = appContext;
         }
 
+        /*        public static void test()
+                {
+                    XmlFile xmlFile = new XmlFile("", "", "", "query.xml");
+                    xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query.xml", LoadOptions.None);
 
-        public static List<RestService> LoadRestServices(string url, ref string rootLocalPath, ref string metadataPath)
+                    int hash1 = GetNoNamspaceHash(xmlFile);
+
+                    xmlFile = new XmlFile("", "", "", "query1.xml");
+                    xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query1.xml", LoadOptions.None);
+
+                    int hash2 = GetNoNamspaceHash(xmlFile);
+                    Console.WriteLine("test Result: " + (hash1 == hash2));
+                }
+        */
+
+        public List<RestService> InitServiceMetadata(WebResourceLoader webResourceLoader)
         {
             List<RestService> services = new List<RestService>();
-            WebResourceLoader webResourceLoader = new WebResourceLoader(url, rootLocalPath);
-            WebResponse myResponse = webResourceLoader.GetResponseFromSite(url + "global/agentVersion").Result;
+            WebResponse myResponse = webResourceLoader.GetResponseFromSite(appContext.RootUrl + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
 
@@ -47,28 +55,28 @@
             }
 
             int index = value.LastIndexOf(".");
-            string release = value.Substring(index + 1);
+            this.appContext.Release = value.Substring(index + 1);
             value = value.Remove(index);
             index = value.LastIndexOf(".");
-            string version = value.Substring(index + 1);
+            this.appContext.Version = value.Substring(index + 1);
 
-            rootLocalPath += version + "\\" + release + "\\";
-            string localPath = rootLocalPath;
+            this.appContext.ReleaseLocalPath = appContext.RootLocalPath + this.appContext.Version + "\\" + this.appContext.Release + "\\";
 
             XmlIO xmlIO = new XmlIO();
-            XmlIO.CreateFolder(localPath);
+            XmlIO.CreateFolder(appContext.ReleaseLocalPath);
 
-            metadataPath = localPath + "metadata.xml";
-            XmlWriter xmlWriter = XmlWriter.Create(metadataPath);
+            appContext.MetaFilePath = appContext.ReleaseLocalPath + "metadata.xml";
+            XmlWriter xmlWriter = XmlWriter.Create(appContext.MetaFilePath);
             xmlWriter.WriteStartDocument();
 
             xmlWriter.WriteStartElement("rest_api_metadata");
-            xmlWriter.WriteAttributeString("release", release);
-            xmlWriter.WriteAttributeString("version", version);
+            xmlWriter.WriteAttributeString("release", this.appContext.Release);
+            xmlWriter.WriteAttributeString("version", this.appContext.Version);
 
-            myResponse = webResourceLoader.GetResponseFromSite(url).Result;
+            myResponse = webResourceLoader.GetResponseFromSite(appContext.RootUrl).Result;
             myStream = myResponse.GetResponseStream();
             xmlReader = XmlReader.Create(myStream);
+            string localPath = appContext.ReleaseLocalPath;
 
             while (xmlReader.Read())
             {
@@ -131,12 +139,8 @@
                             xmlWriter.WriteAttributeString("name", service.Name);
                             xmlWriter.WriteEndElement();
                         }
-
-                        // Console.WriteLine(xmlReader.Name + " EN");
-                        // Console.WriteLine(xmlReader.Value + " EV");
                         break;
                     case XmlNodeType.Text:
-                        // Console.WriteLine(xmlReader.Value + " TV");
                         break;
                     case XmlNodeType.EndElement:
                         if (xmlReader.Name == "group")
@@ -147,8 +151,6 @@
 
                             xmlWriter.WriteEndElement();
                         }
-
-                        // Console.WriteLine("END " + xmlReader.Name);
                         break;
                 }
             }
@@ -159,28 +161,33 @@
             xmlWriter.WriteEndDocument();
             xmlWriter.Close();
 
+            this.DetectAndInitPreviousRelease();
+
             return services;
         }
 
-        public static void AddFilesToXml(string xmlPath, List<XmlFile> xmlFiles)
+        public void AddFilesToXml(List<XmlFile> xmlFiles)
         {
             XmlDocument xml = new XmlDocument();
 
             lock (xmlFiles)
             {
-                xml.Load(xmlPath);
+                xml.Load(this.appContext.MetaFilePath);
 
                 foreach (XmlFile xmlFile in xmlFiles)
                 {
                     string xPath = null;
+                    string fileXPath = null;
 
                     xPath = string.Format("//service[@name='{0}']", xmlFile.ServiceName);
+                    fileXPath = xPath;
                     XmlNode node = xml.SelectSingleNode(xPath);
                     string schema = GetSchema(xmlFile.Filename);
 
                     if (xmlFile.Attachment)
                     {
                         node = xml.SelectSingleNode(xPath + "/resource");
+                        fileXPath += "/resource";
                         if (node == null)
                         {
                             XmlElement newAttachment = xml.CreateElement("resource");
@@ -195,6 +202,7 @@
 
                     // Remove previous load data
                     xPath = string.Format("{0}[@name='{1}']", schema, xmlFile.Filename);
+                    fileXPath = fileXPath + "/" + xPath;
                     XmlNode checkNode = node.SelectSingleNode(xPath);
                     if (checkNode != null)
                     {
@@ -204,11 +212,17 @@
                     XmlElement newElem = xml.CreateElement(schema);
                     newElem.SetAttribute("name", xmlFile.Filename);
 
+
                     int hashCode = -1;
                     if (xmlFile.HttpResponse != null)
                     {
                         hashCode = xmlFile.HttpResponse.GetHashCode();
                     }
+
+                    // If hash is equal to previous release hash, delete file and refer to previous release in metadata
+                    // otherwise store it under currrent release
+                    string release = GetFileStoredRelease(xmlFile, prevVersionMetaXml, fileXPath, hashCode);
+                    newElem.SetAttribute("stored_release", release);
 
                     newElem.SetAttribute("hashCode", hashCode.ToString());
                     int noNamspaceHash = GetNoNamspaceHash(xmlFile);
@@ -224,15 +238,121 @@
                     node.AppendChild(newElem);
                 }
 
-                xml.Save(xmlPath);
+                xml.Save(this.appContext.MetaFilePath);
 
                 // Clear xml files added to metadata.xml
                 xmlFiles.Clear();
 
             }
+
         }
 
-        private static int GetNoNamspaceHash(XmlFile xmlFile)
+        // Detect and initialize previous version release to avoid storing equal file dublicates
+        private void DetectAndInitPreviousRelease()
+        {
+            try
+            {
+                XmlDocument xml = new XmlDocument();
+                xml.Load(this.GetGlobalVerionFilePath());
+
+                string xpath = string.Format("//version[@name={0}]", this.appContext.Version);
+                XmlNode root = xml.SelectSingleNode(xpath);
+
+                if(root == null)
+                {
+                    Logger.LogInfo("Previous release for file reuse was not found");
+                    return;
+                }
+
+                XmlNodeList releaseNodes = root.SelectNodes("release/@name");
+
+                List<int> releases = new List<int>();
+                foreach (XmlNode el in releaseNodes)
+                {
+                    releases.Add(Convert.ToInt32(el.Value));
+                }
+                releases.Sort();
+                int curIndex = releases.IndexOf(Convert.ToInt32(this.appContext.Release));
+
+                if (curIndex < 1)
+                {
+                    Logger.LogInfo("Previous release for file reuse was not found");
+                    return;
+                }
+                int prevRelease = releases[curIndex - 1];
+
+                // Load prev metadata file
+                this.prevVersionMetaXmlPath = this.appContext.RootLocalPath + this.appContext.Version + "\\" + prevRelease.ToString() + "\\metadata.xml";
+                this.prevRelease = prevRelease.ToString();
+
+                this.prevVersionMetaXml = new XmlDocument();
+                if (this.prevVersionMetaXmlPath != null)
+                {
+                    prevVersionMetaXml.Load(this.prevVersionMetaXmlPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to get previous release for file reuse ");
+                Logger.LogError(ex.Message);
+                Logger.LogError(ex.StackTrace);
+            }
+        }
+
+        private string GetGlobalVerionFilePath()
+        {
+            return this.appContext.RootLocalPath + "Versions.xml";
+        }
+
+        public void testGetFileStoredRelease()
+        {
+            XmlFile xmlFile = new XmlFile("", "", "C:\\Projects\\Hor-diff\\DiffApp\\rest\\520\\2\\Aizņēmumi&Galvojumi\\TdmRepDokGrpBL", "TdmRepDokGrpBL.wadl");
+            XmlDocument prevVersionMetaXml = new XmlDocument();
+            prevVersionMetaXml.Load("C:\\Projects\\Hor-diff\\DiffApp\\rest\\520\\1\\metadata.xml");
+            string fileXPath = "//service[@name='TdmRepDokGrpBL']/service_schema[@name='TdmRepDokGrpBL.wadl']";
+            int hashCode = 437091426;
+
+            string release = GetFileStoredRelease(xmlFile, prevVersionMetaXml, fileXPath, hashCode);
+            //   node = prevVersionMetaXml.SelectSingleNode("//service[@name='TdmRepDokGrpBL']/service_schema[@name='TdmRepDokGrpBL.wadl']/@hashCode");
+            int a = 1;
+        }
+
+        private string GetFileStoredRelease(XmlFile xmlFile, XmlDocument prevVersionMetaXml, string fileXPath, int hashCode)
+        {
+            string release = this.appContext.Release;
+
+            if (prevVersionMetaXml != null && hashCode != -1)
+            {
+                string xPath = fileXPath + "/@hashCode";
+                XmlNode node = prevVersionMetaXml.SelectSingleNode(xPath);
+                if (node != null)
+                {
+                    string prevVerHashCode = node.Value;
+                    if (Convert.ToInt32(prevVerHashCode) == hashCode)
+                    {
+                        // Refer xml file to this release and remove loaded file
+                        xPath = fileXPath + "/@stored_release";
+                        node = prevVersionMetaXml.SelectSingleNode(xPath);
+                        if (node == null)
+                        {
+                            // Just refer to prev release
+                            release = this.prevRelease;
+                        }
+                        else
+                        {
+                            // Could be older release
+                            release = node.Value;
+                        }
+
+                        File.Delete(xmlFile.LocalPath + xmlFile.Filename);
+                    }
+                }
+            }
+
+            return release;
+        }
+
+        private int GetNoNamspaceHash(XmlFile xmlFile)
         {
             int hash = -1;
 
@@ -259,7 +379,8 @@
                     result = result.Replace("\r\n", "");
                     hash = result.GetHashCode();
 
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Logger.LogError(string.Format("Failed to calc NoNamspaceHash for service {0} file {1}", xmlFile.Filename, xmlFile.ServiceName));
                     Logger.LogError(ex.Message);
@@ -270,7 +391,7 @@
             return hash;
         }
 
-        private static void CleanUpTag(XDocument doc, string name)
+        private void CleanUpTag(XDocument doc, string name)
         {
             List<XElement> clearNodes = new List<XElement>();
 
@@ -300,7 +421,7 @@
             }
         }
 
-        private static void RemoveTags(XDocument doc, string name)
+        private void RemoveTags(XDocument doc, string name)
         {
             doc.Descendants()
               .Elements()
@@ -308,7 +429,7 @@
               .Remove();
         }
 
-        private static string GetSchema(string filename)
+        private string GetSchema(string filename)
         {
             int i = filename.LastIndexOf(".");
             string extension = filename.Substring(i);
@@ -330,13 +451,40 @@
             return schema;
         }
 
-        private static void FixFilename(ref string filename)
+        private void FixFilename(ref string filename)
         {
             Regex regexSet = new Regex(@"([:*?\<>|])");
             filename = filename.Replace("\\", "&");
             filename = filename.Replace("/", "&");
             filename = regexSet.Replace(filename, "$");
             filename = filename.Replace(" ", "_");
+        }
+
+        public void AddReleaseToVersionXmlFile()
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.Load(this.GetGlobalVerionFilePath());
+            XmlNode version = xml.SelectSingleNode("//versions/version[@name={0}]");
+
+            if (version == null)
+            {
+                XmlElement versionEl = xml.CreateElement("version");
+                versionEl.SetAttribute("name", this.appContext.Version);
+                XmlNode versions = xml.SelectSingleNode("//versions");
+                versions.AppendChild(versionEl);
+                version = versionEl;
+            }
+
+            XmlNode release = version.SelectSingleNode(string.Format("release[@name={0}]", this.appContext.Release));
+            if (version == null)
+            {
+                XmlElement releaseEl = xml.CreateElement("release");
+                releaseEl.SetAttribute("name", this.appContext.Release);
+                releaseEl.Value = this.appContext.Release;
+                version.AppendChild(releaseEl);
+            }
+
+            xml.Save(this.GetGlobalVerionFilePath());
         }
     }
 }

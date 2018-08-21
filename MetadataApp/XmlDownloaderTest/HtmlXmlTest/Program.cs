@@ -9,15 +9,17 @@
 
     internal class Program
     {
-        private string rootUrl;
-        private string rootLocalPath;
-        private string metadataPath;
+        private AppContext appContext;
         private WebResourceLoader webResourceLoader;
 
         public static void Main(string[] args)
         {
             Program prog = new Program();
 
+            //AppContext appContext = new AppContext("", "");
+            //appContext.Release = "2";
+            //XmlMetadata test = new XmlMetadata(appContext);
+            //test.testGetFileStoredRelease();
             prog.DoTheJob(args);
 
             Console.WriteLine("Work complete!");
@@ -28,19 +30,21 @@
         public void DoTheJob(string[] args)
         {
 
-            this.rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
-            this.rootLocalPath = ConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
+            string rootUrl = ConfigurationManager.ConnectionStrings["Server"].ConnectionString;
+            string rootLocalPath = ConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
+
+            this.appContext = new AppContext(rootUrl, rootLocalPath);
 
             // Set the initial log path in root until the version folder is not known
-            Logger.LogPath = this.rootLocalPath;
+            Logger.LogPath = this.appContext.RootLocalPath;
 
             // ServiceLoadState serviceState = this.LoadRestServiceTestState();
             ServiceLoadState serviceState = this.LoadRestServiceLoadState();
 
-            //serviceState.Services.RemoveRange(100, serviceState.Services.Count - 100);
-           // serviceState.CalcStatistics();
+            //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
+            //serviceState.CalcStatistics();
             int remainingServiceCount = 0;
-            Logger.LogPath = this.rootLocalPath;
+            Logger.LogPath = this.appContext.ReleaseLocalPath;
 
             while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
             {
@@ -49,6 +53,8 @@
                 serviceState.Services = this.GetPendingServices(serviceState.Services);
                 serviceState.CalcStatistics();
             }
+
+            this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
         public ServiceLoadState LoadRestServiceTestState()
@@ -60,9 +66,9 @@
             try
             {
                 Logger.LogInfo("Getting REST service structure");
-                WebResourceReader.LoadRestServices(this.rootUrl, ref this.rootLocalPath, ref this.metadataPath);
-
-                this.webResourceLoader = new WebResourceLoader(this.rootUrl, this.rootLocalPath);
+                XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
+                this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata);
+                services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
             }
             catch (Exception ex)
             {
@@ -71,7 +77,7 @@
             }
 
             RestService service = new RestService();
-            service.Href = this.rootUrl;
+            service.Href = this.appContext.RootUrl;
             service.Name = "TdmGrExEvtSar";
             service.Filepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\525.0\\Avansa_norēķini\\TdmGrExEvtSar";
             services.Add(service);
@@ -89,11 +95,14 @@
             try
             {
                 Logger.LogInfo("Getting REST service structure");
-                services = WebResourceReader.LoadRestServices(this.rootUrl, ref this.rootLocalPath, ref this.metadataPath);
+
+                XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
+                this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata);
+                services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
 
-                this.webResourceLoader = new WebResourceLoader(this.rootUrl, this.rootLocalPath);
+
                 ServiceLoadState savedState = this.webResourceLoader.GetServiceLoadState();
 
                 if (savedState != null)
@@ -125,7 +134,7 @@
             try
             {
                 Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
-                this.webResourceLoader.LoadServiceMetadata(services, this.metadataPath).Wait();
+                this.webResourceLoader.LoadServiceMetadata(services).Wait();
 
              //   Logger.LogInfo("Generating json tree data");
              //   JsonGenerator.generateJSONMetadata(this.rootLocalPath, this.metadataPath);

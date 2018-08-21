@@ -16,13 +16,14 @@
 
     internal class WebResourceLoader
     {
-        private string rootUrl;
-        private string rootLocalPath;
+        private AppContext appContext;
 
-        public WebResourceLoader(string rootUrl, string rootLocalPath)
+        public XmlMetadata xmlMetadata { get; set; }
+
+        public WebResourceLoader(AppContext appContext, XmlMetadata xmlMetadata)
         {
-            this.rootUrl = rootUrl;
-            this.rootLocalPath = rootLocalPath;
+            this.appContext = appContext;
+            this.xmlMetadata = xmlMetadata;
         }
 
         internal async Task<WebResponse> GetResponseFromSite(string urlPath)
@@ -37,7 +38,7 @@
             return response;
         }
 
-        internal async Task<List<RestService>> LoadServiceMetadata(List<RestService> services, string metadataPath)
+        internal async Task<List<RestService>> LoadServiceMetadata(List<RestService> services)
         {
             List<XmlFile> xmlFileList = new List<XmlFile>();
             int currentService, serviceCount = 10;
@@ -83,7 +84,7 @@
                             await Task.WhenAll(taskList.ToArray());
 
                             // Update downloaded file metadata
-                            WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
+                            xmlMetadata.AddFilesToXml(xmlFileList);
 
                             // Store load statuss and clean up
                             this.StoreLoadState(services);
@@ -97,7 +98,7 @@
                 }
 
                 await Task.WhenAll(taskList.ToArray());
-                WebResourceReader.AddFilesToXml(metadataPath, xmlFileList);
+                xmlMetadata.AddFilesToXml(xmlFileList);
                 this.StoreLoadState(services);
             }
             catch (Exception ex)
@@ -147,7 +148,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(string.Format("Havent found load state: {0}", ex.Message));
+                    Logger.LogError(string.Format("Have not found load state: {0}", ex.Message));
                 }
             }
 
@@ -156,7 +157,7 @@
 
         internal string GetLoadStateFilePath()
         {
-            return this.rootLocalPath + "LoadState.bin";
+            return this.appContext.ReleaseLocalPath + "LoadState.bin";
         }
 
         internal List<XmlFile> GetAttachmentLoadTasks(RestService service, XmlFile wadlXmlFile)
@@ -185,7 +186,7 @@
             XmlIO.CreateFolder(localPath);
             foreach (string fileName in attachmentNames)
             {
-                url = this.rootUrl + string.Format("{0}/42069420/attachments/{1}", service.Name, fileName);
+                url = this.appContext.RootUrl + string.Format("{0}/42069420/attachments/{1}", service.Name, fileName);
                 XmlFile fileLoad = new XmlFile(service.Name, url, localPath, fileName, true);
                 loadTasks.Add(fileLoad);
             }
@@ -205,7 +206,7 @@
 
             if (queries.Count > 0)
             {
-                string url = this.rootUrl + string.Format("{0}/query", service.Name);
+                string url = this.appContext.RootUrl + string.Format("{0}/query", service.Name);
                 XmlFile fileLoad = new XmlFile(service.Name, url, service.Filepath, "query.xml");
                 loadTasks.Add(fileLoad);
             }
@@ -223,7 +224,7 @@
             try
             {
                 filename = service.Name + ".wadl";
-                XmlFile xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename));
+                XmlFile xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name + "/" + filename, service.Filepath, filename));
                 serviceXmlFiles.Add(xmlFile);
                 bool wadlLoaded = xmlFile.Error == string.Empty;
 
@@ -237,7 +238,7 @@
                 }
 
                 filename = service.Name + ".xsd";
-                xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.rootUrl + service.Name + "/" + filename, service.Filepath, filename));
+                xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name + "/" + filename, service.Filepath, filename));
                 serviceXmlFiles.Add(xmlFile);
 
                 foreach (XmlFile file in serviceXmlFiles)

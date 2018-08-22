@@ -20,10 +20,6 @@ namespace XmlController
             doc1.Load("520/1/metadata.xml");
 
             TreeNode tree = new TreeNode("Root");
-            //foreach (XmlNode node in doc1.SelectNodes("rest_api_metadata/service_group"))
-            //{
-            //    tree.Add(AddServiceGroups(node, new TreeNode(node.Attributes["name"].Value)));
-            //}
 
             foreach (XmlNode node in doc1)
             {
@@ -31,6 +27,14 @@ namespace XmlController
             }
 
             //Console.WriteLine(tree.GetChild("Virsgrāmata").GetChild("TdmPDok").GetChild("TdmPDok.wadsl").Count);
+
+            XmlDocument doc2 = new XmlDocument();
+            doc2.Load("520/2/metadata.xml");
+
+            foreach (XmlNode node in doc2)
+            {
+                CheckNodes(node, tree.GetChild(node.Name));
+            }
 
         }
 
@@ -60,17 +64,50 @@ namespace XmlController
             {
                 if (node.Name.Equals("resource"))
                 {
-                    TreeNode smallBranch = new TreeNode(node.Name);
-                    AddServices(node, smallBranch);
+                    TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
+                    branch.Add(AddServices(node, smallBranch));
                 }
                 else
                 {
                     TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
-                    smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
+                    //smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
                     branch.Add(smallBranch);
                 }
             }
             return branch;
+        }
+
+
+
+        private static void CheckNodes(XmlNode nodes, TreeNode branch)
+        {
+            TreeNode minibranch;
+            foreach (XmlNode node in nodes.ChildNodes)
+            {
+                try
+                {
+                    minibranch = branch.GetChild(node.Attributes["name"].Value);
+                    switch (node.Name)
+                    {
+                        case "service_group":
+                            CheckNodes(node, minibranch);
+                            break;
+                        case "service":
+                            CheckNodes(node, minibranch);
+                            break;
+                        case "resource":
+                            CheckNodes(node, minibranch);
+                            break;
+                        default:
+                            Console.WriteLine(minibranch.ID);
+                            break;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Nav atrast ar šadu atribūtu:                   " + node.Attributes["name"].Value);
+                }
+            }
         }
     }
 

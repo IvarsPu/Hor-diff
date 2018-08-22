@@ -1,41 +1,33 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Xml;
+using controller;
 
 namespace XmlController
 {
     public class Program
-    {
-        private static Dictionary<string, int> serviceGroups = new Dictionary<string, int>();
-
-        //change
-        //new
-        //removed
-        //no difference
-        
+    {        
         static void Main(string[] args)
         {
-            XmlDocument doc1 = new XmlDocument();
-            doc1.Load("520/1/metadata.xml");
-
+            string location = "..//..//..//..//..//DiffApp/rest_sample/";
+            XmlDocument doc = new XmlDocument();
+            doc.Load(location+"520/1/metadata.xml");
+            
             TreeNode tree = new TreeNode("Root");
 
-            foreach (XmlNode node in doc1)
+            //Creates a tree
+            foreach (XmlNode node in doc)
             {
                 tree.Add(AddServiceGroups(node, new TreeNode(node.Name)));
             }
+            
+            doc.Load(location + "520/2/metadata.xml");
 
-            //Console.WriteLine(tree.GetChild("Virsgrāmata").GetChild("TdmPDok").GetChild("TdmPDok.wadsl").Count);
-
-            XmlDocument doc2 = new XmlDocument();
-            doc2.Load("520/2/metadata.xml");
-
-            foreach (XmlNode node in doc2)
+            //Searches the tree
+            foreach (XmlNode node in doc)
             {
                 CheckNodes(node, tree.GetChild(node.Name));
             }
-
+            Console.ReadKey();
         }
 
         private static TreeNode AddServiceGroups(XmlNode service_group, TreeNode branch)
@@ -70,14 +62,12 @@ namespace XmlController
                 else
                 {
                     TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
-                    //smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
+                    smallBranch.Add(new TreeNode(node.Attributes["noNamspaceHashCode"].Value));
                     branch.Add(smallBranch);
                 }
             }
             return branch;
         }
-
-
 
         private static void CheckNodes(XmlNode nodes, TreeNode branch)
         {
@@ -90,76 +80,28 @@ namespace XmlController
                     switch (node.Name)
                     {
                         case "service_group":
-                            CheckNodes(node, minibranch);
-                            break;
                         case "service":
-                            CheckNodes(node, minibranch);
-                            break;
                         case "resource":
                             CheckNodes(node, minibranch);
                             break;
                         default:
-                            Console.WriteLine(minibranch.ID);
+                            try
+                            {
+                                minibranch = minibranch.GetChild(node.Attributes["noNamspaceHashCode"].Value);
+                                Console.WriteLine(minibranch.ID);
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Mainīts                     " + node.Attributes["name"].Value);
+                            }
                             break;
                     }
                 }
                 catch
                 {
-                    Console.WriteLine("Nav atrast ar šadu atribūtu:                   " + node.Attributes["name"].Value);
+                    Console.WriteLine("pielikts                     " + node.Attributes["name"].Value);
                 }
             }
         }
     }
-
-    public class TreeNode : IEnumerable<TreeNode>
-    {
-        private readonly Dictionary<string, TreeNode> _children =
-                                            new Dictionary<string, TreeNode>();
-
-        public readonly string ID;
-        public TreeNode Parent { get; private set; }
-
-        public TreeNode(string id)
-        {
-            this.ID = id;
-        }
-
-        public TreeNode GetChild(string id)
-        {
-            return this._children[id];
-        }
-
-        public void Add(TreeNode item)
-        {
-            try { 
-            if (item.Parent != null)
-            {
-                item.Parent._children.Remove(item.ID);
-            }
-
-            item.Parent = this;
-            this._children.Add(item.ID, item);
-            }
-            catch
-            {
-                Console.WriteLine("Jau eksistē/nevar pievienot: " + item.ID);
-            }
-        }
-
-        public IEnumerator<TreeNode> GetEnumerator()
-        {
-            return this._children.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        public int Count
-        {
-            get { return this._children.Count; }
-        }
-    }
-
 }

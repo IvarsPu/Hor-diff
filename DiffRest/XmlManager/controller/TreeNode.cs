@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace controller
@@ -13,12 +12,12 @@ namespace controller
 
         public TreeNode(string id)
         {
-            this.ID = id;
+            ID = id;
         }
 
         public TreeNode GetChild(string id)
         {
-            return this.branches[id];
+            return branches[id];
         }
 
         public void Add(TreeNode item)
@@ -31,7 +30,7 @@ namespace controller
                 }
 
                 item.Parent = this;
-                this.branches.Add(item.ID, item);
+                branches.Add(item.ID, item);
             }
             catch
             {
@@ -41,7 +40,7 @@ namespace controller
 
         public int Count
         {
-            get { return this.branches.Count; }
+            get { return branches.Count; }
         }
     }
 }

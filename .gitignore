@@ -263,3 +263,4 @@ App.config
 /mockup/rest
 rest
 .gitattributes
+/RestLog/RestLogService/RestLogService/Web.config

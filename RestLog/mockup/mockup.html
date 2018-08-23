@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv="content-type" content="text/html"; charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Horizon REST servisu izmaiņas</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+
+
+	
+	<style type="text/css">
+
+	body {
+		padding-top: 20px; 
+	}
+	
+
+
+		
+	</style>
+
+
+</head>
+
+<body height="100%">
+	<div class="container-fluid" >
+	
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="panel panel-default" >
+					<div class="panel-heading">Horizon REST versijas</div>
+					
+					<div class="list-group" id="myList" role="tablist">
+					  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#home" role="tab">trunk</a>
+					  <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">520</a>
+					  <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">515</a>
+					  <a class="list-group-item list-group-item-action" data-toggle="list" href="#settings" role="tab">510</a>
+					  <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">505</a>
+					  <a class="list-group-item list-group-item-action" data-toggle="list" href="#settings" role="tab">500</a>					  
+					</div>					
+
+				</div>
+				<div class="panel panel-default  scroll_section" >
+					<div class="panel-heading">Ierakstu filtrs</div>
+					
+						<div class="panel-body">	
+							<div class="radio">
+							  <label><input type="radio" name="optradio" checked="true">Rādīt visus</input></label>
+							</div>	
+							<div class="radio">
+								<label>
+									<input type="radio" name="optradio">Rādīt pēdējo</input>&nbsp;&nbsp;
+									<select name="date_filter">
+									  <option value="day">dienu</option>								
+									  <option value="week">nedēļu</option>
+									  <option value="month">mēnesi</option>
+									  <option value="year">gadu</option>
+									</select>								
+								</label>
+							</div>
+							<div class="radio">
+							  <label><input type="radio" name="optradio">Rādīt pēdējos</input>&nbsp;<input name="count_filter" size="5" value="100"/></label>
+							</div>							
+						</div>					
+
+				</div>				
+			</div>
+			<div id="change_panel" class="col-sm-8">
+				<div class="panel panel-default scroll_section" >
+					<div id="change_header" class="panel-heading">Izmaiņu žurnāls</div>
+					<div id="change_content" style='overflow:auto;'><img src="log.png"></div>
+				
+				</div>
+			
+			</div>
+			<div id="changed_bl_panel" class="col-sm-2">
+				<div class="panel panel-default scroll_section" >
+					<div id="change_header" class="panel-heading">Izmainītie BL</div>
+					<div id="change_content" style='overflow:auto; padding-left:5px;'>
+						&nbsp;<br/>
+						TdmPDok<br/>
+						TdmProject<br/>
+						TdmSatl<br/>
+						TdmESPProjectBL<br/>
+						&nbsp;						
+					</div>				
+				</div>
+			
+			</div>			
+		</div>			
+	</div>	
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	  setDivSize();  
+	 
+	  $(window).resize(function(){
+		setDivSize();	
+	  });
+	});
+
+	function setDivSize() {
+		var divTop = $('#change_panel').position().top  + $('#change_content').position().top; 
+		var newHeight = $(window).height() - divTop - 25;
+		
+		$('#change_content').height(newHeight);
+		$('#tree').height(newHeight - 30);	
+	}
+	
+$('#myList a').on('click', function (e) {
+	alert(this.addClass("active") );
+	//e.preventDefault();
+	 
+})	
+</script>
+	
+</body>
+</html>

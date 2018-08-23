@@ -8,7 +8,7 @@ namespace controller
     [JsonConverter(typeof(TreeNodeConverter))]
     public class TreeNode : IEnumerable<TreeNode>
     {
-        public readonly Dictionary<string, TreeNode> _children = new Dictionary<string, TreeNode>();
+        public Dictionary<string, TreeNode> _children = new Dictionary<string, TreeNode>();
 
         public readonly string ID;
         public TreeNode Parent { get; private set; }
@@ -39,6 +39,12 @@ namespace controller
             {
                 Console.WriteLine("Jau eksistē/nevar pievienot: " + item.ID);
             }
+        }
+
+        public TreeNode Remove(TreeNode item)
+        {
+            this._children.Remove(item.ID);
+            return this;
         }
 
         public IEnumerator<TreeNode> GetEnumerator()

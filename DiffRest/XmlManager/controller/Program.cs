@@ -5,7 +5,7 @@ using controller;
 namespace XmlController
 {
     public class Program
-    {        
+    {
         private static bool order = true;
 
         static void Main(string[] args)
@@ -29,57 +29,39 @@ namespace XmlController
             //Creates a tree
             foreach (XmlNode node in doc)
             {
-                tree.Add(AddGroups(node, new TreeNode(node.Name)));
+                tree.Add(AddBranch(node, new TreeNode(node.Name)));
             }
-            
+
             doc.Load(xml2);
             //Searches the tree
             foreach (XmlNode node in doc)
             {
-                CheckNodes(node, tree.GetChild(node.Name));
+                CheckBranch(node, tree.GetChild(node.Name));
             }
         }
 
-        private static TreeNode AddGroups(XmlNode service_group, TreeNode branch)
+        private static TreeNode AddBranch(XmlNode service_group, TreeNode branch)
         {
             foreach (XmlNode node in service_group.ChildNodes)
             {
                 switch (node.Name)
                 {
                     case "service_group":
-                        branch.Add(AddGroups(node, new TreeNode(node.Attributes["name"].Value)));
-                        break;
                     case "service":
-                        branch.Add(AddServices(node, new TreeNode(node.Attributes["name"].Value)));
+                    case "resource":
+                        branch.Add(AddBranch(node, new TreeNode(node.Attributes["name"].Value)));
                         break;
                     default:
-                        Console.WriteLine(node.Name + " : Not a case");
+                        TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
+                        smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
+                        branch.Add(smallBranch);
                         break;
                 }
             }
             return branch;
         }
 
-        private static TreeNode AddServices(XmlNode serviceNode, TreeNode branch)
-        {
-            foreach (XmlNode node in serviceNode.ChildNodes)
-            {
-                if (node.Name.Equals("resource"))
-                {
-                    TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
-                    branch.Add(AddServices(node, smallBranch));
-                }
-                else
-                {
-                    TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
-                    smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
-                    branch.Add(smallBranch);
-                }
-            }
-            return branch;
-        }
-
-        private static void CheckNodes(XmlNode nodes, TreeNode branch)
+        private static void CheckBranch(XmlNode nodes, TreeNode branch)
         {
             TreeNode minibranch;
             foreach (XmlNode node in nodes.ChildNodes)
@@ -92,7 +74,7 @@ namespace XmlController
                         case "service_group":
                         case "service":
                         case "resource":
-                            CheckNodes(node, minibranch);
+                            CheckBranch(node, minibranch);
                             break;
                         default:
                             if (order)

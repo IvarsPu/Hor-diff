@@ -1,0 +1,93 @@
+﻿<div class="container-fluid" style='padding: 10px;'>
+
+    <div class="row">
+        <div class="col-sm-2" style="padding-top :50px;">
+            <div class="panel panel-default">
+                <div class="panel-heading">Izmaiņas REST versijās</div>
+
+                <div class="list-group" id="myList" role="tablist">
+
+                </div>
+            </div>
+            <!--           <div class="panel panel-default  scroll_section">
+                        <div class="panel-heading">Ierakstu filtrs</div>
+
+                        <div class="panel-body">
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" checked="true">Rādīt visus</input></label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="optradio">Rādīt pēdējos</input>&nbsp;<input name="count_filter" size="5" value="100" /></label>
+                            </div>
+                        </div>
+                    </div>
+            -->
+        </div>
+        <div id="change_panel" class="col-sm-10">
+            <table id="version_table"
+                   class="table table-responsive table-hover"
+                   data-pagination="true"
+                   data-search="true"
+                   data-show-refresh="true"
+                   data-show-columns="true"
+                   data-toggle="table"
+                   data-row-style="rowStyle"
+                   data-toolbar="#toolbar">
+                <thead>
+                    <tr>
+                        <th data-field="key" data-formatter="jira_formater">Jira</th>
+                        <th data-field="priority">Prioritāte</th>
+                        <th data-field="issueType">Tips</th>
+                        <th data-field="status">Statuss</th>
+                        <th data-field="summary">Apraksts</th>
+                        <th data-field="blList">Izmainītie BL objekti</th>
+                    </tr>
+                </thead>
+            </table>
+            <br />
+
+            <div class="panel panel-default scroll_section">
+                <div id="release_notes_header" class="panel-heading">Izmaiņu apraksts</div>
+
+                <div id="release_notes_content" style='overflow:auto; padding: 10px;'>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+
+    <script src="~/Scripts/main.js" type="text/javascript"></script>
+
+
+
+
+
+
+}
+
+
+<!--    <script type="text/javascript">
+        $(document).ready(function () {
+            setDivSize();
+
+            $(window).resize(function () {
+                setDivSize();
+            });
+        });
+
+        function setDivSize() {
+
+            /*     var divTop = $('#change_panel').position().top + $('#change_content').position().top;
+                 var newHeight = $(window).height() - divTop - 25;
+                 $('#change_content').height(newHeight);
+                 $('#tree').height(newHeight - 30); */
+
+
+        }
+
+    </script>-->

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml;
 using controller;
+using Newtonsoft.Json;
 
 namespace XmlController
 {
@@ -18,6 +19,7 @@ namespace XmlController
 
             order = false;
             CompareFiles(xml2, xml1);
+            //should add to json file: Shows what has been changed
         }
 
         private static void CompareFiles(string xml1, string xml2)
@@ -38,6 +40,10 @@ namespace XmlController
             {
                 CheckBranch(node, tree.GetChild(node.Name));
             }
+
+            //saves the tree into json file
+            string json = JsonConvert.SerializeObject(tree);
+            System.IO.File.WriteAllText(@"comparison.json", json);
         }
 
         private static TreeNode AddBranch(XmlNode service_group, TreeNode branch)

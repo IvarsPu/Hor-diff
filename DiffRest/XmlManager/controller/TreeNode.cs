@@ -1,23 +1,26 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace controller
 {
-    public class TreeNode
+    [JsonConverter(typeof(TreeNodeConverter))]
+    public class TreeNode : IEnumerable<TreeNode>
     {
-        private readonly Dictionary<string, TreeNode> branches = new Dictionary<string, TreeNode>();
+        public readonly Dictionary<string, TreeNode> _children = new Dictionary<string, TreeNode>();
 
         public readonly string ID;
         public TreeNode Parent { get; private set; }
 
         public TreeNode(string id)
         {
-            ID = id;
+            this.ID = id;
         }
 
         public TreeNode GetChild(string id)
         {
-            return branches[id];
+            return this._children[id];
         }
 
         public void Add(TreeNode item)
@@ -26,11 +29,11 @@ namespace controller
             {
                 if (item.Parent != null)
                 {
-                    item.Parent.branches.Remove(item.ID);
+                    item.Parent._children.Remove(item.ID);
                 }
 
                 item.Parent = this;
-                branches.Add(item.ID, item);
+                this._children.Add(item.ID, item);
             }
             catch
             {
@@ -38,9 +41,41 @@ namespace controller
             }
         }
 
+        public IEnumerator<TreeNode> GetEnumerator()
+        {
+            return this._children.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
         public int Count
         {
-            get { return branches.Count; }
+            get { return this._children.Count; }
+        }
+    }
+
+    class TreeNodeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            // we can serialize everything that is a TreeNode
+            return typeof(TreeNode).IsAssignableFrom(objectType);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            // we currently support only writing of JSON
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            // we serialize a node by just serializing the _children dictionary
+            var node = value as TreeNode;
+            serializer.Serialize(writer, node._children);
         }
     }
 }

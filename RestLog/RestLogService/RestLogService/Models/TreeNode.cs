@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 
-namespace controller
+namespace RestLogService.Models
 {
-    public class TreeNode
+    public class TreeNode : IEnumerable<TreeNode>
     {
         public Dictionary<string, TreeNode> _children = new Dictionary<string, TreeNode>();
 
@@ -47,6 +50,11 @@ namespace controller
         public IEnumerator<TreeNode> GetEnumerator()
         {
             return this._children.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
 
         public int Count

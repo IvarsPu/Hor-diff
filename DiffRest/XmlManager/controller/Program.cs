@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Xml;
 using controller;
-using Newtonsoft.Json;
 
 namespace XmlController
 {
@@ -23,16 +22,12 @@ namespace XmlController
 
         private static void CompareFiles(string xml1, string xml2)
         {
-            tree = CreateTreeNode(xml1);
-            CheckTreeNode(xml2, tree, true);//Shows what hasnt changed, what has changed and whats added
-            CheckTreeNode(xml1, CreateTreeNode(xml2), false);//Shows what was removed
-
-            //saves the tree into json file
-            string json = JsonConvert.SerializeObject(tree);
-            System.IO.File.WriteAllText("comparison.json", json);
+            tree = CreateTree(xml1);
+            CheckTree(xml2, tree, true);//Shows what hasnt changed, what has changed and whats added
+            CheckTree(xml1, CreateTree(xml2), false);//Shows what was removed
         }
 
-        private static TreeNode CreateTreeNode(string path)
+        private static TreeNode CreateTree(string path)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -46,7 +41,7 @@ namespace XmlController
             return treeNode;
         }
 
-        private static void CheckTreeNode(string path, TreeNode tree, bool order)
+        private static void CheckTree(string path, TreeNode tree, bool order)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -62,18 +57,18 @@ namespace XmlController
         {
             foreach (XmlNode node in service_group.ChildNodes)
             {
-                switch (node.Name)
+                if (node.ChildNodes.Count > 0)
                 {
-                    case "service_group":
-                    case "service":
-                    case "resource":
-                        branch.Add(AddBranch(node, new TreeNode(node.Attributes["name"].Value)));
-                        break;
-                    default:
-                        TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
+                    branch.Add(AddBranch(node, new TreeNode(node.Attributes["name"].Value)));
+                }
+                else
+                {
+                    TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
+                    if (node.Attributes["hashCode"] != null)
+                    {
                         smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
-                        branch.Add(smallBranch);
-                        break;
+                    }
+                    branch.Add(smallBranch);
                 }
             }
             return branch;
@@ -99,13 +94,11 @@ namespace XmlController
                             {
                                 try
                                 {
-                                    GetValue(minibranch).Remove(minibranch.GetChild(node.Attributes["hashCode"].Value));
-                                    GetValue(minibranch).Add(new TreeNode("no change"));
+                                    Console.WriteLine(node.Attributes["hashCode"].Value);
                                 }
                                 catch
                                 {
-                                    GetValue(minibranch)._children = new Dictionary<string, TreeNode>();
-                                    GetValue(minibranch).Add(new TreeNode("change"));
+                                    Console.WriteLine("Mainīts                     " + node.Attributes["name"].Value);
                                 }
                             }
                             break;
@@ -115,6 +108,7 @@ namespace XmlController
                 {
                     if (order)
                     {
+                        //not added to tree
                         Console.WriteLine("Pielikts                     " + node.Attributes["name"].Value);
                     }
                     else
@@ -122,39 +116,6 @@ namespace XmlController
                         Console.WriteLine("Nonemts                     " + node.Attributes["name"].Value);
                     }
                 }
-            }
-        }
-
-        private static TreeNode GetValue(TreeNode node)
-        {
-            List<string> identifiers = new List<string>();
-            identifiers.Add(node.ID);
-            while (node.Parent != null)
-            {
-                node = node.Parent;
-                identifiers.Add(node.ID);
-            }
-            switch (identifiers.Count)
-            {
-                case 2:
-                    return tree.GetChild(identifiers[0]);
-                case 3:
-                    return tree.GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 4:
-                    return tree.GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 5:
-                    return tree.GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 6:
-                    return tree.GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 7:
-                    return tree.GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 8:
-                    return tree.GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 9:
-                    return tree.GetChild(identifiers[7]).GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                default:
-                    Console.WriteLine("Too many");
-                    return null;
             }
         }
     }

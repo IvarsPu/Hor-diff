@@ -1,0 +1,46 @@
+﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
+<script src="~/Scripts/bootstrap.js"></script>
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<script src="~/Scripts/employee.js"></script>
+
+<h3>Salīdzini servisa versijas</h3>
+<select id="from" onchange="test(this)">
+    @foreach (RestLogService.Models.TreeNode node in Model)
+    {
+        foreach (RestLogService.Models.TreeNode nodes in node)
+        {
+            <option value="@node.ID/@nodes.ID">@node.ID.@nodes.ID</option>
+        }
+    }
+</select>
+<br>
+<select id="to" onchange="test(this)">
+    @foreach (RestLogService.Models.TreeNode node in Model)
+    {
+        foreach (RestLogService.Models.TreeNode nodes in node)
+        {
+            <option value="@node.ID/@nodes.ID">@node.ID.@nodes.ID</option>
+        }
+    }
+</select>
+
+<section id="text"></section>
+
+<script>
+    test();
+
+    function test(obj) {
+        document.getElementById("text").innerHTML = "Salīdzina: " + document.getElementById("from").value + " - " + document.getElementById("to").value;
+
+        $.ajax({
+            url: "/Home/List?text=" + obj.value,
+            type: "GET",
+            success: function (result) {
+                alert(result);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+</script>

@@ -8,6 +8,12 @@ namespace XmlController
     public class Program
     {
         private static TreeNode tree;
+        private static List<KeyValuePair<int, string>> texts;
+
+        //0 no change
+        //1 change
+        //2 added
+        //3 removed
 
         static void Main(string[] args)
         {
@@ -16,8 +22,17 @@ namespace XmlController
             string xml2 = location + "525/0/metadata.xml";
 
             tree = new TreeNode("Root");
+            texts = new List<KeyValuePair<int, string>>();
 
             CompareFiles(xml1, xml2);
+
+            foreach(KeyValuePair<int, string> t in texts)
+            {
+                if(t.Key == 1)
+                {
+                    Console.WriteLine(t.Value);
+                }
+            }
         }
 
         private static void CompareFiles(string xml1, string xml2)
@@ -44,9 +59,8 @@ namespace XmlController
         private static void CheckTree(string path, TreeNode tree, bool order)
         {
             XmlDocument doc = new XmlDocument();
-
             doc.Load(path);
-            //adds removed branches to tree
+
             foreach (XmlNode node in doc)
             {
                 CheckBranch(node, tree.GetChild(node.Name), order);
@@ -82,41 +96,79 @@ namespace XmlController
                 try
                 {
                     minibranch = branch.GetChild(node.Attributes["name"].Value);
-                    switch (node.Name)
+                    if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
-                        case "service_group":
-                        case "service":
-                        case "resource":
-                            CheckBranch(node, minibranch, order);
-                            break;
-                        default:
-                            if (order)
+                        CheckBranch(node, minibranch, order);
+                    }
+                    else
+                    {
+                        if (order)
+                        {
+                            try
                             {
-                                try
-                                {
-                                    Console.WriteLine(node.Attributes["hashCode"].Value);
-                                }
-                                catch
-                                {
-                                    Console.WriteLine("Mainīts                     " + node.Attributes["name"].Value);
-                                }
+                                minibranch.GetChild(node.Attributes["hashCode"].Value);
+                                texts.Add(new KeyValuePair<int, string>(0,node.Attributes["name"].Value));
                             }
-                            break;
+                            catch (Exception)
+                            {
+                                texts.Add(new KeyValuePair<int, string>(1, node.Attributes["name"].Value));
+                            }
+                        }
                     }
                 }
                 catch
                 {
                     if (order)
                     {
-                        //not added to tree
-                        Console.WriteLine("Pielikts                     " + node.Attributes["name"].Value);
+                        minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
+                        GetValue(branch).Add(minibranch);
+                        foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                        {
+                            texts.Add(new KeyValuePair<int, string>(2, n.ID));
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Nonemts                     " + node.Attributes["name"].Value);
+                        texts.Add(new KeyValuePair<int, string>(3, node.Attributes["name"].Value));
                     }
                 }
             }
         }
+
+        private static TreeNode GetValue(TreeNode node)
+        {
+            List<string> identifiers = new List<string>
+            {
+                node.ID
+            };
+            while (node.Parent != null)
+            {
+                node = node.Parent;
+                identifiers.Add(node.ID);
+            }
+            switch (identifiers.Count)
+            {
+                case 2:
+                    return tree.GetChild(identifiers[0]);
+                case 3:
+                    return tree.GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 4:
+                    return tree.GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 5:
+                    return tree.GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 6:
+                    return tree.GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 7:
+                    return tree.GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 8:
+                    return tree.GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                case 9:
+                    return tree.GetChild(identifiers[7]).GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
+                default:
+                    Console.WriteLine("Too many");
+                    return null;
+            }
+        }
+
     }
 }

@@ -4,39 +4,36 @@
 <script src="~/Scripts/employee.js"></script>
 
 <h3>Salīdzini servisa versijas</h3>
-<select id="from" onchange="test(this)">
-    @foreach (RestLogService.Models.TreeNode node in Model)
-    {
-        foreach (RestLogService.Models.TreeNode nodes in node)
-        {
-            <option value="@node.ID/@nodes.ID">@node.ID.@nodes.ID</option>
-        }
-    }
-</select>
-<br>
-<select id="to" onchange="test(this)">
-    @foreach (RestLogService.Models.TreeNode node in Model)
-    {
-        foreach (RestLogService.Models.TreeNode nodes in node)
-        {
-            <option value="@node.ID/@nodes.ID">@node.ID.@nodes.ID</option>
-        }
-    }
-</select>
 
-<section id="text"></section>
+<div style="box-sizing: border-box;">
+    <div style="background-color:#aaa; box-sizing: border-box; float: left; width: 50%; padding: 10px;">
+        <select id="old" onchange="test(this)">
+            @foreach (string text in Model)
+            {
+                <option value="@text">@text</option>
+            }
+        </select>
+        <section id="textold"></section>
+    </div>
+    <div style="background-color:#bbb; box-sizing: border-box; float: left; width: 50%; padding: 10px;">
+        <select id="new" onchange="test(this)">
+            @foreach (string text in Model)
+            {
+                <option value="@text">@text</option>
+            }
+        </select>
+        <section id="textnew"></section>
+    </div>
+</div>
+
 
 <script>
-    test();
-
     function test(obj) {
-        document.getElementById("text").innerHTML = "Salīdzina: " + document.getElementById("from").value + " - " + document.getElementById("to").value;
-
         $.ajax({
             url: "/Home/List?text=" + obj.value,
             type: "GET",
             success: function (result) {
-                alert(result);
+                document.getElementById("text" + obj.id).innerHTML = result;
             },
             error: function (errormessage) {
                 alert(errormessage.responseText);

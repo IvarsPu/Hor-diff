@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml;
+using Newtonsoft.Json;
 using RestLogService.Models;
 
 namespace RestLogService.Controllers
@@ -25,36 +26,25 @@ namespace RestLogService.Controllers
             XmlDocument doc = new XmlDocument();
             doc.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
 
-            TreeNode treeNode = null;
-            foreach (XmlNode node in doc)
+            List<string> str = new List<string>();
+
+            foreach (XmlNode node in doc.ChildNodes[0].ChildNodes)
             {
-                treeNode = AddBranch(node, new TreeNode(node.Name));
+                foreach (XmlNode nodes in node.ChildNodes)
+                {
+                    str.Add(node.Attributes["name"].Value + "/" + nodes.Attributes["name"].Value);
+                }
             }
 
-            return View(treeNode);
+            return View(str);
         }
-        
+
         public string List(string text)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(Server.MapPath(@"~/rest_sample/" + text + "/metadata.xml"));
-            return doc.ChildNodes[1].Attributes["version"].Value + " _ " + doc.ChildNodes[1].Attributes["release"].Value;
-        }
-
-        private TreeNode AddBranch(XmlNode service_group, TreeNode branch)
-        {
-            foreach (XmlNode node in service_group.ChildNodes)
-            {
-                if (node.ChildNodes.Count > 0)
-                {
-                    branch.Add(AddBranch(node, new TreeNode(node.Attributes["name"].Value)));
-                }
-                else
-                {
-                    branch.Add(new TreeNode(node.Attributes["name"].Value));
-                }
-            }
-            return branch;
+            
+            return JsonConvert.SerializeXmlNode(doc);
         }
     }
 }

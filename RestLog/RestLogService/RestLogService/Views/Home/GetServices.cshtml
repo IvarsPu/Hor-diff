@@ -4,36 +4,32 @@
 <script src="~/Scripts/employee.js"></script>
 
 <h3>Salīdzini servisa versijas</h3>
+<select id="old" onchange="test()">
+    @foreach (string text in Model)
+    {
+            <option value="@text">@text</option>
+    }
+</select>
+<br>
+<select id="new" onchange="test()">
+    @foreach (string text in Model)
+    {
+        <option value="@text">@text</option>
+    }
+</select>
 
-<div style="box-sizing: border-box;">
-    <div style="background-color:#aaa; box-sizing: border-box; float: left; width: 50%; padding: 10px;">
-        <select id="old" onchange="test(this)">
-            @foreach (string text in Model)
-            {
-                <option value="@text">@text</option>
-            }
-        </select>
-        <section id="textold"></section>
-    </div>
-    <div style="background-color:#bbb; box-sizing: border-box; float: left; width: 50%; padding: 10px;">
-        <select id="new" onchange="test(this)">
-            @foreach (string text in Model)
-            {
-                <option value="@text">@text</option>
-            }
-        </select>
-        <section id="textnew"></section>
-    </div>
+<div id="changes">
 </div>
 
 
+
 <script>
-    function test(obj) {
+    function test() {
         $.ajax({
-            url: "/Home/List?text=" + obj.value,
+            url: "/Home/List?oldRelease=" + document.getElementById("old").value + "&newRelease=" + document.getElementById("new").value,
             type: "GET",
-            success: function (result) {
-                document.getElementById("text" + obj.id).innerHTML = result;
+            success: function (msg) {
+                document.getElementById("changes").innerHTML = msg;
             },
             error: function (errormessage) {
                 alert(errormessage.responseText);

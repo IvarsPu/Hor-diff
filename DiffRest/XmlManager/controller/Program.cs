@@ -8,7 +8,7 @@ namespace XmlController
     public class Program
     {
         private static TreeNode tree;
-        private static List<KeyValuePair<int, string>> texts;
+        private static List<KeyValuePair<int, string>> changes;
 
         //0 no change
         //1 change
@@ -22,11 +22,11 @@ namespace XmlController
             string xml2 = location + "525/0/metadata.xml";
 
             tree = new TreeNode("Root");
-            texts = new List<KeyValuePair<int, string>>();
+            changes = new List<KeyValuePair<int, string>>();
 
             CompareFiles(xml1, xml2);
 
-            foreach(KeyValuePair<int, string> t in texts)
+            foreach(KeyValuePair<int, string> t in changes)
             {
                 if(t.Key == 1)
                 {
@@ -107,11 +107,11 @@ namespace XmlController
                             try
                             {
                                 minibranch.GetChild(node.Attributes["hashCode"].Value);
-                                texts.Add(new KeyValuePair<int, string>(0,node.Attributes["name"].Value));
+                                changes.Add(new KeyValuePair<int, string>(0,node.Attributes["name"].Value));
                             }
                             catch (Exception)
                             {
-                                texts.Add(new KeyValuePair<int, string>(1, node.Attributes["name"].Value));
+                                changes.Add(new KeyValuePair<int, string>(1, node.Attributes["name"].Value));
                             }
                         }
                     }
@@ -124,12 +124,12 @@ namespace XmlController
                         GetValue(branch).Add(minibranch);
                         foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
                         {
-                            texts.Add(new KeyValuePair<int, string>(2, n.ID));
+                            changes.Add(new KeyValuePair<int, string>(2, n.ID));
                         }
                     }
                     else
                     {
-                        texts.Add(new KeyValuePair<int, string>(3, node.Attributes["name"].Value));
+                        changes.Add(new KeyValuePair<int, string>(3, node.Attributes["name"].Value));
                     }
                 }
             }

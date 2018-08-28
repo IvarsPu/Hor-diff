@@ -17,7 +17,7 @@ namespace controller
 
         public TreeNode GetChild(string id)
         {
-            return this._children[id];
+            return _children.TryGetValue(id, out TreeNode value) ? value : null;
         }
 
         public void Add(TreeNode item)

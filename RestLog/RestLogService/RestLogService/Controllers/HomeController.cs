@@ -48,11 +48,18 @@ namespace RestLogService.Controllers
             string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
             string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
 
-            tree = new TreeNode("Root");
-
-            changes = "<table>";
+            changes = "<table>" +
+                "<thead>" +
+                    "<tr>" +
+                        "<td><h3>State</h3></td>" +
+                        "<td><h3>Name</h3></td>" +
+                        "<td><h3>Service</h3></td>" +
+                    "<tr>" +
+                "</thead>" +
+                "<tbody>";
             CompareFiles(xml1, xml2);
-            changes += "</table>";
+            changes += "</tbody>" +
+                "</table>";
 
             return changes;
         }
@@ -60,29 +67,18 @@ namespace RestLogService.Controllers
         #region change
         private void CompareFiles(string xml1, string xml2)
         {
-            tree = CreateTree(xml1);
-            CheckTree(xml2, tree);//Shows what hasnt changed, what has changed and whats added, but not whats removed
-        }
-
-        private TreeNode CreateTree(string path)
-        {
+            //Shows what hasnt changed, what has changed and whats added, but not whats removed
             XmlDocument doc = new XmlDocument();
 
-            doc.Load(path);
+            doc.Load(xml1);
             //Creates a tree
-            TreeNode treeNode = new TreeNode("Root");
+            tree = new TreeNode("Root");
             foreach (XmlNode node in doc)
             {
-                treeNode.Add(AddBranch(node, new TreeNode(node.Name)));
+                tree.Add(AddBranch(node, new TreeNode(node.Name)));
             }
-            return treeNode;
-        }
-
-        private void CheckTree(string path, TreeNode tree)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path);
-
+            
+            doc.Load(xml2);
             foreach (XmlNode node in doc)
             {
                 CheckBranch(node, tree.GetChild(node.Name));
@@ -109,39 +105,38 @@ namespace RestLogService.Controllers
             }
             return branch;
         }
-
+        
         private void CheckBranch(XmlNode nodes, TreeNode branch)
         {
             TreeNode minibranch;
             foreach (XmlNode node in nodes.ChildNodes)
             {
-                try
-                {
-                    minibranch = branch.GetChild(node.Attributes["name"].Value);
+                minibranch = branch.GetChild(node.Attributes["name"].Value);
+                if (minibranch != null)
+                { 
                     if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
                         CheckBranch(node, minibranch);
                     }
                     else
                     {
-                        try
+                        if (minibranch.GetChild(node.Attributes["hashCode"].Value) != null)
                         {
-                            minibranch.GetChild(node.Attributes["hashCode"].Value);
-                            changes += "<tr><td>Not changed</td><td>" + node.Attributes["name"].Value + "</td></tr>";
+                            //changes += "<tr><td>Not changed</td><td>" + minibranch.ID + "</td><td>" + minibranch.Parent.ID + "</td></tr>";
                         }
-                        catch (Exception)
+                        else
                         {
-                            changes += "<tr><td>Changed</td><td>" + node.Attributes["name"].Value + "</td></tr>";
+                            //changes += "<tr><td>Edited</td><td>" + minibranch.ID + "</td><td>" + minibranch.Parent.ID + "</td></tr>";
                         }
                     }
                 }
-                catch
+                else
                 {
                     minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
                     GetValue(branch).Add(minibranch);
                     foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
                     {
-                        changes += "<tr><td>Added</td><td>" + n.ID + "</td></tr>";
+                        //changes += "<tr><td>Added</td><td>" + n.ID + "</td><td>" + n.Parent.ID + "</td></tr>";
                     }
                 }
             }

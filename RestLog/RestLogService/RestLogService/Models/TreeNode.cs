@@ -20,7 +20,7 @@ namespace RestLogService.Models
 
         public TreeNode GetChild(string id)
         {
-            return this._children[id];
+            return _children.TryGetValue(id, out TreeNode value) ? value : null;
         }
 
         public void Add(TreeNode item)
@@ -37,7 +37,7 @@ namespace RestLogService.Models
             }
             catch
             {
-                Console.WriteLine("Jau eksistē/nevar pievienot: " + item.ID);
+                //Console.WriteLine("Jau eksistē/nevar pievienot: " + item.ID);
             }
         }
 

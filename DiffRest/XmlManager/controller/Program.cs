@@ -104,12 +104,11 @@ namespace XmlController
                     {
                         if (order)
                         {
-                            try
+                            if (minibranch.GetChild(node.Attributes["hashCode"].Value)!=null)
                             {
-                                minibranch.GetChild(node.Attributes["hashCode"].Value);
-                                changes.Add(new KeyValuePair<int, string>(0,node.Attributes["name"].Value));
+                                changes.Add(new KeyValuePair<int, string>(0, node.Attributes["name"].Value));
                             }
-                            catch (Exception)
+                            else
                             {
                                 changes.Add(new KeyValuePair<int, string>(1, node.Attributes["name"].Value));
                             }

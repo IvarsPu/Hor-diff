@@ -40,48 +40,59 @@ namespace RestLogService.Controllers
         }
 
         private TreeNode tree;
-        private string changes;
+        private List<Service> changes;
+        List<bool> allowed;
 
         [HttpGet]
-        public string List(string oldRelease, string newRelease)
+        public JsonResult List(string oldRelease, string newRelease, bool noChange, bool eddited, bool added, bool removed)
         {
             string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
             string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
 
-            changes = "<table>" +
-                "<thead>" +
-                    "<tr>" +
-                        "<td><h3>State</h3></td>" +
-                        "<td><h3>Name</h3></td>" +
-                        "<td><h3>Service</h3></td>" +
-                    "<tr>" +
-                "</thead>" +
-                "<tbody>";
-            CompareFiles(xml1, xml2);
-            changes += "</tbody>" +
-                "</table>";
+           allowed = new List<bool>
+            {
+                noChange,
+                eddited,
+                added,
+                removed
+            };
 
-            return changes;
+            changes = new List<Service>();
+            CompareFiles(xml1, xml2);
+
+            return Json(changes, JsonRequestBehavior.AllowGet);
         }
 
         #region change
         private void CompareFiles(string xml1, string xml2)
         {
-            //Shows what hasnt changed, what has changed and whats added, but not whats removed
+            tree = CreateTree(xml1);
+            CheckTree(xml2, tree, true);//Shows what hasnt changed, what has changed and whats added
+            CheckTree(xml1, CreateTree(xml2), false);//Shows what was removed
+        }
+
+        private TreeNode CreateTree(string path)
+        {
             XmlDocument doc = new XmlDocument();
 
-            doc.Load(xml1);
+            doc.Load(path);
             //Creates a tree
-            tree = new TreeNode("Root");
+            TreeNode treeNode = new TreeNode("Root");
             foreach (XmlNode node in doc)
             {
-                tree.Add(AddBranch(node, new TreeNode(node.Name)));
+                treeNode.Add(AddBranch(node, new TreeNode(node.Name)));
             }
-            
-            doc.Load(xml2);
+            return treeNode;
+        }
+
+        private void CheckTree(string path, TreeNode tree, bool order)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(path);
+
             foreach (XmlNode node in doc)
             {
-                CheckBranch(node, tree.GetChild(node.Name));
+                CheckBranch(node, tree.GetChild(node.Name), order);
             }
         }
 
@@ -105,38 +116,59 @@ namespace RestLogService.Controllers
             }
             return branch;
         }
-        
-        private void CheckBranch(XmlNode nodes, TreeNode branch)
+
+        private void CheckBranch(XmlNode nodes, TreeNode branch, bool order)
         {
             TreeNode minibranch;
             foreach (XmlNode node in nodes.ChildNodes)
             {
                 minibranch = branch.GetChild(node.Attributes["name"].Value);
                 if (minibranch != null)
-                { 
+                {
                     if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
-                        CheckBranch(node, minibranch);
+                        CheckBranch(node, minibranch,order);
                     }
                     else
                     {
-                        if (minibranch.GetChild(node.Attributes["hashCode"].Value) != null)
+                        if (order)
                         {
-                            //changes += "<tr><td>Not changed</td><td>" + minibranch.ID + "</td><td>" + minibranch.Parent.ID + "</td></tr>";
-                        }
-                        else
-                        {
-                            //changes += "<tr><td>Edited</td><td>" + minibranch.ID + "</td><td>" + minibranch.Parent.ID + "</td></tr>";
+                            if (minibranch.GetChild(node.Attributes["hashCode"].Value) != null)
+                            {
+                                if (allowed[0])
+                                {
+                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "No changes"));
+                                }
+                            }
+                            else
+                            {
+                                if (allowed[1])
+                                {
+                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "Edited"));
+                                }
+                            }
                         }
                     }
                 }
                 else
                 {
-                    minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
-                    GetValue(branch).Add(minibranch);
-                    foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                    if (order) {
+                        if (allowed[2])
+                        {
+                            minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
+                            GetValue(branch).Add(minibranch);
+                            foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                            {
+                                changes.Add(new Service(n.ID, n.Parent.ID, "Added"));
+                            }
+                        }
+                    }
+                    else
                     {
-                        //changes += "<tr><td>Added</td><td>" + n.ID + "</td><td>" + n.Parent.ID + "</td></tr>";
+                        if (allowed[3])
+                        {
+                            changes.Add(new Service(node.Attributes["name"].Value, branch.ID, "Removed"));
+                        }
                     }
                 }
             }

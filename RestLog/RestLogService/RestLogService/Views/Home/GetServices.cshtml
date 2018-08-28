@@ -4,41 +4,69 @@
 <script src="~/Scripts/employee.js"></script>
 
 <h3>Salīdzini servisa versijas</h3>
-<select id="old" onchange="test()">
+<select id="old">
     @foreach (string text in Model)
     {
-            <option value="@text">@text</option>
+        <option value="@text">@text</option>
     }
 </select>
 <br>
-<select id="new" onchange="test()">
+
+<select id="new">
     @foreach (string text in Model)
     {
         <option value="@text">@text</option>
     }
 </select>
 
+<br>
+<input id="CheckNoChange" type="checkbox" checked>Not changed
+<input id="CheckEdited" type="checkbox" checked>Edited
+<input id="CheckAdded" type="checkbox" checked>Added
+<input id="CheckRemoved" type="checkbox" checked>Removed
+
+<br>
+<input type="button" onclick="GetDiff()" value="Search">
+
 <div class="row">
     <div class="column" style="background-color:#bbb; float: left; width: 100%; padding: 10px;">
         <h2>Difference</h2>
-        <div id="changed"></div>
+        <table id="tblDiff">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Service</th>
+                    <th>State</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
-
-
 <script>
-    function test() {
+    function GetDiff() {
         $.ajax({
             url: "/Home/List",
             data: {
                 "oldRelease": document.getElementById("old").value,
-                "newRelease": document.getElementById("new").value
+                "newRelease": document.getElementById("new").value,
+                "noChange": document.getElementById("CheckNoChange").checked,
+                "eddited": document.getElementById("CheckEdited").checked,
+                "added": document.getElementById("CheckAdded").checked,
+                "removed": document.getElementById("CheckRemoved").checked
             },
             type: "GET",
             success: function (msg) {
-                alert("Update");
-                $('#changed').html(msg);
+                alert("Wait");
+                $("#tblDiff tr").remove();
+                $.each(msg, function (index, item) {
+                    var tr = $("<tr></tr>");
+                    tr.html(("<td>" + item.Name + "</td>")
+                        + " " + ("<td>" + item.ServiceName + "</td>")
+                        + " " + ("<td>" + item.State + "</td>"));
+                    $("#tblDiff").append(tr);
+                });
             },
             error: function (errormessage) {
                 alert(errormessage.responseText);

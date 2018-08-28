@@ -18,7 +18,11 @@
     }
 </select>
 
-<div id="changes">
+<div class="row">
+    <div class="column" style="background-color:#bbb; float: left; width: 100%; padding: 10px;">
+        <h2>Difference</h2>
+        <div id="changed"></div>
+    </div>
 </div>
 
 
@@ -26,10 +30,14 @@
 <script>
     function test() {
         $.ajax({
-            url: "/Home/List?oldRelease=" + document.getElementById("old").value + "&newRelease=" + document.getElementById("new").value,
+            url: "/Home/List",
+            data: {
+                "oldRelease": document.getElementById("old").value,
+                "newRelease": document.getElementById("new").value
+            },
             type: "GET",
             success: function (msg) {
-                document.getElementById("changes").innerHTML = msg;
+                $('#changed').html(msg);
             },
             error: function (errormessage) {
                 alert(errormessage.responseText);

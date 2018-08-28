@@ -1,9 +1,11 @@
-﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
+﻿<title>Difference detection</title>
+<script src="~/Scripts/jquery-1.9.1.js"></script>
 <script src="~/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/diff.js"></script>
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
-<script src="~/Scripts/employee.js"></script>
 
-<h3>Salīdzini servisa versijas</h3>
+<h3>Find changes</h3>
+<label>Old release:</label>
 <select id="old">
     @foreach (string text in Model)
     {
@@ -12,20 +14,21 @@
 </select>
 <br>
 
+<label>New release:</label>
 <select id="new">
     @foreach (string text in Model)
     {
         <option value="@text">@text</option>
     }
 </select>
-
 <br>
+
 <label><input id="CheckNoChange" type="checkbox" labe checked>Not changed</label>
 <label><input id="CheckEdited" type="checkbox" labe checked>Edited</label>
 <label><input id="CheckAdded" type="checkbox" labe checked>Added</label>
 <label><input id="CheckRemoved" type="checkbox" labe checked>Removed</label>
-
 <br>
+
 <input type="button" onclick="GetDiff()" value="Search">
 
 <table id="tblDiff">
@@ -36,36 +39,6 @@
             <th>State</th>
         </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+    </tbody>
 </table>
-
-<script>
-    function GetDiff() {
-        $.ajax({
-            url: "/Home/List",
-            data: {
-                "oldRelease": document.getElementById("old").value,
-                "newRelease": document.getElementById("new").value,
-                "noChange": document.getElementById("CheckNoChange").checked,
-                "eddited": document.getElementById("CheckEdited").checked,
-                "added": document.getElementById("CheckAdded").checked,
-                "removed": document.getElementById("CheckRemoved").checked
-            },
-            type: "GET",
-            success: function (msg) {
-                alert("Please wait, this may take some time.");
-                $("#tblDiff tbody tr").remove();
-                $.each(msg, function (index, item) {
-                    var tr = $("<tr></tr>");
-                    tr.html(("<td>" + item.Name + "</td>")
-                        + " " + ("<td>" + item.ServiceName + "</td>")
-                        + " " + ("<td>" + item.State + "</td>"));
-                    $("#tblDiff").append(tr);
-                });
-            },
-            error: function (errormessage) {
-                alert(errormessage.responseText);
-            }
-        });
-    }
-</script>

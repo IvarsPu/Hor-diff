@@ -11,10 +11,10 @@ namespace DiffRest.Controllers
 {
     public class HomeController : Controller
     {
-        private TreeNode tree;
         private List<Service> changes;
         List<bool> allowed;
 
+        [HttpGet]
         public ActionResult Index()
         {
             XmlDocument doc = new XmlDocument();
@@ -53,46 +53,33 @@ namespace DiffRest.Controllers
             return Json(changes, JsonRequestBehavior.AllowGet);
         }
 
-        #region change
+        #region Change detection
         private void CompareFiles(string xml1, string xml2)
         {
-            tree = CreateTree(xml1);
-            CheckTree(xml2, tree, true);//Shows what hasnt changed, what has changed and whats added
+            CheckTree(xml2, CreateTree(xml1), true);//Shows what hasnt changed, what has changed and whats added
             CheckTree(xml1, CreateTree(xml2), false);//Shows what was removed
         }
 
         private TreeNode CreateTree(string path)
         {
             XmlDocument doc = new XmlDocument();
-
             doc.Load(path);
-            //Creates a tree
+            
             TreeNode treeNode = new TreeNode("Root");
             foreach (XmlNode node in doc)
             {
-                treeNode.Add(AddBranch(node, new TreeNode(node.Name)));
+                treeNode.Add(CreateBranch(node, new TreeNode(node.Name)));
             }
             return treeNode;
         }
 
-        private void CheckTree(string path, TreeNode tree, bool order)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path);
-
-            foreach (XmlNode node in doc)
-            {
-                CheckBranch(node, tree.GetChild(node.Name), order);
-            }
-        }
-
-        private TreeNode AddBranch(XmlNode service_group, TreeNode branch)
+        private TreeNode CreateBranch(XmlNode service_group, TreeNode branch)
         {
             foreach (XmlNode node in service_group.ChildNodes)
             {
                 if (node.ChildNodes.Count > 0)
                 {
-                    branch.Add(AddBranch(node, new TreeNode(node.Attributes["name"].Value)));
+                    branch.Add(CreateBranch(node, new TreeNode(node.Attributes["name"].Value)));
                 }
                 else
                 {
@@ -107,34 +94,45 @@ namespace DiffRest.Controllers
             return branch;
         }
 
+        private void CheckTree(string path, TreeNode tree, bool order)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(path);
+
+            foreach (XmlNode node in doc)
+            {
+                CheckBranch(node, tree.GetChild(node.Name), order);
+            }
+        }
+
         private void CheckBranch(XmlNode nodes, TreeNode branch, bool order)
         {
-            TreeNode minibranch;
+            TreeNode miniBranch;
             foreach (XmlNode node in nodes.ChildNodes)
             {
-                minibranch = branch.GetChild(node.Attributes["name"].Value);
-                if (minibranch != null)
+                miniBranch = branch.GetChild(node.Attributes["name"].Value);
+                if (miniBranch != null)
                 {
                     if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
-                        CheckBranch(node, minibranch, order);
+                        CheckBranch(node, miniBranch, order);
                     }
                     else
                     {
                         if (order)
                         {
-                            if (minibranch.GetChild(node.Attributes["hashCode"].Value) != null)
+                            if (miniBranch.GetChild(node.Attributes["hashCode"].Value) != null)
                             {
                                 if (allowed[0])
                                 {
-                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "No changes"));
+                                    changes.Add(new Service(miniBranch.ID, miniBranch.Parent.ID, "No changes"));
                                 }
                             }
                             else
                             {
                                 if (allowed[1])
                                 {
-                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "Edited"));
+                                    changes.Add(new Service(miniBranch.ID, miniBranch.Parent.ID, "Edited"));
                                 }
                             }
                         }
@@ -146,11 +144,10 @@ namespace DiffRest.Controllers
                     {
                         if (allowed[2])
                         {
-                            minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
-                            GetValue(branch).Add(minibranch);
-                            foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                            miniBranch = CreateBranch(node, new TreeNode(node.Attributes["name"].Value));
+                            foreach (TreeNode smallBranch in miniBranch)
                             {
-                                changes.Add(new Service(n.ID, n.Parent.ID, "Added"));
+                                changes.Add(new Service(smallBranch.ID, smallBranch.Parent.ID, "Added"));
                             }
                         }
                     }
@@ -162,41 +159,6 @@ namespace DiffRest.Controllers
                         }
                     }
                 }
-            }
-        }
-
-        private TreeNode GetValue(TreeNode node)
-        {
-            List<string> identifiers = new List<string>
-            {
-                node.ID
-            };
-            while (node.Parent != null)
-            {
-                node = node.Parent;
-                identifiers.Add(node.ID);
-            }
-            switch (identifiers.Count)
-            {
-                case 2:
-                    return tree.GetChild(identifiers[0]);
-                case 3:
-                    return tree.GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 4:
-                    return tree.GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 5:
-                    return tree.GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 6:
-                    return tree.GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 7:
-                    return tree.GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 8:
-                    return tree.GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                case 9:
-                    return tree.GetChild(identifiers[7]).GetChild(identifiers[6]).GetChild(identifiers[5]).GetChild(identifiers[4]).GetChild(identifiers[3]).GetChild(identifiers[2]).GetChild(identifiers[1]).GetChild(identifiers[0]);
-                default:
-                    Console.WriteLine("Too many");
-                    return null;
             }
         }
         #endregion

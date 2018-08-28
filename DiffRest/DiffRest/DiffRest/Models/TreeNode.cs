@@ -6,7 +6,7 @@ using System.Web;
 
 namespace RestLogService.Models
 {
-    public class TreeNode : IEnumerable<TreeNode>
+    public class TreeNode
     {
         public Dictionary<string, TreeNode> _children = new Dictionary<string, TreeNode>();
 
@@ -15,7 +15,7 @@ namespace RestLogService.Models
 
         public TreeNode(string id)
         {
-            this.ID = id;
+            ID = id;
         }
 
         public TreeNode GetChild(string id)
@@ -33,7 +33,7 @@ namespace RestLogService.Models
                 }
 
                 item.Parent = this;
-                this._children.Add(item.ID, item);
+                _children.Add(item.ID, item);
             }
             catch
             {
@@ -43,23 +43,18 @@ namespace RestLogService.Models
 
         public TreeNode Remove(TreeNode item)
         {
-            this._children.Remove(item.ID);
+            _children.Remove(item.ID);
             return this;
         }
 
         public IEnumerator<TreeNode> GetEnumerator()
         {
-            return this._children.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
+            return _children.Values.GetEnumerator();
         }
 
         public int Count
         {
-            get { return this._children.Count; }
+            get { return _children.Count; }
         }
     }
 }

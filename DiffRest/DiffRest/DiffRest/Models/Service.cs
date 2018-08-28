@@ -1,4 +1,9 @@
-﻿namespace RestLogService.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace DiffRest.Models
 {
     public class Service
     {

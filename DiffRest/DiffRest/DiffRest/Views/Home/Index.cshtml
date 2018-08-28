@@ -20,29 +20,24 @@
 </select>
 
 <br>
-<input id="CheckNoChange" type="checkbox" checked>Not changed
-<input id="CheckEdited" type="checkbox" checked>Edited
-<input id="CheckAdded" type="checkbox" checked>Added
-<input id="CheckRemoved" type="checkbox" checked>Removed
+<label><input id="CheckNoChange" type="checkbox" labe checked>Not changed</label>
+<label><input id="CheckEdited" type="checkbox" labe checked>Edited</label>
+<label><input id="CheckAdded" type="checkbox" labe checked>Added</label>
+<label><input id="CheckRemoved" type="checkbox" labe checked>Removed</label>
 
 <br>
 <input type="button" onclick="GetDiff()" value="Search">
 
-<div class="row">
-    <div class="column" style="background-color:#bbb; float: left; width: 100%; padding: 10px;">
-        <h2>Difference</h2>
-        <table id="tblDiff">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Service</th>
-                    <th>State</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
+<table id="tblDiff">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Service</th>
+            <th>State</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <script>
     function GetDiff() {
@@ -58,8 +53,8 @@
             },
             type: "GET",
             success: function (msg) {
-                alert("Wait");
-                $("#tblDiff tr").remove();
+                alert("Please wait, this may take some time.");
+                $("#tblDiff tbody tr").remove();
                 $.each(msg, function (index, item) {
                     var tr = $("<tr></tr>");
                     tr.html(("<td>" + item.Name + "</td>")

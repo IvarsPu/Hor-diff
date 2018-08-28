@@ -1,48 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
 using System.Xml;
-using controller;
+using DiffRest.Models;
+using RestLogService.Models;
 
-namespace XmlController
+namespace DiffRest.Controllers
 {
-    public class Program
+    public class HomeController : Controller
     {
-        private static TreeNode tree;
-        private static List<KeyValuePair<int, string>> changes;
+        private TreeNode tree;
+        private List<Service> changes;
+        List<bool> allowed;
 
-        //0 no change
-        //1 change
-        //2 added
-        //3 removed
-
-        static void Main(string[] args)
+        public ActionResult Index()
         {
-            string location = "..//..//..//..//..//DiffApp/rest_sample/";
-            string xml1 = location + "520/2/metadata.xml";
-            string xml2 = location + "525/0/metadata.xml";
+            XmlDocument doc = new XmlDocument();
+            doc.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
 
-            tree = new TreeNode("Root");
-            changes = new List<KeyValuePair<int, string>>();
+            List<string> str = new List<string>();
 
-            CompareFiles(xml1, xml2);
-
-            foreach(KeyValuePair<int, string> t in changes)
+            foreach (XmlNode node in doc.ChildNodes[0].ChildNodes)
             {
-                if(t.Key == 1)
+                foreach (XmlNode nodes in node.ChildNodes)
                 {
-                    Console.WriteLine(t.Value);
+                    str.Add(node.Attributes["name"].Value + "/" + nodes.Attributes["name"].Value);
                 }
             }
+
+            return View(str);
         }
 
-        private static void CompareFiles(string xml1, string xml2)
+        [HttpGet]
+        public JsonResult List(string oldRelease, string newRelease, bool noChange, bool eddited, bool added, bool removed)
+        {
+            string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
+            string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
+
+            allowed = new List<bool>
+            {
+                noChange,
+                eddited,
+                added,
+                removed
+            };
+
+            changes = new List<Service>();
+            CompareFiles(xml1, xml2);
+
+            return Json(changes, JsonRequestBehavior.AllowGet);
+        }
+
+        #region change
+        private void CompareFiles(string xml1, string xml2)
         {
             tree = CreateTree(xml1);
             CheckTree(xml2, tree, true);//Shows what hasnt changed, what has changed and whats added
             CheckTree(xml1, CreateTree(xml2), false);//Shows what was removed
         }
 
-        private static TreeNode CreateTree(string path)
+        private TreeNode CreateTree(string path)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -56,7 +75,7 @@ namespace XmlController
             return treeNode;
         }
 
-        private static void CheckTree(string path, TreeNode tree, bool order)
+        private void CheckTree(string path, TreeNode tree, bool order)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
@@ -67,7 +86,7 @@ namespace XmlController
             }
         }
 
-        private static TreeNode AddBranch(XmlNode service_group, TreeNode branch)
+        private TreeNode AddBranch(XmlNode service_group, TreeNode branch)
         {
             foreach (XmlNode node in service_group.ChildNodes)
             {
@@ -88,14 +107,14 @@ namespace XmlController
             return branch;
         }
 
-        private static void CheckBranch(XmlNode nodes, TreeNode branch, bool order)
+        private void CheckBranch(XmlNode nodes, TreeNode branch, bool order)
         {
             TreeNode minibranch;
             foreach (XmlNode node in nodes.ChildNodes)
             {
-                try
+                minibranch = branch.GetChild(node.Attributes["name"].Value);
+                if (minibranch != null)
                 {
-                    minibranch = branch.GetChild(node.Attributes["name"].Value);
                     if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
                         CheckBranch(node, minibranch, order);
@@ -104,37 +123,49 @@ namespace XmlController
                     {
                         if (order)
                         {
-                            if (minibranch.GetChild(node.Attributes["hashCode"].Value)!=null)
+                            if (minibranch.GetChild(node.Attributes["hashCode"].Value) != null)
                             {
-                                changes.Add(new KeyValuePair<int, string>(0, node.Attributes["name"].Value));
+                                if (allowed[0])
+                                {
+                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "No changes"));
+                                }
                             }
                             else
                             {
-                                changes.Add(new KeyValuePair<int, string>(1, node.Attributes["name"].Value));
+                                if (allowed[1])
+                                {
+                                    changes.Add(new Service(minibranch.ID, minibranch.Parent.ID, "Edited"));
+                                }
                             }
                         }
                     }
                 }
-                catch
+                else
                 {
                     if (order)
                     {
-                        minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
-                        GetValue(branch).Add(minibranch);
-                        foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                        if (allowed[2])
                         {
-                            changes.Add(new KeyValuePair<int, string>(2, n.ID));
+                            minibranch = AddBranch(node, new TreeNode(node.Attributes["name"].Value));
+                            GetValue(branch).Add(minibranch);
+                            foreach (TreeNode n in GetValue(branch).GetChild(minibranch.ID))
+                            {
+                                changes.Add(new Service(n.ID, n.Parent.ID, "Added"));
+                            }
                         }
                     }
                     else
                     {
-                        changes.Add(new KeyValuePair<int, string>(3, node.Attributes["name"].Value));
+                        if (allowed[3])
+                        {
+                            changes.Add(new Service(node.Attributes["name"].Value, branch.ID, "Removed"));
+                        }
                     }
                 }
             }
         }
 
-        private static TreeNode GetValue(TreeNode node)
+        private TreeNode GetValue(TreeNode node)
         {
             List<string> identifiers = new List<string>
             {
@@ -168,6 +199,6 @@ namespace XmlController
                     return null;
             }
         }
-
+        #endregion
     }
 }

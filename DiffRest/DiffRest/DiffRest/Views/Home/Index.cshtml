@@ -1,4 +1,6 @@
-﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
+﻿@model IEnumerable<DiffRest.Models.Service>
+
+<script src="~/Scripts/jquery-1.9.1.js"></script>
 <script src="~/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/diff.js"></script>
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
@@ -7,13 +9,14 @@
 
 <!--old-->
 <label>
-    Old release:
+    Old version:
     <select id="oldVersion" onchange="GetRelease(this)">
         @foreach (string text in ViewBag.Versions)
         {
             <option value="@text">@text</option>
         }
     </select>
+    release:
     <select id="oldRelease">
         @foreach (string text in ViewBag.Releases)
         {
@@ -25,13 +28,14 @@
 
 <!--new-->
 <label>
-    New release:
+    New version:
     <select id="newVersion" onchange="GetRelease(this)">
         @foreach (string text in ViewBag.Versions)
         {
             <option value="@text">@text</option>
         }
     </select>
+    release:
     <select id="newRelease">
         @foreach (string text in ViewBag.Releases)
         {
@@ -57,6 +61,5 @@
             <th>State</th>
         </tr>
     </thead>
-    <tbody>
-    </tbody>
+    <tbody></tbody>
 </table>

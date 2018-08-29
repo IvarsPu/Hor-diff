@@ -55,8 +55,9 @@ namespace DiffRest.Controllers
             return str;
         }
 
+        //[Route("")]
         [HttpGet]
-        public JsonResult List(string oldRelease, string newRelease, bool noChange, bool eddited, bool added, bool removed)
+        public IList<Service> List(string oldRelease, string newRelease, bool noChange, bool eddited, bool added, bool removed)
         {
             string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
             string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
@@ -69,7 +70,7 @@ namespace DiffRest.Controllers
                 removed
             };
 
-            return Json(CompareFiles(xml1, xml2, allowed), JsonRequestBehavior.AllowGet);
+            return CompareFiles(xml1, xml2, allowed);
         }
 
         #region Change detection

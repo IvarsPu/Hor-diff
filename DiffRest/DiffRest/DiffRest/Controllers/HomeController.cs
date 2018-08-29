@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Xml;
 using DiffRest.Models;
@@ -11,9 +8,6 @@ namespace DiffRest.Controllers
 {
     public class HomeController : Controller
     {
-        private List<Service> changes;
-        List<bool> allowed;
-
         [HttpGet]
         public ActionResult Index()
         {
@@ -39,7 +33,7 @@ namespace DiffRest.Controllers
             string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
             string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
 
-            allowed = new List<bool>
+            List<bool> allowed = new List<bool>
             {
                 noChange,
                 eddited,
@@ -47,17 +41,16 @@ namespace DiffRest.Controllers
                 removed
             };
 
-            changes = new List<Service>();
-            CompareFiles(xml1, xml2);
-
-            return Json(changes, JsonRequestBehavior.AllowGet);
+            return Json(CompareFiles(xml1, xml2, allowed), JsonRequestBehavior.AllowGet);
         }
 
         #region Change detection
-        private void CompareFiles(string xml1, string xml2)
+        private List<Service> CompareFiles(string xml1, string xml2, List<bool> allowed)
         {
-            CheckTree(xml2, CreateTree(xml1), true);//Shows what hasnt changed, what has changed and whats added
-            CheckTree(xml1, CreateTree(xml2), false);//Shows what was removed
+            List<Service> changes = new List<Service>();
+            changes.AddRange(CheckTree(xml2, CreateTree(xml1), true, allowed));//Shows what hasnt changed, what has changed and whats added
+            changes.AddRange(CheckTree(xml1, CreateTree(xml2), false, allowed));//Shows what was removed
+            return changes;
         }
 
         private TreeNode CreateTree(string path)
@@ -94,28 +87,30 @@ namespace DiffRest.Controllers
             return branch;
         }
 
-        private void CheckTree(string path, TreeNode tree, bool order)
+        private List<Service> CheckTree(string path, TreeNode tree, bool order, List<bool> allowed)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
 
+            List<Service> changes = new List<Service>();
             foreach (XmlNode node in doc)
             {
-                CheckBranch(node, tree.GetChild(node.Name), order);
+                changes.AddRange(CheckBranch(node, tree.GetChild(node.Name), order, allowed));
             }
+            return changes;
         }
 
-        private void CheckBranch(XmlNode nodes, TreeNode branch, bool order)
+        private List<Service> CheckBranch(XmlNode nodes, TreeNode branch, bool order, List<bool> allowed)
         {
-            TreeNode miniBranch;
+            List<Service> changes = new List<Service>();
             foreach (XmlNode node in nodes.ChildNodes)
             {
-                miniBranch = branch.GetChild(node.Attributes["name"].Value);
+                TreeNode miniBranch = branch.GetChild(node.Attributes["name"].Value);
                 if (miniBranch != null)
                 {
                     if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
                     {
-                        CheckBranch(node, miniBranch, order);
+                        changes.AddRange(CheckBranch(node, miniBranch, order, allowed));
                     }
                     else
                     {
@@ -160,6 +155,7 @@ namespace DiffRest.Controllers
                     }
                 }
             }
+            return changes;
         }
         #endregion
     }

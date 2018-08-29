@@ -1,32 +1,36 @@
-﻿<title>Difference detection</title>
-<script src="~/Scripts/jquery-1.9.1.js"></script>
+﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
 <script src="~/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/diff.js"></script>
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
 
-<h3>Find changes</h3>
-<label>Old release:</label>
-<select id="old">
-    @foreach (string text in Model)
-    {
-        <option value="@text">@text</option>
-    }
-</select>
+<center><h3>Find changes</h3></center>
+
+<label>
+    Old release:
+    <select id="old">
+        @foreach (string text in Model)
+        {
+            <option value="@text">@text</option>
+        }
+    </select>
+</label>
 <br>
 
-<label>New release:</label>
-<select id="new">
-    @foreach (string text in Model)
-    {
-        <option value="@text">@text</option>
-    }
-</select>
+<label>
+    New release:
+    <select id="new">
+        @foreach (string text in Model)
+        {
+            <option value="@text">@text</option>
+        }
+    </select>
+</label>
 <br>
 
-<label><input id="CheckNoChange" type="checkbox" labe checked>Not changed</label>
-<label><input id="CheckEdited" type="checkbox" labe checked>Edited</label>
-<label><input id="CheckAdded" type="checkbox" labe checked>Added</label>
-<label><input id="CheckRemoved" type="checkbox" labe checked>Removed</label>
+<label style="padding:5px;"><input id="CheckNoChange" type="checkbox" checked>Not changed</label>
+<label style="padding:5px;"><input id="CheckEdited" type="checkbox" checked>Edited</label>
+<label style="padding:5px;"><input id="CheckAdded" type="checkbox" checked>Added</label>
+<label style="padding:5px;"><input id="CheckRemoved" type="checkbox" checked>Removed</label>
 <br>
 
 <input type="button" onclick="GetDiff()" value="Search">

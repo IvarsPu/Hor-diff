@@ -16,15 +16,43 @@ namespace DiffRest.Controllers
 
             List<string> str = new List<string>();
 
-            foreach (XmlNode node in doc.ChildNodes[0].ChildNodes)
+            foreach (XmlNode version in doc.ChildNodes[0].ChildNodes)
             {
-                foreach (XmlNode nodes in node.ChildNodes)
+                str.Add(version.Attributes["name"].Value);
+            }
+
+            ViewBag.Versions = str;
+            ViewBag.Releases = GetRelease(str[0]);
+
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult Release(string versionName)
+        {
+            return Json(GetRelease(versionName), JsonRequestBehavior.AllowGet);
+        }
+        
+        private List<string> GetRelease(string versionName)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
+
+            List<string> str = new List<string>();
+
+            foreach (XmlNode version in doc.ChildNodes[0].ChildNodes)
+            {
+                if (version.Attributes["name"].Value.Equals(versionName))
                 {
-                    str.Add(node.Attributes["name"].Value + "/" + nodes.Attributes["name"].Value);
+                    foreach (XmlNode release in version.ChildNodes)
+                    {
+                        str.Add(release.Attributes["name"].Value);
+                    }
+                    break;
                 }
             }
 
-            return View(str);
+            return str;
         }
 
         [HttpGet]

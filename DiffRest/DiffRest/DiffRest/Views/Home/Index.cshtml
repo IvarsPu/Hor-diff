@@ -5,10 +5,17 @@
 
 <center><h3>Find changes</h3></center>
 
+<!--old-->
 <label>
     Old release:
-    <select id="old">
-        @foreach (string text in Model)
+    <select id="oldVersion" onchange="GetRelease(this)">
+        @foreach (string text in ViewBag.Versions)
+        {
+            <option value="@text">@text</option>
+        }
+    </select>
+    <select id="oldRelease">
+        @foreach (string text in ViewBag.Releases)
         {
             <option value="@text">@text</option>
         }
@@ -16,10 +23,17 @@
 </label>
 <br>
 
+<!--new-->
 <label>
     New release:
-    <select id="new">
-        @foreach (string text in Model)
+    <select id="newVersion" onchange="GetRelease(this)">
+        @foreach (string text in ViewBag.Versions)
+        {
+            <option value="@text">@text</option>
+        }
+    </select>
+    <select id="newRelease">
+        @foreach (string text in ViewBag.Releases)
         {
             <option value="@text">@text</option>
         }

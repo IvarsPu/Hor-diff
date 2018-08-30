@@ -20,10 +20,10 @@ namespace DiffRest.Controllers
 
             foreach (XmlNode node in xml.SelectNodes("//version"))
             {
-                List<string> releases = new List<string>();
+                List<HorizonRelease> releases = new List<HorizonRelease>();
                 foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
                 {
-                    releases.Add(leaf.Attributes["name"].Value);
+                    releases.Add(new HorizonRelease(leaf.Attributes["name"].Value));
                 }
                 HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value)
                 {

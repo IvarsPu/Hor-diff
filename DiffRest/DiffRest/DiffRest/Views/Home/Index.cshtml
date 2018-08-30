@@ -1,65 +1,28 @@
 ﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
 <script src="~/Scripts/bootstrap.js"></script>
-<script src="~/Scripts/diff.js"></script>
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
-
-<center><h3>Find changes</h3></center>
-
-<!--old-->
-<label>
-    Old version:
-    <select id="oldVersion">
-        @foreach (string text in ViewBag.Versions.Keys)
-        {
-            <option value="@text">@text</option>
-        }
-    </select>
-    release:
-    <select id="oldRelease">
-        <!--get better way-->
-        @foreach (string text in ViewBag.Versions["515"])
-        {
-            <option value="@text">@text</option>
-        }
-    </select>
-</label>
-<br>
-
-
-<label style="padding:5px;"><input id="CheckNoChange" type="checkbox">Not changed</label>
-<label style="padding:5px;"><input id="CheckAdded" type="checkbox" checked>Added</label>
-<br>
-
-<input type="button" onclick="test()" value="Search">
 
 <table id="tblDiff">
     <thead>
         <tr>
             <th>Name</th>
-            <th>Service</th>
             <th>State</th>
         </tr>
     </thead>
-    <tbody></tbody>
-</table>
-
-<script>
-    function test()
-    {
-        //var emp = { "EmpName": $("#txtName").val() };
-        $.ajax({
-            url: '/Home/CompareFiles',
-            type: "GET",
-            data: {
-                "oldRelease": document.getElementById("oldVersion").value + "/" + document.getElementById("oldRelease").value,
-                "newRelease": document.getElementById("oldVersion").value + "/" + document.getElementById("oldRelease").value
-            },
-            success: function (msg) {
-                alert(msg[0]);
-            },
-            error: function (errormessage) {
-                alert(errormessage.responseText);
+    <tbody>
+        @foreach (DiffRest.Models.Service s in ViewBag.Comparison)
+        {
+            foreach (DiffRest.Models.Resource r in s.ResourceList)
+            {
+            <tr>
+                <td>
+                    @r.Name
+                </td>
+                <td>
+                    @r.Status
+                </td>
+            </tr>
             }
-        });
-    }
-</script>
+        }
+    </tbody>
+</table>

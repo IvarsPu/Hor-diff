@@ -13,18 +13,19 @@ namespace DiffRest.Controllers
         public ActionResult Index()
         {
             ViewBag.Versions = GetVersions();
+            ViewBag.Comparison = CompareFiles("515/3", "520/1", true, true);
 
             return View();
         }
 
         [Route("Home/GetVersions")]
         [HttpGet]
-        public List<KeyValuePair<string, List<string>>> GetVersions()
+        public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
             xml.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
 
-            List<KeyValuePair<string, List<string>>> versions = new List<KeyValuePair<string, List<string>>>();
+            IList<HorizonVersion> versions = new List<HorizonVersion>();
 
             foreach (XmlNode node in xml.SelectNodes("//version"))
             {
@@ -33,7 +34,9 @@ namespace DiffRest.Controllers
                 {
                     releases.Add(leaf.Attributes["name"].Value);
                 }
-                versions.Add(new KeyValuePair<string, List<string>>(node.Attributes["name"].Value, releases));
+                HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value);
+                version.ReleaseList = releases;
+                versions.Add(version);
             }
 
             return versions;
@@ -41,7 +44,7 @@ namespace DiffRest.Controllers
 
         [Route("Home/CompareFiles")]
         [HttpGet]
-        public Dictionary<string, Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true)
+        public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true)
         {
             XmlDocument xml = new XmlDocument();
             Dictionary<string, Service> services = new Dictionary<string, Service>();
@@ -67,7 +70,7 @@ namespace DiffRest.Controllers
                 Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
                 if (service == null)
                 {
-                    if (added)//adds service only if user want to see it
+                    if (added)
                     {
                         service = AddService(node);
                         foreach (Resource resource in service.ResourceList)
@@ -79,17 +82,25 @@ namespace DiffRest.Controllers
                 }
                 else
                 {
-                    services[node.Attributes["name"].Value] = SearchService(node, service, noChange, added);
+                    service = CompareResources(node, service, noChange, added);
+                    if (service == null)
+                    {
+                        services.Remove(node.Attributes["name"].Value);
+                    }
+                    else
+                    {
+                        services[node.Attributes["name"].Value] = service;
+                    }
                 }
             }
 
-            return services;
+            return services.Values.ToList();
         }
 
         #region Change detection
         private Service AddService(XmlNode node)
         {
-            Service service = new Service(node.Attributes["description"].Value);
+            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value);
             foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
                 service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
@@ -97,8 +108,9 @@ namespace DiffRest.Controllers
             return service;
         }
 
-        private Service SearchService(XmlNode node, Service service, bool noChange, bool added)
+        private Service CompareResources(XmlNode node, Service service, bool noChange, bool added)
         {
+            bool serviceMeetsNeeds = false;
             foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
                 Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
@@ -106,30 +118,35 @@ namespace DiffRest.Controllers
                 {
                     if (resource.HashCode.Equals(leaf.Attributes["hashCode"].Value))
                     {
+                        resource.Status = "not changed";
                         if (noChange)
                         {
-                            resource.Status = "not changed";
-                        }
-                        else
-                        {
-                            service.ResourceList.Remove(resource);
+                            serviceMeetsNeeds = true;
                         }
                     }
                     else
                     {
                         resource.Status = "eddited";
+                        serviceMeetsNeeds = true;
                     }
                 }
                 else
                 {
+                    service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
                     if (added)
                     {
-                        service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
+                        serviceMeetsNeeds = true;
                     }
                 }
             }
-            //service could be empty if no changes were made, or it was empty and after adding new element decides not to see it
-            return service;
+            if (serviceMeetsNeeds || service.ResourceList.Find(r => r.Status.Equals("removed")) != null)
+            {
+                return service;
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
     }

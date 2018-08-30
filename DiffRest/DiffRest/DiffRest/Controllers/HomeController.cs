@@ -66,6 +66,7 @@ namespace DiffRest.Controllers
                     if (added)
                     {
                         service = AddService(node);
+                        service.Status = "added";
                         foreach (Resource resource in service.ResourceList)
                         {
                             resource.Status = "added";
@@ -93,7 +94,7 @@ namespace DiffRest.Controllers
         #region Change detection
         private Service AddService(XmlNode node)
         {
-            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value);
+            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, "removed");
             foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
                 service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
@@ -103,7 +104,6 @@ namespace DiffRest.Controllers
 
         private Service CompareResources(XmlNode node, Service service, bool noChange, bool added)
         {
-            bool serviceMeetsNeeds = false;
             foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
                 Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
@@ -112,33 +112,50 @@ namespace DiffRest.Controllers
                     if (resource.HashCode.Equals(leaf.Attributes["hashCode"].Value))
                     {
                         resource.Status = "not changed";
-                        if (noChange)
-                        {
-                            serviceMeetsNeeds = true;
-                        }
                     }
                     else
                     {
                         resource.Status = "eddited";
-                        serviceMeetsNeeds = true;
                     }
                 }
                 else
                 {
                     service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
-                    if (added)
+                }
+            }
+
+            List<Resource> list = service.ResourceList;
+            if (list.All(o => o.Status.Equals(list[0].Status)))
+            {
+                if (list.Count > 0)
+                {
+                    service.Status = list[0].Status;
+                    if(!noChange && service.Status.Equals("not changed") || !added && service.Status.Equals("added"))
                     {
-                        serviceMeetsNeeds = true;
+                        return null;
+                    }
+                    else
+                    {
+                        return service;
+                    }
+                }
+                else
+                {
+                    service.Status = "not changed";
+                    if (!noChange)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return service;
                     }
                 }
             }
-            if (serviceMeetsNeeds || service.ResourceList.Find(r => r.Status.Equals("removed")) != null)
-            {
-                return service;
-            }
             else
             {
-                return null;
+                service.Status = "eddited";
+                return service;
             }
         }
         #endregion

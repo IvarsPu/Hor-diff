@@ -1,29 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using System.Xml;
 using DiffRest.Models;
+using System.Web.Http;
 
 namespace DiffRest.Controllers
 {
-    public class HomeController : Controller
+    [RoutePrefix("api/Home")]
+    public class HomeController : ApiController
     {
-        [Route("Home/Index")]
-        [HttpGet]
-        public ActionResult Index()
-        {
-            ViewBag.Versions = GetVersions();
-            ViewBag.Comparison = CompareFiles("515/3", "520/1", true, true);
-
-            return View();
-        }
-
-        [Route("Home/GetVersions")]
+        [Route("GetVersions")]
         [HttpGet]
         public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath("~/rest_sample/Versions.xml"));
 
             IList<HorizonVersion> versions = new List<HorizonVersion>();
 
@@ -34,22 +25,24 @@ namespace DiffRest.Controllers
                 {
                     releases.Add(leaf.Attributes["name"].Value);
                 }
-                HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value);
-                version.ReleaseList = releases;
+                HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value)
+                {
+                    ReleaseList = releases
+                };
                 versions.Add(version);
             }
 
             return versions;
         }
 
-        [Route("Home/CompareFiles")]
+        [Route("CompareFiles")]
         [HttpGet]
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true)
         {
             XmlDocument xml = new XmlDocument();
             Dictionary<string, Service> services = new Dictionary<string, Service>();
-
-            xml.Load(Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml"));
+            
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath("~/rest_sample/" + oldRelease + "/metadata.xml"));
             //fills services
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
@@ -63,7 +56,7 @@ namespace DiffRest.Controllers
                 }
             }
 
-            xml.Load(Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml"));
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath("~/rest_sample/" + newRelease + "/metadata.xml"));
             //searches services
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {

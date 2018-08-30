@@ -163,7 +163,6 @@
     </Compile>
     <Compile Include="Models\Resource.cs" />
     <Compile Include="Models\Service.cs" />
-    <Compile Include="Models\TreeNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

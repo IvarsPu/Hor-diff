@@ -1,6 +1,4 @@
-﻿@model IEnumerable<DiffRest.Models.Service>
-
-<script src="~/Scripts/jquery-1.9.1.js"></script>
+﻿<script src="~/Scripts/jquery-1.9.1.js"></script>
 <script src="~/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/diff.js"></script>
 <link href="~/Content/bootstrap.css" rel="stylesheet" />
@@ -10,15 +8,16 @@
 <!--old-->
 <label>
     Old version:
-    <select id="oldVersion" onchange="GetRelease(this)">
-        @foreach (string text in ViewBag.Versions)
+    <select id="oldVersion">
+        @foreach (string text in ViewBag.Versions.Keys)
         {
             <option value="@text">@text</option>
         }
     </select>
     release:
     <select id="oldRelease">
-        @foreach (string text in ViewBag.Releases)
+        <!--get better way-->
+        @foreach (string text in ViewBag.Versions["515"])
         {
             <option value="@text">@text</option>
         }
@@ -26,32 +25,12 @@
 </label>
 <br>
 
-<!--new-->
-<label>
-    New version:
-    <select id="newVersion" onchange="GetRelease(this)">
-        @foreach (string text in ViewBag.Versions)
-        {
-            <option value="@text">@text</option>
-        }
-    </select>
-    release:
-    <select id="newRelease">
-        @foreach (string text in ViewBag.Releases)
-        {
-            <option value="@text">@text</option>
-        }
-    </select>
-</label>
-<br>
 
-<label style="padding:5px;"><input id="CheckNoChange" type="checkbox" checked>Not changed</label>
-<label style="padding:5px;"><input id="CheckEdited" type="checkbox" checked>Edited</label>
+<label style="padding:5px;"><input id="CheckNoChange" type="checkbox">Not changed</label>
 <label style="padding:5px;"><input id="CheckAdded" type="checkbox" checked>Added</label>
-<label style="padding:5px;"><input id="CheckRemoved" type="checkbox" checked>Removed</label>
 <br>
 
-<input type="button" onclick="GetDiff()" value="Search">
+<input type="button" onclick="test()" value="Search">
 
 <table id="tblDiff">
     <thead>
@@ -63,3 +42,24 @@
     </thead>
     <tbody></tbody>
 </table>
+
+<script>
+    function test()
+    {
+        //var emp = { "EmpName": $("#txtName").val() };
+        $.ajax({
+            url: '/Home/CompareFiles',
+            type: "GET",
+            data: {
+                "oldRelease": document.getElementById("oldVersion").value + "/" + document.getElementById("oldRelease").value,
+                "newRelease": document.getElementById("oldVersion").value + "/" + document.getElementById("oldRelease").value
+            },
+            success: function (msg) {
+                alert(msg[0]);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+</script>

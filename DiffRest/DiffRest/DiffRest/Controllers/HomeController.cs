@@ -1,190 +1,135 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using System.Xml;
 using DiffRest.Models;
-using RestLogService.Models;
 
 namespace DiffRest.Controllers
 {
     public class HomeController : Controller
     {
+        [Route("Home/Index")]
         [HttpGet]
         public ActionResult Index()
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
-
-            List<string> str = new List<string>();
-
-            foreach (XmlNode version in doc.ChildNodes[0].ChildNodes)
-            {
-                str.Add(version.Attributes["name"].Value);
-            }
-
-            ViewBag.Versions = str;
-            ViewBag.Releases = GetRelease(str[0]);
+            ViewBag.Versions = GetVersions();
 
             return View();
         }
 
+        [Route("Home/GetVersions")]
         [HttpGet]
-        public JsonResult Release(string versionName)
+        public List<KeyValuePair<string, List<string>>> GetVersions()
         {
-            return Json(GetRelease(versionName), JsonRequestBehavior.AllowGet);
-        }
-        
-        private List<string> GetRelease(string versionName)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
+            XmlDocument xml = new XmlDocument();
+            xml.Load(Server.MapPath(@"~/rest_sample/Versions.xml"));
 
-            List<string> str = new List<string>();
+            List<KeyValuePair<string, List<string>>> versions = new List<KeyValuePair<string, List<string>>>();
 
-            foreach (XmlNode version in doc.ChildNodes[0].ChildNodes)
+            foreach (XmlNode node in xml.SelectNodes("//version"))
             {
-                if (version.Attributes["name"].Value.Equals(versionName))
+                List<string> releases = new List<string>();
+                foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
                 {
-                    foreach (XmlNode release in version.ChildNodes)
-                    {
-                        str.Add(release.Attributes["name"].Value);
-                    }
-                    break;
+                    releases.Add(leaf.Attributes["name"].Value);
+                }
+                versions.Add(new KeyValuePair<string, List<string>>(node.Attributes["name"].Value, releases));
+            }
+
+            return versions;
+        }
+
+        [Route("Home/CompareFiles")]
+        [HttpGet]
+        public Dictionary<string, Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true)
+        {
+            XmlDocument xml = new XmlDocument();
+            Dictionary<string, Service> services = new Dictionary<string, Service>();
+
+            xml.Load(Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml"));
+            //fills services
+            foreach (XmlNode node in xml.SelectNodes("//service"))
+            {
+                try
+                {
+                    services.Add(node.Attributes["name"].Value, AddService(node));
+                }
+                catch
+                {
+                    //element with this key already exists
                 }
             }
 
-            return str;
-        }
-
-        //[Route("")]
-        [HttpGet]
-        public IList<Service> List(string oldRelease, string newRelease, bool noChange, bool eddited, bool added, bool removed)
-        {
-            string xml1 = Server.MapPath(@"~/rest_sample/" + oldRelease + "/metadata.xml");
-            string xml2 = Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml");
-
-            List<bool> allowed = new List<bool>
+            xml.Load(Server.MapPath(@"~/rest_sample/" + newRelease + "/metadata.xml"));
+            //searches services
+            foreach (XmlNode node in xml.SelectNodes("//service"))
             {
-                noChange,
-                eddited,
-                added,
-                removed
-            };
+                Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
+                if (service == null)
+                {
+                    if (added)//adds service only if user want to see it
+                    {
+                        service = AddService(node);
+                        foreach (Resource resource in service.ResourceList)
+                        {
+                            resource.Status = "added";
+                        }
+                        services.Add(node.Attributes["name"].Value, service);
+                    }
+                }
+                else
+                {
+                    services[node.Attributes["name"].Value] = SearchService(node, service, noChange, added);
+                }
+            }
 
-            return CompareFiles(xml1, xml2, allowed);
+            return services;
         }
 
         #region Change detection
-        private List<Service> CompareFiles(string xml1, string xml2, List<bool> allowed)
+        private Service AddService(XmlNode node)
         {
-            List<Service> changes = new List<Service>();
-            changes.AddRange(CheckTree(xml2, CreateTree(xml1), true, allowed));//Shows what hasnt changed, what has changed and whats added
-            changes.AddRange(CheckTree(xml1, CreateTree(xml2), false, allowed));//Shows what was removed
-            return changes;
-        }
-
-        private TreeNode CreateTree(string path)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path);
-            
-            TreeNode treeNode = new TreeNode("Root");
-            foreach (XmlNode node in doc)
+            Service service = new Service(node.Attributes["description"].Value);
+            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
-                treeNode.Add(CreateBranch(node, new TreeNode(node.Name)));
+                service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
             }
-            return treeNode;
+            return service;
         }
 
-        private TreeNode CreateBranch(XmlNode service_group, TreeNode branch)
+        private Service SearchService(XmlNode node, Service service, bool noChange, bool added)
         {
-            foreach (XmlNode node in service_group.ChildNodes)
+            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
             {
-                if (node.ChildNodes.Count > 0)
+                Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
+                if (resource != null)
                 {
-                    branch.Add(CreateBranch(node, new TreeNode(node.Attributes["name"].Value)));
-                }
-                else
-                {
-                    TreeNode smallBranch = new TreeNode(node.Attributes["name"].Value);
-                    if (node.Attributes["hashCode"] != null)
+                    if (resource.HashCode.Equals(leaf.Attributes["hashCode"].Value))
                     {
-                        smallBranch.Add(new TreeNode(node.Attributes["hashCode"].Value));
-                    }
-                    branch.Add(smallBranch);
-                }
-            }
-            return branch;
-        }
-
-        private List<Service> CheckTree(string path, TreeNode tree, bool order, List<bool> allowed)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path);
-
-            List<Service> changes = new List<Service>();
-            foreach (XmlNode node in doc)
-            {
-                changes.AddRange(CheckBranch(node, tree.GetChild(node.Name), order, allowed));
-            }
-            return changes;
-        }
-
-        private List<Service> CheckBranch(XmlNode nodes, TreeNode branch, bool order, List<bool> allowed)
-        {
-            List<Service> changes = new List<Service>();
-            foreach (XmlNode node in nodes.ChildNodes)
-            {
-                TreeNode miniBranch = branch.GetChild(node.Attributes["name"].Value);
-                if (miniBranch != null)
-                {
-                    if (node.ChildNodes.Count > 0 || node.Attributes["hashCode"] == null)
-                    {
-                        changes.AddRange(CheckBranch(node, miniBranch, order, allowed));
-                    }
-                    else
-                    {
-                        if (order)
+                        if (noChange)
                         {
-                            if (miniBranch.GetChild(node.Attributes["hashCode"].Value) != null)
-                            {
-                                if (allowed[0])
-                                {
-                                    changes.Add(new Service(miniBranch.ID, miniBranch.Parent.ID, "No changes"));
-                                }
-                            }
-                            else
-                            {
-                                if (allowed[1])
-                                {
-                                    changes.Add(new Service(miniBranch.ID, miniBranch.Parent.ID, "Edited"));
-                                }
-                            }
+                            resource.Status = "not changed";
                         }
-                    }
-                }
-                else
-                {
-                    if (order)
-                    {
-                        if (allowed[2])
+                        else
                         {
-                            miniBranch = CreateBranch(node, new TreeNode(node.Attributes["name"].Value));
-                            foreach (TreeNode smallBranch in miniBranch)
-                            {
-                                changes.Add(new Service(smallBranch.ID, smallBranch.Parent.ID, "Added"));
-                            }
+                            service.ResourceList.Remove(resource);
                         }
                     }
                     else
                     {
-                        if (allowed[3])
-                        {
-                            changes.Add(new Service(node.Attributes["name"].Value, branch.ID, "Removed"));
-                        }
+                        resource.Status = "eddited";
+                    }
+                }
+                else
+                {
+                    if (added)
+                    {
+                        service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
                     }
                 }
             }
-            return changes;
+            //service could be empty if no changes were made, or it was empty and after adding new element decides not to see it
+            return service;
         }
         #endregion
     }

@@ -16,13 +16,13 @@ namespace DiffRest.Models
         }
 
         [DataMember(Name = "Name")]
-        public string Name { get; set; } = String.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [DataMember(Name = "Description")]
-        public string Description { get; set; } = String.Empty;
+        public string Description { get; set; } = string.Empty;
 
         [DataMember(Name = "Status")]
-        public string Status { get; set; } = String.Empty;
+        public string Status { get; set; } = string.Empty;
 
         [DataMember(Name = "ResourceList")]
         public List<Resource> ResourceList { get; set; } = new List<Resource>();

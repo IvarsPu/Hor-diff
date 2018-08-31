@@ -16,15 +16,15 @@ namespace DiffRest.Models
         }
 
         [DataMember(Name = "Name")]
-        public string Name { get; set; } = String.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [DataMember(Name = "HashCode")]
-        public string HashCode { get; set; } = String.Empty;
+        public string HashCode { get; set; } = string.Empty;
 
         [DataMember(Name = "NoNamspaceHashCode")]
-        public string NoNamspaceHashCode { get; set; } = String.Empty;
+        public string NoNamspaceHashCode { get; set; } = string.Empty;
 
         [DataMember(Name = "Status")]
-        public string Status { get; set; } = String.Empty;
+        public string Status { get; set; } = string.Empty;
     }
 }

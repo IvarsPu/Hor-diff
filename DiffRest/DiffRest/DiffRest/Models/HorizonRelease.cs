@@ -16,6 +16,6 @@ namespace DiffRest.Models
         }
 
         [DataMember(Name = "Release")]
-        public string Release { get; set; } = String.Empty;
+        public string Release { get; set; } = string.Empty;
     }
 }

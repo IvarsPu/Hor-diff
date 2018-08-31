@@ -16,7 +16,7 @@ namespace DiffRest.Models
         }
 
         [DataMember(Name = "Version")]
-        public string Version { get; set; } = String.Empty;
+        public string Version { get; set; } = string.Empty;
 
         [DataMember(Name = "ReleaseList")]
         public List<HorizonRelease> ReleaseList { get; set; } = new List<HorizonRelease>();

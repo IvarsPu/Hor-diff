@@ -10,7 +10,6 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        //curl -i "http://localhost:51458/Home/GetVersions" -H "Accept: text/json"
         [Route("GetVersions")]
         [HttpGet]
         public IList<HorizonVersion> GetVersions()
@@ -40,15 +39,19 @@ namespace DiffRest.Controllers
         {
             XmlDocument xml = new XmlDocument();
             string path = WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString();
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + oldRelease + "/metadata.xml"));
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + oldRelease + "/metadata.xml"));//old file
             Dictionary<string, Service> services = GetServices(xml);
 
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + newRelease + "/metadata.xml"));
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + newRelease + "/metadata.xml"));//new file
             return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 
         #region Change detection
-        //Gets all services and resources in xml file
+        /// <summary>
+        /// Gets all services and resources in xml file
+        /// </summary>
+        /// <param name="xml">Old Xml file</param>
+        /// <returns></returns>
         private Dictionary<string, Service> GetServices(XmlDocument xml)
         {
             Dictionary<string, Service> services = new Dictionary<string, Service>();
@@ -65,8 +68,12 @@ namespace DiffRest.Controllers
             }
             return services;
         }
-
-        //Create service from xml service node
+        
+        /// <summary>
+        /// Create service from xml service node
+        /// </summary>
+        /// <param name="node">Service node</param>
+        /// <returns></returns>
         private Service AddService(XmlNode node)
         {
             Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, "removed");
@@ -77,7 +84,15 @@ namespace DiffRest.Controllers
             return service;
         }
 
-        //Compares all services in the two xml files
+        /// <summary>
+        /// Compares all services in the two xml files
+        /// </summary>
+        /// <param name="services">Services from old xml</param>
+        /// <param name="xml">New xml file</param>
+        /// <param name="noChange">Show services with no change</param>
+        /// <param name="added">Show services that were added</param>
+        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
+        /// <returns></returns>
         private List<Service> CompareServices(Dictionary<string, Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
         {
             foreach (XmlNode node in xml.SelectNodes("//service"))
@@ -96,8 +111,8 @@ namespace DiffRest.Controllers
                         services.Add(node.Attributes["name"].Value, service);
                     }
                 }
-                else
-                {//existing
+                else//existing
+                { 
                     service = GetService(CompareResources(node, service, ignoreNamespaceChanges), noChange, added);
                     if (service == null)
                     {
@@ -113,7 +128,13 @@ namespace DiffRest.Controllers
             return services.Values.ToList();
         }
 
-        //Compares resources to determine if and how they they have been changed
+        /// <summary>
+        /// Compares resources to determine if and how they they have been changed
+        /// </summary>
+        /// <param name="node">Service node</param>
+        /// <param name="service">Existing service</param>
+        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
+        /// <returns></returns>
         private Service CompareResources(XmlNode node, Service service, bool ignoreNamespaceChanges)
         {
             foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
@@ -139,7 +160,13 @@ namespace DiffRest.Controllers
             return service;
         }
 
-        //Gets service and check if its what consumer asked for
+        /// <summary>
+        /// Gets service and check if its what consumer asked for
+        /// </summary>
+        /// <param name="service">Service to be checked</param>
+        /// <param name="noChange">If false services that were not changed wont show</param>
+        /// <param name="added">If false services that were added wont show</param>
+        /// <returns></returns>
         private Service GetService(Service service, bool noChange, bool added)
         {
             List<Resource> list = service.ResourceList;

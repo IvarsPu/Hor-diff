@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Metadataload.Models
 {
@@ -13,6 +15,8 @@ namespace Metadataload.Models
             EndTime = endTime;
             Done = done;
             Progress = progress;
+            
+            Token = TokenSource.Token;
         }
 
         [DataMember(Name = "StartTime")]
@@ -26,5 +30,9 @@ namespace Metadataload.Models
 
         [DataMember(Name = "Progress")]
         public int Progress { get; set; } = 0;
+
+        public CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
+
+        public CancellationToken Token { get; set; } = new CancellationToken();
     }
 }

@@ -26,30 +26,28 @@ namespace Metadataload.Controllers
 
             Process process = new Process(DateTime.Now, new DateTime(), false, 0);
             processes.Add(processId, process);
+            
+            var progress = new Progress<Process>(newProcess =>
+            {
+                process = newProcess;
+            });
 
-            Work(processId);
+            Task.Run(() => DoProcessing(progress, process));
 
             return processId;
         }
 
-        private void Work(int processId)
-        {
-            var progress = new Progress<Process>(process =>
-            {
-                processes[processId] = process;
-            });
-
-            Task.Run(() => DoProcessing(progress, processes[processId]));
-        }
-
         public void DoProcessing(IProgress<Process> progress, Process process)
         {
-            for (int i = 0; i != 100; ++i)
+            int i = 0;
+            //while process isnt canceled
+            while (!process.Token.IsCancellationRequested)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
                 //work in progress
                 process.Progress = i;
                 progress.Report(process);
+                i++;
             }
 
             //work ends
@@ -75,14 +73,23 @@ namespace Metadataload.Controllers
         [HttpGet]
         public KeyValuePair<bool,string> StopProcess(int processId)
         {
-            return new KeyValuePair<bool, string>(processes.Remove(processId), "test");
+            processes[processId].TokenSource.Cancel();
+            //if (processes.Remove(processId))
+            //{
+                return new KeyValuePair<bool, string>(true, "Sucessfully removed");
+            //}
+            //else
+            //{
+            //    return new KeyValuePair<bool, string>(false, "Element doesnt exist");
+            //}
         }
 
+        //http://localhost:49936/Home/GetProcessList?processNumber=1
         [Route("GetProcessList")]
         [HttpGet]
         public List<Process> GetProcessList(int processNumber)
         {
-            return null;
+            return processes.Reverse().ToDictionary(x => x.Key, x => x.Value).Values.Take(processNumber).ToList();
         }
     }
 }

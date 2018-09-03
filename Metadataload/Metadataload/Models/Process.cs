@@ -8,13 +8,10 @@ namespace Metadataload.Models
     [DataContract(Name = "Process")]
     public class Process
     {
-        public Process(int processId, DateTime startTime, DateTime endTime, bool done, int progress)
+        public Process(int processId, DateTime startTime)
         {
             Id = processId;
             StartTime = startTime;
-            EndTime = endTime;
-            Done = done;
-            Progress = progress;
             
             Token = TokenSource.Token;
         }
@@ -30,6 +27,9 @@ namespace Metadataload.Models
 
         [DataMember(Name = "Done")]
         public bool Done { get; set; } = false;
+
+        [DataMember(Name = "Status")]
+        public string Status { get; set; } = "Running";
 
         [DataMember(Name = "Progress")]
         public int Progress { get; set; } = 0;

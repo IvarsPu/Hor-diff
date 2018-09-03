@@ -24,7 +24,7 @@ namespace Metadataload.Controllers
                 processId = processes.Last().Key + 1;
             }
 
-            Process process = new Process(processId, DateTime.Now, new DateTime(), false, 0);
+            Process process = new Process(processId, DateTime.Now);
             processes.Add(processId, process);
 
             Task.Run(() => DoProcessing(process));
@@ -32,20 +32,25 @@ namespace Metadataload.Controllers
             return processId;
         }
 
+        //will be replaced with new method
         public void DoProcessing(Process process)
         {
-            int i = 0;
-            //while process isnt canceled
-            while (!process.Token.IsCancellationRequested)
+            for(int i = 0; i<=100;i++)
             {
-                //work in progress
+                if (process.Token.IsCancellationRequested)
+                {
+                    //work stopped
+                    process.Status = "Stopped";
+                    process.Token.ThrowIfCancellationRequested();
+                }
+                //working
                 process.Progress = i;
-                i++;
-                Thread.Sleep(100);
+                Thread.Sleep(500);
             }
 
             //work ends
             process.EndTime = DateTime.Now;
+            process.Status = "Done";
             process.Done = true;
         }
         
@@ -57,7 +62,7 @@ namespace Metadataload.Controllers
             return processes.TryGetValue(processId, out Process value) ? value : null;
         }
 
-        //http://localhost:49936/Home/StopProcess?processId=2
+        //http://localhost:49936/Home/StopProcess?processId=1
         [Route("StopProcess")]
         [HttpGet]
         public KeyValuePair<bool,string> StopProcess(int processId)
@@ -71,15 +76,15 @@ namespace Metadataload.Controllers
             {
                 return new KeyValuePair<bool, string>(false, "Element doesnt exist");
             }
-            //if (processes.Remove(processId))
+            //if (processes.Remove(processId)) do we need to clean dictionary?
         }
 
         //http://localhost:49936/Home/GetProcessList
         [Route("GetProcessList")]
         [HttpGet]
-        public List<Process> GetProcessList(int processNumber = 10)
+        public List<Process> GetProcessList(int noOfProcesses = 10)
         {
-            return processes.Reverse().ToDictionary(x => x.Key, x => x.Value).Values.Take(processNumber).ToList();
+            return processes.Reverse().ToDictionary(x => x.Key, x => x.Value).Values.Take(noOfProcesses).ToList();
         }
     }
 }

@@ -24,42 +24,31 @@ namespace Metadataload.Controllers
                 processId = processes.Last().Key + 1;
             }
 
-            Process process = new Process(DateTime.Now, new DateTime(), false, 0);
+            Process process = new Process(processId, DateTime.Now, new DateTime(), false, 0);
             processes.Add(processId, process);
-            
-            var progress = new Progress<Process>(newProcess =>
-            {
-                process = newProcess;
-            });
 
-            Task.Run(() => DoProcessing(progress, process));
+            Task.Run(() => DoProcessing(process));
 
             return processId;
         }
 
-        public void DoProcessing(IProgress<Process> progress, Process process)
+        public void DoProcessing(Process process)
         {
             int i = 0;
             //while process isnt canceled
             while (!process.Token.IsCancellationRequested)
             {
-                Thread.Sleep(100);
                 //work in progress
                 process.Progress = i;
-                progress.Report(process);
                 i++;
+                Thread.Sleep(100);
             }
 
             //work ends
             process.EndTime = DateTime.Now;
             process.Done = true;
-            progress.Report(process);
         }
-
-
-
-
-
+        
         //http://localhost:49936/Home/GetProcessStatus?processId=1
         [Route("GetProcessStatus")]
         [HttpGet]
@@ -68,26 +57,27 @@ namespace Metadataload.Controllers
             return processes.TryGetValue(processId, out Process value) ? value : null;
         }
 
-        //http://localhost:49936/Home/StopProcess?processId=1
+        //http://localhost:49936/Home/StopProcess?processId=2
         [Route("StopProcess")]
         [HttpGet]
         public KeyValuePair<bool,string> StopProcess(int processId)
         {
-            processes[processId].TokenSource.Cancel();
+            try
+            {
+                processes[processId].TokenSource.Cancel();
+                return new KeyValuePair<bool, string>(true, "Sucessfully stopped");
+            }
+            catch
+            {
+                return new KeyValuePair<bool, string>(false, "Element doesnt exist");
+            }
             //if (processes.Remove(processId))
-            //{
-                return new KeyValuePair<bool, string>(true, "Sucessfully removed");
-            //}
-            //else
-            //{
-            //    return new KeyValuePair<bool, string>(false, "Element doesnt exist");
-            //}
         }
 
-        //http://localhost:49936/Home/GetProcessList?processNumber=1
+        //http://localhost:49936/Home/GetProcessList
         [Route("GetProcessList")]
         [HttpGet]
-        public List<Process> GetProcessList(int processNumber)
+        public List<Process> GetProcessList(int processNumber = 10)
         {
             return processes.Reverse().ToDictionary(x => x.Key, x => x.Value).Values.Take(processNumber).ToList();
         }

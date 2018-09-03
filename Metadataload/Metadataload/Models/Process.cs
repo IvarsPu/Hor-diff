@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Metadataload.Models
 {
@@ -9,8 +8,9 @@ namespace Metadataload.Models
     [DataContract(Name = "Process")]
     public class Process
     {
-        public Process(DateTime startTime, DateTime endTime, bool done, int progress)
+        public Process(int processId, DateTime startTime, DateTime endTime, bool done, int progress)
         {
+            Id = processId;
             StartTime = startTime;
             EndTime = endTime;
             Done = done;
@@ -18,6 +18,9 @@ namespace Metadataload.Models
             
             Token = TokenSource.Token;
         }
+
+        [DataMember(Name = "Id")]
+        public int Id { get; set; } = 0;
 
         [DataMember(Name = "StartTime")]
         public DateTime StartTime { get; set; } = new DateTime();

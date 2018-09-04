@@ -264,3 +264,4 @@ App.config
 rest
 .gitattributes
 /RestLog/RestLogService/RestLogService/Web.config
+MetadataApp/XmlDownloaderTest/Metadataload/Web.config

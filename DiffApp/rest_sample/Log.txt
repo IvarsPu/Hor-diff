@@ -1,0 +1,10 @@
+INFO	04.09.2018. 13:03 Getting REST service structure
+INFO	04.09.2018. 13:06 Getting REST service structure
+INFO	04.09.2018. 13:06 Previous release for file reuse was not found
+INFO	04.09.2018. 13:44 Getting REST service structure
+INFO	04.09.2018. 13:44 Previous release for file reuse was not found
+INFO	04.09.2018. 13:44 Have found previous service load state
+INFO	04.09.2018. 13:44 Loaded: 208
+INFO	04.09.2018. 13:44 Loaded with errors: 3
+INFO	04.09.2018. 13:44 Failed: 0
+INFO	04.09.2018. 13:44 Waiting for load: 3055

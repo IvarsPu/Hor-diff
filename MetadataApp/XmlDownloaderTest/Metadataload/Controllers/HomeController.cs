@@ -27,7 +27,8 @@ namespace Metadataload.Controllers
             Process process = new Process(processId, DateTime.Now);
             processes.Add(processId, process);
 
-            Task.Run(() => DoProcessing(process));
+            Program prog = new Program();
+            Task.Run(() => prog.DoTheJob());
 
             return processId;
         }

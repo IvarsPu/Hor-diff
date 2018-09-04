@@ -11,7 +11,7 @@ namespace Metadataload.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        private static SortedDictionary<int, Process> processes = new SortedDictionary<int, Process>();
+        public static SortedDictionary<int, Process> processes = new SortedDictionary<int, Process>();
 
         //http://localhost:49936/Home/StartMetadataLoad?versionId=1
         [Route("StartMetadataLoad")]
@@ -26,35 +26,34 @@ namespace Metadataload.Controllers
 
             Process process = new Process(processId, DateTime.Now);
             processes.Add(processId, process);
-
-            Program prog = new Program();
-            Task.Run(() => prog.DoTheJob());
+            
+            Task.Run(() => new Program().DoTheJob());
 
             return processId;
         }
 
-        //will be replaced with new method
-        public void DoProcessing(Process process)
-        {
-            for(int i = 0; i<=100;i++)
-            {
-                if (process.Token.IsCancellationRequested)
-                {
-                    //work stopped
-                    process.Status = "Stopped";
-                    process.Token.ThrowIfCancellationRequested();
-                }
-                //working
-                process.Progress = i;
+        ////will be replaced with new method
+        //public void DoProcessing(Process process)
+        //{
+        //    for(int i = 0; i<=100;i++)
+        //    {
+        //        if (process.Token.IsCancellationRequested)
+        //        {
+        //            //work stopped
+        //            process.Status = "Stopped";
+        //            process.Token.ThrowIfCancellationRequested();
+        //        }
+        //        //working
+        //        process.Progress = i;
 
-                Thread.Sleep(600);//does something for 0.5 sec
-            }
+        //        Thread.Sleep(600);//does something for 0.5 sec
+        //    }
 
-            //work ends
-            process.EndTime = DateTime.Now;
-            process.Status = "Done";
-            process.Done = true;
-        }
+        //    //work ends
+        //    process.EndTime = DateTime.Now;
+        //    process.Status = "Done";
+        //    process.Done = true;
+        //}
         
         //http://localhost:49936/Home/GetProcessStatus?processId=1
         [Route("GetProcessStatus")]

@@ -26,15 +26,15 @@ namespace Metadataload.Controllers
 
         internal static void Log(string logMessage, string logLevel)
         {
-            if (Console.CursorLeft > 0)
-            {
-                int currentLineCursor = Console.CursorTop;
-                Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(new string(' ', Console.WindowWidth));
-                Console.SetCursorPosition(0, currentLineCursor);
-            }
-
-            Console.WriteLine(logMessage);
+            //if (Console.CursorLeft > 0)
+            //
+            //    int currentLineCursor = Console.CursorTop;
+            //    Console.SetCursorPosition(0, Console.CursorTop);
+            //    Console.Write(new string(' ', Console.WindowWidth));
+            //    Console.SetCursorPosition(0, currentLineCursor);
+            //}
+            
+            //Console.WriteLine(logMessage);
 
             string currentTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
             WriteLogFile(logLevel + "\t" + currentTime + " " + logMessage + "\n");
@@ -48,11 +48,13 @@ namespace Metadataload.Controllers
 
         internal static void LogProgress(string logMessage)
         {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentLineCursor);
-            Console.Write(logMessage);
+            HomeController.processes[1].Status = logMessage;
+            
+            //int currentLineCursor = Console.CursorTop;
+            //Console.SetCursorPosition(0, Console.CursorTop);
+            //Console.Write(new string(' ', Console.WindowWidth));
+            //Console.SetCursorPosition(0, currentLineCursor);
+            //Console.Write(logMessage);
         }
 
         private static void WriteLogFile(string message)

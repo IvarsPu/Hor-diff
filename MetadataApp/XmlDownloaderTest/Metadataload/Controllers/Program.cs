@@ -15,15 +15,15 @@ namespace Metadataload.Controllers
         {
             string rootUrl = WebConfigurationManager.ConnectionStrings["Server"].ConnectionString;
             string rootLocalPath = WebConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
-
+            
             this.appContext = new Models.AppContext(rootUrl, rootLocalPath);
 
             // Set the initial log path in root until the version folder is not known
             Logger.LogPath = this.appContext.RootLocalPath;
-
+            
             // ServiceLoadState serviceState = this.LoadRestServiceTestState();
             ServiceLoadState serviceState = this.LoadRestServiceLoadState();
-
+            
             //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
             //serviceState.CalcStatistics();
             int remainingServiceCount = 0;
@@ -74,7 +74,6 @@ namespace Metadataload.Controllers
         {
             ServiceLoadState loadState = null;
             List<RestService> services = null;
-
             try
             {
                 Logger.LogInfo("Getting REST service structure");
@@ -84,8 +83,7 @@ namespace Metadataload.Controllers
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
-
-
+                
                 ServiceLoadState savedState = this.webResourceLoader.GetServiceLoadState();
 
                 if (savedState != null)

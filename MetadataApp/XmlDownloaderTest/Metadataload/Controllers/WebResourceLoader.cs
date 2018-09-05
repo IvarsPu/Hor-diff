@@ -103,6 +103,7 @@ namespace Metadataload.Controllers
                     else
                     {
                         service.LoadStatus = ServiceLoadStatus.Loaded;
+                        process.Status.Loaded++;
                     }
                 }
 
@@ -236,6 +237,8 @@ namespace Metadataload.Controllers
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
 
+            Status status = HomeController.Processes[processId].Status;
+
             try
             {
                 filename = service.Name + ".wadl";
@@ -261,6 +264,7 @@ namespace Metadataload.Controllers
                     if (file.Error != string.Empty)
                     {
                         service.LoadStatus = ServiceLoadStatus.LoadedWithErrors;
+                        status.Loaded++;
                         break;
                     }
                 }
@@ -268,6 +272,7 @@ namespace Metadataload.Controllers
                 if (service.LoadStatus == ServiceLoadStatus.NotLoaded)
                 {
                     service.LoadStatus = ServiceLoadStatus.Loaded;
+                    status.Loaded++;
                 }
 
                 lock (xmlFileList)
@@ -280,6 +285,7 @@ namespace Metadataload.Controllers
                 string msg = string.Format("Service {0} load failed. {1}", service.Name, ex.Message);
                 Logger.LogError(msg);
                 service.LoadStatus = ServiceLoadStatus.Failed;
+                status.Failed++;
             }
 
             return service;

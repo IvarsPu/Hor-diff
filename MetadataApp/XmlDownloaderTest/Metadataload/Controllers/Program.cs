@@ -87,6 +87,7 @@ namespace Metadataload.Controllers
             List<RestService> services = loadState.Services;
             try
             {
+                HomeController.Processes[processId].Status.Total = loadState.PendingLoadServices;
                 Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
                 this.webResourceLoader.LoadServiceMetadata(services).Wait();
 
@@ -107,11 +108,6 @@ namespace Metadataload.Controllers
         private void LogState(ServiceLoadState loadState)
         {
             loadState.CalcStatistics();
-
-            Process process = HomeController.Processes[processId];
-            process.Status.Total = loadState.Loaded + loadState.LoadedWithErrors + loadState.Failed + loadState.NotLoaded;
-            process.Status.Loaded = loadState.Loaded;
-            process.Status.Failed = loadState.Failed;
 
             Logger.LogInfo("Loaded: " + loadState.Loaded);
             Logger.LogInfo("Loaded with errors: " + loadState.LoadedWithErrors);

@@ -10,9 +10,11 @@ namespace Metadataload.Controllers
     {
         private Models.AppContext appContext;
         private WebResourceLoader webResourceLoader;
+        private int processId;
 
-        public void DoTheJob()
+        public void DoTheJob(int processId)
         {
+            this.processId = processId;
             string rootUrl = WebConfigurationManager.ConnectionStrings["Server"].ConnectionString;
             string rootLocalPath = WebConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
             
@@ -40,36 +42,6 @@ namespace Metadataload.Controllers
             this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
-        public ServiceLoadState LoadRestServiceTestState()
-        {
-            ServiceLoadState loadState = new ServiceLoadState();
-            List<RestService> services = new List<RestService>();
-            loadState.Services = services;
-
-            try
-            {
-                Logger.LogInfo("Getting REST service structure");
-                XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
-                this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata);
-                services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-                Logger.LogError(ex.StackTrace);
-            }
-
-            RestService service = new RestService();
-            service.Href = this.appContext.RootUrl;
-            service.Name = "TdmGrExEvtSar";
-            service.Filepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\525.0\\Avansa_norēķini\\TdmGrExEvtSar";
-            services.Add(service);
-
-            loadState.CalcStatistics();
-
-            return loadState;
-        }
-
         public ServiceLoadState LoadRestServiceLoadState()
         {
             ServiceLoadState loadState = null;
@@ -79,7 +51,7 @@ namespace Metadataload.Controllers
                 Logger.LogInfo("Getting REST service structure");
 
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
-                this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata);
+                this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
@@ -142,7 +114,7 @@ namespace Metadataload.Controllers
 
         private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
         {
-            ServiceLoadState result = loadState;
+            //ServiceLoadState result = loadState;
             //removed for now
             //Console.WriteLine("Press y to continue load or any other key to start new load:");
             //ConsoleKeyInfo keyInfo = Console.ReadKey();
@@ -152,7 +124,7 @@ namespace Metadataload.Controllers
             //    result = null;
             //}
 
-            return result;
+            return loadState;
         }
 
         private List<RestService> GetPendingServices(List<RestService> services)

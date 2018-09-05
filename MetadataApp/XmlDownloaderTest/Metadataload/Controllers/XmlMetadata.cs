@@ -23,21 +23,6 @@ namespace Metadataload.Controllers
             this.appContext = appContext;
         }
 
-        /*        public static void test()
-                {
-                    XmlFile xmlFile = new XmlFile("", "", "", "query.xml");
-                    xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query.xml", LoadOptions.None);
-
-                    int hash1 = GetNoNamspaceHash(xmlFile);
-
-                    xmlFile = new XmlFile("", "", "", "query1.xml");
-                    xmlFile.XDocument = XDocument.Load("C:\\Temp\\test\\query1.xml", LoadOptions.None);
-
-                    int hash2 = GetNoNamspaceHash(xmlFile);
-                    Console.WriteLine("test Result: " + (hash1 == hash2));
-                }
-        */
-
         public List<RestService> InitServiceMetadata(WebResourceLoader webResourceLoader)
         {
             List<RestService> services = new List<RestService>();
@@ -301,19 +286,6 @@ namespace Metadataload.Controllers
         private string GetGlobalVerionFilePath()
         {
             return this.appContext.RootLocalPath + "Versions.xml";
-        }
-
-        public void testGetFileStoredRelease()
-        {
-            XmlFile xmlFile = new XmlFile("", "", "C:\\Projects\\Hor-diff\\DiffApp\\rest\\520\\2\\Aizņēmumi&Galvojumi\\TdmRepDokGrpBL", "TdmRepDokGrpBL.wadl");
-            XmlDocument prevVersionMetaXml = new XmlDocument();
-            prevVersionMetaXml.Load("C:\\Projects\\Hor-diff\\DiffApp\\rest\\520\\1\\metadata.xml");
-            string fileXPath = "//service[@name='TdmRepDokGrpBL']/service_schema[@name='TdmRepDokGrpBL.wadl']";
-            int hashCode = 437091426;
-
-            string release = GetFileStoredRelease(xmlFile, prevVersionMetaXml, fileXPath, hashCode);
-            //   node = prevVersionMetaXml.SelectSingleNode("//service[@name='TdmRepDokGrpBL']/service_schema[@name='TdmRepDokGrpBL.wadl']/@hashCode");
-            int a = 1;
         }
 
         private string GetFileStoredRelease(XmlFile xmlFile, XmlDocument prevVersionMetaXml, string fileXPath, int hashCode)

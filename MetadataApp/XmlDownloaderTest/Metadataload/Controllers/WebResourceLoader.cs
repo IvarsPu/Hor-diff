@@ -17,13 +17,15 @@ namespace Metadataload.Controllers
     internal class WebResourceLoader
     {
         private Models.AppContext appContext;
+        private int processId;
 
         public XmlMetadata xmlMetadata { get; set; }
 
-        public WebResourceLoader(Models.AppContext appContext, XmlMetadata xmlMetadata)
+        public WebResourceLoader(Models.AppContext appContext, XmlMetadata xmlMetadata, int processId)
         {
             this.appContext = appContext;
             this.xmlMetadata = xmlMetadata;
+            this.processId = processId;
         }
 
         internal async Task<WebResponse> GetResponseFromSite(string urlPath)
@@ -56,7 +58,7 @@ namespace Metadataload.Controllers
                 "TdmDimObjBL"
             };
 
-
+            Process process = HomeController.Processes[processId];
             try
             {
                 int servicesCount = services.Count;
@@ -64,6 +66,12 @@ namespace Metadataload.Controllers
 
                 foreach (RestService service in services)
                 {
+                    if (process.Token.IsCancellationRequested)
+                    {
+                        //maybe if not needed
+                        process.Token.ThrowIfCancellationRequested();
+                    }
+
                     if (!noSchemaServices.Contains(service.Name) && service.LoadStatus != ServiceLoadStatus.Loaded)
                     {
                         currentRestService++;
@@ -75,7 +83,7 @@ namespace Metadataload.Controllers
                         if (currentRestService > 1 && currentRestService % 10 == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
-                            Logger.LogProgress(currentRestService + " services loaded");
+                            process.Progress = currentRestService / servicesCount * 100;
                         }
 
                         // Store the state
@@ -100,9 +108,13 @@ namespace Metadataload.Controllers
                 await Task.WhenAll(taskList.ToArray());
                 xmlMetadata.AddFilesToXml(xmlFileList);
                 this.StoreLoadState(services);
+
+                process.EndTime = DateTime.Now;
+                process.Done = true;
             }
             catch (Exception ex)
             {
+                process.EndTime = DateTime.Now;
                 Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
                 Logger.LogError(ex.StackTrace);
             }

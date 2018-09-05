@@ -83,7 +83,7 @@ namespace Metadataload.Controllers
                         if (currentRestService > 1 && currentRestService % 10 == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
-                            process.Progress = currentRestService / servicesCount * 100;
+                            process.Progress = Convert.ToInt32(currentRestService * 100 / servicesCount);
                         }
 
                         // Store the state

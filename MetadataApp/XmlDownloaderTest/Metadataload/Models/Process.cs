@@ -29,7 +29,7 @@ namespace Metadataload.Models
         public bool Done { get; set; } = false;
 
         [DataMember(Name = "Status")]
-        public string Status { get; set; } = "Running";
+        public string Status { get; set; } = "";
 
         [DataMember(Name = "Progress")]
         public int Progress { get; set; } = 0;

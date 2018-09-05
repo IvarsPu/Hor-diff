@@ -433,29 +433,36 @@ namespace Metadataload.Controllers
 
         public void AddReleaseToVersionXmlFile()
         {
-            XmlDocument xml = new XmlDocument();
-            xml.Load(this.GetGlobalVerionFilePath());
-            XmlNode version = xml.SelectSingleNode("//versions/version[@name={0}]");
-
-            if (version == null)
+            try
             {
-                XmlElement versionEl = xml.CreateElement("version");
-                versionEl.SetAttribute("name", this.appContext.Version);
-                XmlNode versions = xml.SelectSingleNode("//versions");
-                versions.AppendChild(versionEl);
-                version = versionEl;
-            }
+                XmlDocument xml = new XmlDocument();
+                xml.Load(this.GetGlobalVerionFilePath());
+                XmlNode version = xml.SelectSingleNode("//versions/version[@name={0}]");
 
-            XmlNode release = version.SelectSingleNode(string.Format("release[@name={0}]", this.appContext.Release));
-            if (version == null)
+                if (version == null)
+                {
+                    XmlElement versionEl = xml.CreateElement("version");
+                    versionEl.SetAttribute("name", this.appContext.Version);
+                    XmlNode versions = xml.SelectSingleNode("//versions");
+                    versions.AppendChild(versionEl);
+                    version = versionEl;
+                }
+
+                XmlNode release = version.SelectSingleNode(string.Format("release[@name={0}]", this.appContext.Release));
+                if (version == null)
+                {
+                    XmlElement releaseEl = xml.CreateElement("release");
+                    releaseEl.SetAttribute("name", this.appContext.Release);
+                    releaseEl.Value = this.appContext.Release;
+                    version.AppendChild(releaseEl);
+                }
+
+                xml.Save(this.GetGlobalVerionFilePath());
+            }
+            catch
             {
-                XmlElement releaseEl = xml.CreateElement("release");
-                releaseEl.SetAttribute("name", this.appContext.Release);
-                releaseEl.Value = this.appContext.Release;
-                version.AppendChild(releaseEl);
-            }
 
-            xml.Save(this.GetGlobalVerionFilePath());
+            }
         }
     }
 }

@@ -61,6 +61,7 @@ namespace Metadataload.Controllers
             Process process = HomeController.Processes[processId];
             try
             {
+                process.Status.Text = "Running";
                 int servicesCount = services.Count;
                 int currentRestService = -1;
 
@@ -110,10 +111,12 @@ namespace Metadataload.Controllers
                 this.StoreLoadState(services);
 
                 process.EndTime = DateTime.Now;
+                process.Status.Text = "Finished";
                 process.Done = true;
             }
             catch (Exception ex)
             {
+                process.Status.Text = "Stopped";
                 process.EndTime = DateTime.Now;
                 Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
                 Logger.LogError(ex.StackTrace);

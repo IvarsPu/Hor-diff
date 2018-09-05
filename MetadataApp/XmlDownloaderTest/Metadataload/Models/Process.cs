@@ -29,7 +29,7 @@ namespace Metadataload.Models
         public bool Done { get; set; } = false;
 
         [DataMember(Name = "Status")]
-        public string Status { get; set; } = "";
+        public Status Status { get; set; } = new Status();
 
         [DataMember(Name = "Progress")]
         public int Progress { get; set; } = 0;
@@ -37,5 +37,21 @@ namespace Metadataload.Models
         public CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
 
         public CancellationToken Token { get; set; } = new CancellationToken();
+    }
+
+    [DataContract(Name = "Status")]
+    public class Status
+    {
+        [DataMember(Name = "Text")]
+        public string Text { get; set; } = "";
+
+        [DataMember(Name = "Total")]
+        public int Total { get; set; } = 0;
+
+        [DataMember(Name = "Loaded")]
+        public int Loaded { get; set; } = 0;
+
+        [DataMember(Name = "Failed")]
+        public int Failed { get; set; } = 0;
     }
 }

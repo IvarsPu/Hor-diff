@@ -39,7 +39,8 @@ namespace Metadataload.Controllers
                 serviceState.CalcStatistics();
             }
 
-            this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
+            //throws exception
+            //this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
         public ServiceLoadState LoadRestServiceLoadState()
@@ -62,7 +63,7 @@ namespace Metadataload.Controllers
                 {
                     Logger.LogInfo("Have found previous service load state");
                     this.LogState(savedState);
-                    savedState = this.AskForUsingLoadState(savedState);
+                    //savedState = this.AskForUsingLoadState(savedState);
                 }
 
                 if (savedState != null)
@@ -106,26 +107,31 @@ namespace Metadataload.Controllers
         private void LogState(ServiceLoadState loadState)
         {
             loadState.CalcStatistics();
+
+            Process process = HomeController.Processes[processId];
+            process.Status.Total = loadState.Loaded + loadState.LoadedWithErrors + loadState.Failed + loadState.NotLoaded;
+            process.Status.Loaded = loadState.Loaded;
+            process.Status.Failed = loadState.Failed;
+
             Logger.LogInfo("Loaded: " + loadState.Loaded);
             Logger.LogInfo("Loaded with errors: " + loadState.LoadedWithErrors);
             Logger.LogInfo("Failed: " + loadState.Failed);
             Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
         }
 
-        private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
-        {
+        //private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
+        //{
             //ServiceLoadState result = loadState;
-            //removed for now
             //Console.WriteLine("Press y to continue load or any other key to start new load:");
             //ConsoleKeyInfo keyInfo = Console.ReadKey();
-            
+
             //if (keyInfo.KeyChar != 'y')
             //{
             //    result = null;
             //}
 
-            return loadState;
-        }
+        //    return null;
+        //}
 
         private List<RestService> GetPendingServices(List<RestService> services)
         {

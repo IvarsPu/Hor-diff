@@ -31,6 +31,8 @@ namespace Metadataload.Controllers
             int remainingServiceCount = 0;
             Logger.LogPath = this.appContext.ReleaseLocalPath;
 
+            MetadataController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
+
             while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
             {
                 remainingServiceCount = serviceState.PendingLoadServices;
@@ -38,9 +40,7 @@ namespace Metadataload.Controllers
                 serviceState.Services = this.GetPendingServices(serviceState.Services);
                 serviceState.CalcStatistics();
             }
-
-            //versionId
-            //throws exception
+            
             this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
@@ -88,7 +88,6 @@ namespace Metadataload.Controllers
             List<RestService> services = loadState.Services;
             try
             {
-                HomeController.Processes[processId].Status.Total = loadState.PendingLoadServices;
                 Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
                 this.webResourceLoader.LoadServiceMetadata(services).Wait();
 

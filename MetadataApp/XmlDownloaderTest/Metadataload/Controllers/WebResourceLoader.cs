@@ -58,7 +58,7 @@ namespace Metadataload.Controllers
                 "TdmDimObjBL"
             };
 
-            Process process = HomeController.Processes[processId];
+            Process process = MetadataController.Processes[processId];
             try
             {
                 process.Status.Text = "Running";
@@ -86,8 +86,6 @@ namespace Metadataload.Controllers
                             await Task.WhenAll(taskList.ToArray());
                         }
 
-                        process.Progress = Convert.ToInt32(currentRestService * 100 / servicesCount);
-
                         // Store the state
                         if (currentRestService > 1 && currentRestService % 200 == 0)
                         {
@@ -106,6 +104,7 @@ namespace Metadataload.Controllers
                         service.LoadStatus = ServiceLoadStatus.Loaded;
                         process.Status.Loaded++;
                     }
+                    process.Progress = Convert.ToInt32(process.Status.Loaded * 100 / servicesCount);
                 }
 
                 await Task.WhenAll(taskList.ToArray());
@@ -238,7 +237,7 @@ namespace Metadataload.Controllers
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
 
-            Status status = HomeController.Processes[processId].Status;
+            Status status = MetadataController.Processes[processId].Status;
 
             try
             {

@@ -1,1 +1,89 @@
-﻿<p>text</p>
+﻿<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Scripts/jquery-3.3.1.min.js")"></script>
+
+<input type="text" id="versionId" placeholder="version">
+<input type="button" onclick="add()" value="Add">
+<br>
+
+<table id="processTable">
+    <thead>
+        <tr>
+            <td><p>Id</p></td>
+            <td><p>Progress</p></td>
+            <td><p>Start time</p></td>
+            <td><p>Action</p></td>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<input type="text" id="nrOfRows" value="10" onchange="refreshTable()"/>
+<input type="button" style="float: right;" value="refresh table" onclick="refreshTable()" />
+
+<script>
+    refreshTable();
+
+    //refreshes table every 5 sec
+    setTimeout(function () {
+        refreshTable();
+    }, 5000);
+
+    //refreshes table
+    function refreshTable() {
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/GetProcessList?noOfProcesses=' + $("#nrOfRows").val(),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var htmlText = "";
+                for (var i = 0; i < data.length; i++) {
+                    htmlText += "<tr><td>" + data[i].Id + "</td><td>" + data[i].Progress + "</td><td>" + data[i].StartTime + "</td><td><input type='button' value='stop' onclick=stop(" + data[i].Id + ") /></td></tr>";
+                }
+                $("#processTable tbody").html(htmlText)
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
+    //Loads new metadata
+    function add() {
+        var versionId = $("#versionId").val();
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/StartMetadataLoad?versionId=' + versionId,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                alert('Success');
+                refreshTable();
+            },
+            error: function () {
+                alert('fail');
+            },
+        });
+    }
+
+    //Stops Metadata Load
+    function stop(id) {
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/StopProcess?processId=' + id,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                alert('Success');
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
+    //table row clicked
+    $("#processTable tbody").delegate('tr', 'click', function () {
+        window.open('/Home/Info?processID=' + $(this).find('td:first').text(), "_self");
+    });
+</script>

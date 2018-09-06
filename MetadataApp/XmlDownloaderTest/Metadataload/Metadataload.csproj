@@ -164,6 +164,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\JsonGenerator.cs" />
     <Compile Include="Controllers\Logger.cs" />
+    <Compile Include="Controllers\MetadataController.cs" />
     <Compile Include="Controllers\Program.cs" />
     <Compile Include="Controllers\WebResourceLoader.cs" />
     <Compile Include="Controllers\XmlIO.cs" />
@@ -216,6 +217,7 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Info.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

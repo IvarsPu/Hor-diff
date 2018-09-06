@@ -1,0 +1,74 @@
+﻿@model Metadataload.Models.Process
+
+@{
+    Metadataload.Models.Process process = ViewBag.Process;
+}
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.StartTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.StartTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EndTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.EndTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Progress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Progress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Done)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Done)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Text)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Text)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Total)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Total)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Loaded)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Loaded)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Failed)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Failed)
+        </dd>
+
+    </dl>
+</div>

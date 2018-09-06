@@ -84,8 +84,9 @@ namespace Metadataload.Controllers
                         if (currentRestService > 1 && currentRestService % 10 == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
-                            process.Progress = Convert.ToInt32(currentRestService * 100 / servicesCount);
                         }
+
+                        process.Progress = Convert.ToInt32(currentRestService * 100 / servicesCount);
 
                         // Store the state
                         if (currentRestService > 1 && currentRestService % 200 == 0)
@@ -259,14 +260,20 @@ namespace Metadataload.Controllers
                 xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name + "/" + filename, service.Filepath, filename));
                 serviceXmlFiles.Add(xmlFile);
 
+                bool loadedWithErrors = false;
                 foreach (XmlFile file in serviceXmlFiles)
                 {
                     if (file.Error != string.Empty)
                     {
                         service.LoadStatus = ServiceLoadStatus.LoadedWithErrors;
-                        status.Loaded++;
+                        loadedWithErrors = true;
                         break;
                     }
+                }
+
+                if (loadedWithErrors)
+                {
+                    status.Loaded++;
                 }
 
                 if (service.LoadStatus == ServiceLoadStatus.NotLoaded)

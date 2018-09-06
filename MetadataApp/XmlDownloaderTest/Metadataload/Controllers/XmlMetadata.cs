@@ -435,7 +435,7 @@ namespace Metadataload.Controllers
         {
             XmlDocument xml = new XmlDocument();
             xml.Load(this.GetGlobalVerionFilePath());
-            XmlNode version = xml.SelectSingleNode("//versions/version[@name={0}]");
+            XmlNode version = xml.SelectSingleNode(string.Format("//versions/version[@name={0}]", this.appContext.Version));
 
             if (version == null)
             {

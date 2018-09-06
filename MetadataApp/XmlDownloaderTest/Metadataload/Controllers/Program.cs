@@ -39,8 +39,9 @@ namespace Metadataload.Controllers
                 serviceState.CalcStatistics();
             }
 
+            //versionId
             //throws exception
-            //this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
+            this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
         public ServiceLoadState LoadRestServiceLoadState()

@@ -18,10 +18,38 @@ namespace Metadataload.Controllers
         {
             return View();
         }
-        
+
         public ActionResult Create()
         {
             return View();
+        }
+
+        [HttpGet]
+        public bool GetUser(string username, string password)
+        {
+            return GetUserXml(new User(username, password));
+        }
+
+        private bool GetUserXml(User user)
+        {
+            XmlDocument doc = new XmlDocument();
+            try
+            {
+                doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
+                XmlNode node = doc.SelectSingleNode("//Users/User/Username[.='" + user.Username + "']");
+                if (node != null && node.ParentNode.SelectSingleNode("Password").InnerText.Equals(user.Password))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         [HttpGet]
@@ -32,21 +60,6 @@ namespace Metadataload.Controllers
                 Name = name
             };
             return AddUserXml(user);
-        }
-
-        public User GetUser(string username, string password)
-        {
-            return new User(username, password);
-        }
-
-        public User UpdateUser(string username, string password)
-        {
-            return new User(username, password);
-        }
-
-        public User DeleteUser(string username, string password)
-        {
-            return new User(username, password);
         }
 
         private bool AddUserXml(User user)
@@ -87,6 +100,16 @@ namespace Metadataload.Controllers
             doc.Save("C:/Users/ralfs.zangis/Desktop/test.xml");
 
             return true;
+        }
+
+        public User UpdateUser(string username, string password)
+        {
+            return new User(username, password);
+        }
+
+        public User DeleteUser(string username, string password)
+        {
+            return new User(username, password);
         }
     }
 }

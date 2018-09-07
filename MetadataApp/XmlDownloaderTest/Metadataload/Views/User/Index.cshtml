@@ -7,9 +7,24 @@
 <input type="password" id="password" placeholder="Password" />
 <br>
 <input type="button" value="Log in" onclick="LogIn()"/>
+<input type="button" value="Register" onclick="location.replace('/User/Create')" />
 
 <script>
     function LogIn() {
-        alert($("#username").val() + " " + $("#password").val());
+        $.ajax({
+            type: "GET",
+            url: '/User/GetUser?username=' + $("#username").val() + '&password=' + $("#password").val(),
+            success: function (i) {
+                if (i == "True") {
+                    alert("Success");
+                }
+                else {
+                    alert("Wrong username or password!");
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
     }
 </script>

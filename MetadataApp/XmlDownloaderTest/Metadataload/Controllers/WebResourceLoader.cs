@@ -67,11 +67,7 @@ namespace Metadataload.Controllers
 
                 foreach (RestService service in services)
                 {
-                    if (process.Token.IsCancellationRequested)
-                    {
-                        //maybe if not needed
-                        process.Token.ThrowIfCancellationRequested();
-                    }
+                    process.Token.ThrowIfCancellationRequested();
 
                     if (!noSchemaServices.Contains(service.Name) && service.LoadStatus != ServiceLoadStatus.Loaded)
                     {
@@ -117,8 +113,9 @@ namespace Metadataload.Controllers
             }
             catch (Exception ex)
             {
-                process.Status.Text = "Stopped";
                 process.EndTime = DateTime.Now;
+                process.Status.Text = "Stopped";
+                process.Done = true;
                 Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
                 Logger.LogError(ex.StackTrace);
             }

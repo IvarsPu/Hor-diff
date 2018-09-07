@@ -1,32 +1,34 @@
-﻿<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
-<script src="@Url.Content("~/Scripts/jquery-3.3.1.min.js")"></script>
+﻿<script src="@Url.Content("~/Scripts/jquery-3.3.1.min.js")"></script>
 
 <input type="text" id="versionId" placeholder="version">
 <input type="button" onclick="add()" value="Add">
+<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
 <br>
 
 <table id="processTable">
     <thead>
         <tr>
-            <td><p>Id</p></td>
-            <td><p>Progress</p></td>
+            <td style='display: none;'><p>Id</p></td>
             <td><p>Start time</p></td>
-            <td><p>Action</p></td>
+            <td><p>Progress</p></td>
+            <td><p>Status text</p></td>
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
-<input type="text" id="nrOfRows" value="10" onchange="refreshTable()"/>
-<input type="button" style="float: right;" value="refresh table" onclick="refreshTable()" />
+<!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
 <script>
-    refreshTable();
+    refresh();
 
-    //refreshes table every 5 sec
-    setTimeout(function () {
+    //refresh table on required interval
+    function refresh() {
+        setTimeout(function () {
+            refresh();
+        }, 5000);
         refreshTable();
-    }, 5000);
+    }
 
     //refreshes table
     function refreshTable() {
@@ -38,7 +40,12 @@
             success: function (data) {
                 var htmlText = "";
                 for (var i = 0; i < data.length; i++) {
-                    htmlText += "<tr><td>" + data[i].Id + "</td><td>" + data[i].Progress + "</td><td>" + data[i].StartTime + "</td><td><input type='button' value='stop' onclick=stop(" + data[i].Id + ") /></td></tr>";
+                    htmlText += "<tr>"+
+                            "<td style='display: none;'>" + data[i].Id + "</td>" +
+                            "<td>" + data[i].StartTime + "</td>" +
+                            "<td>" + data[i].Progress + "</td>" +
+                            "<td>" + data[i].Status.Text + "</td>" +
+                        "</tr > ";
                 }
                 $("#processTable tbody").html(htmlText)
             },
@@ -57,28 +64,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                alert('Success');
+                $("#versionId").val("");
                 refreshTable();
             },
             error: function () {
                 alert('fail');
             },
-        });
-    }
-
-    //Stops Metadata Load
-    function stop(id) {
-        $.ajax({
-            type: "GET",
-            url: '/Metadata/StopProcess?processId=' + id,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                alert('Success');
-            },
-            error: function () {
-                alert('fail');
-            }
         });
     }
 

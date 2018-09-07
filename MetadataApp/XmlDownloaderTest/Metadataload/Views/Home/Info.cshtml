@@ -4,6 +4,8 @@
     Metadataload.Models.Process process = ViewBag.Process;
 }
 
+<h1>Process</h1>
+
 <div>
     <dl class="dl-horizontal">
         <dt>
@@ -70,5 +72,33 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
+        @if (!process.Done)
+        {
+        <dt>
+            Process Action
+        </dt>
+
+        <dd>
+            <input type="button" value="Stop" onclick="stop(@process.Id)">
+        </dd>
+        }
     </dl>
 </div>
+
+<script>
+    //Stops Metadata Load
+    function stop(id) {
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/StopProcess?processId=' + id,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                alert('Success');
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+</script>

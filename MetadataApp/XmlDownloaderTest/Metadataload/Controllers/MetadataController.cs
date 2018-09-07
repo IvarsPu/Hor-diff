@@ -14,17 +14,24 @@ namespace Metadataload.Controllers
         //http://localhost:49936/Metadata/StartMetadataLoad?versionId=1
         [Route("StartMetadataLoad")]
         [HttpGet]
-        public int StartMetadataLoad(int versionId)
+        public int StartMetadataLoad(string versionId)
         {
             int processId = 1;
             if (Processes.Count > 0)
             {
-                processId = Processes.Last().Key + 1;
+                if (Processes.Last().Value.Done)
+                {
+                    processId = Processes.Last().Key + 1;
+                }
+                else
+                {
+                    return 0;
+                }
             }
 
             Process process = new Process(processId, DateTime.Now);
             Processes.Add(processId, process);
-
+            
             //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
 
             return processId;
@@ -60,7 +67,12 @@ namespace Metadataload.Controllers
         [HttpGet]
         public List<Process> GetProcessList(int noOfProcesses = 10)
         {
-            return Processes.Reverse().ToDictionary(x => x.Key, x => x.Value).Values.Take(noOfProcesses).ToList();
+            List<Process> processList = new List<Process>();
+            foreach (KeyValuePair<int , Process> pair in Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
+            {
+                processList.Add(pair.Value);
+            }
+            return processList;
         }
     }
 }

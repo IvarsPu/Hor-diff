@@ -1,4 +1,6 @@
-﻿<script src="@Url.Content("~/Scripts/jquery-3.3.1.min.js")"></script>
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
 <input type="text" id="versionId" placeholder="version">
 <input type="button" onclick="add()" value="Add">
@@ -40,11 +42,14 @@
             success: function (data) {
                 var htmlText = "";
                 for (var i = 0; i < data.length; i++) {
-                    htmlText += "<tr>"+
-                            "<td style='display: none;'>" + data[i].Id + "</td>" +
-                            "<td>" + data[i].StartTime + "</td>" +
-                            "<td>" + data[i].Progress + "</td>" +
-                            "<td>" + data[i].Status.Text + "</td>" +
+                    var datetime = new Date(data[i].StartTime);
+                    var date = datetime.getDate() + "-" + (datetime.getMonth() + 1) + "-" + datetime.getFullYear();
+                    var time = datetime.getHours() + ":" + datetime.getMinutes() + ":" + datetime.getSeconds();
+                    htmlText += "<tr>" +
+                        "<td style='display: none;'>" + data[i].Id + "</td>" +
+                        "<td>" + date + " " + time + "</td>" +
+                        "<td>" + data[i].Progress + "</td>" +
+                        "<td>" + data[i].Status.Text + "</td>" +
                         "</tr > ";
                 }
                 $("#processTable tbody").html(htmlText)
@@ -75,6 +80,6 @@
 
     //table row clicked
     $("#processTable tbody").delegate('tr', 'click', function () {
-        window.open('/Home/Info?processID=' + $(this).find('td:first').text(), "_self");
+        window.open('/Home/Info?processID=' + $(this).find('td:first').text());
     });
 </script>

@@ -2,11 +2,11 @@
 
 @{
     Metadataload.Models.Process process = ViewBag.Process;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Process</h1>
-
 <div>
+    <h3>Process</h3>
     <dl class="dl-horizontal">
         <dt>
             @Html.DisplayNameFor(model => model.StartTime)
@@ -72,15 +72,15 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
-        @if (!process.Done)
+        @if (process != null && !process.Done)
         {
-        <dt>
-            Process Action
-        </dt>
+            <dt>
+                Process Action
+            </dt>
 
-        <dd>
-            <input type="button" value="Stop" onclick="stop(@process.Id)">
-        </dd>
+            <dd>
+                <input type="button" value="Stop" onclick="stop(@process.Id)">
+            </dd>
         }
     </dl>
 </div>
@@ -95,6 +95,7 @@
             dataType: "json",
             success: function () {
                 alert('Success');
+                location.reload();
             },
             error: function () {
                 alert('fail');

@@ -162,22 +162,24 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\JsonGenerator.cs" />
-    <Compile Include="Controllers\Logger.cs" />
+    <Compile Include="Controllers\Loader\JsonGenerator.cs" />
+    <Compile Include="Controllers\Loader\Logger.cs" />
     <Compile Include="Controllers\MetadataController.cs" />
-    <Compile Include="Controllers\Program.cs" />
-    <Compile Include="Controllers\WebResourceLoader.cs" />
-    <Compile Include="Controllers\XmlIO.cs" />
-    <Compile Include="Controllers\XmlMetadata.cs" />
+    <Compile Include="Controllers\Loader\Program.cs" />
+    <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
+    <Compile Include="Controllers\Loader\XmlIO.cs" />
+    <Compile Include="Controllers\Loader\XmlMetadata.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AppContext.cs" />
-    <Compile Include="Models\JsonClasses.cs" />
+    <Compile Include="Models\Loader\AppContext.cs" />
+    <Compile Include="Models\Loader\JsonClasses.cs" />
     <Compile Include="Models\Process.cs" />
-    <Compile Include="Models\RestService.cs" />
-    <Compile Include="Models\ServiceLoadState.cs" />
-    <Compile Include="Models\XmlFile.cs" />
+    <Compile Include="Models\Loader\RestService.cs" />
+    <Compile Include="Models\Loader\ServiceLoadState.cs" />
+    <Compile Include="Models\Loader\XmlFile.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +220,8 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Info.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

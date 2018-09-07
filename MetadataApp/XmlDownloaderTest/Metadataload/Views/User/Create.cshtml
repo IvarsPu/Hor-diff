@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="text" id="username" placeholder="Username" />
+<br>
+<input type="text" id="name" placeholder="name" />
+<br>
+<input type="password" id="password" placeholder="Password" />
+<br>
+<input type="button" value="Register" onclick="register()" />
+
+<script>
+function register() {
+    $.ajax({
+        type: "GET",
+        url: '/User/CreateUser?username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
+        success: function (i) {
+            if (i == "True") {
+                alert("Success");
+            }
+            else {
+                alert("Already exists");
+            }
+        },
+        error: function () {
+            alert('fail');
+        }
+    });
+}
+</script>

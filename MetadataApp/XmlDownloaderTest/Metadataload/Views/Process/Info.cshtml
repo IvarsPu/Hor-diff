@@ -25,6 +25,22 @@
         </dd>
 
         <dt>
+            @Html.DisplayNameFor(model => model.Version)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Version)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Release)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Release)
+        </dd>
+
+        <dt>
             @Html.DisplayNameFor(model => model.Progress)
         </dt>
 
@@ -95,7 +111,7 @@
             dataType: "json",
             success: function () {
                 alert('Success');
-                location.reload();
+                window.open('/Home', '_self');
             },
             error: function () {
                 alert('fail');

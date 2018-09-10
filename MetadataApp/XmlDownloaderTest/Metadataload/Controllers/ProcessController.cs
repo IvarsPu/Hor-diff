@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using Metadataload.Models;
+﻿using System.Web.Mvc;
 
 namespace Metadataload.Controllers
 {
-    [RoutePrefix("Home")]
-    public class HomeController : Controller
+    [RoutePrefix("Process")]
+    public class ProcessController : Controller
     {
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult Info(int processID)
+        public ActionResult Info(int processID = 0)
         {
             ViewBag.Process = new MetadataController().GetProcessStatus(processID);
 

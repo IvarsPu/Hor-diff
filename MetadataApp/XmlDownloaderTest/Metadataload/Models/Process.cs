@@ -19,6 +19,12 @@ namespace Metadataload.Models
         [DataMember(Name = "Id")]
         public int Id { get; set; } = 0;
 
+        [DataMember(Name = "Version")]
+        public string Version { get; set; } = "";
+
+        [DataMember(Name = "Release")]
+        public string Release { get; set; } = "";
+
         [DataMember(Name = "StartTime")]
         public DateTime StartTime { get; set; } = new DateTime();
 

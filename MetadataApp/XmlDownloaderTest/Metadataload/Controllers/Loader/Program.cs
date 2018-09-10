@@ -53,6 +53,8 @@ namespace Metadataload.Controllers
                 Logger.LogInfo("Getting REST service structure");
 
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
+                MetadataController.Processes[processId].Version = appContext.Version;
+                MetadataController.Processes[processId].Release = appContext.Release;
                 this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
                 loadState = new ServiceLoadState();

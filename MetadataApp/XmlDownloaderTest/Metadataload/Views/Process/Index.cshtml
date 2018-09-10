@@ -12,6 +12,8 @@
         <tr>
             <td style='display: none;'><p>Id</p></td>
             <td><p>Start time</p></td>
+            <td><p>Version</p></td>
+            <td><p>Release</p></td>
             <td><p>Progress</p></td>
             <td><p>Status text</p></td>
         </tr>
@@ -48,6 +50,8 @@
                     htmlText += "<tr>" +
                         "<td style='display: none;'>" + data[i].Id + "</td>" +
                         "<td>" + date + " " + time + "</td>" +
+                        "<td>" + data[i].Version + "</td>" +
+                        "<td>" + data[i].Release + "</td>" +
                         "<td>" + data[i].Progress + "</td>" +
                         "<td>" + data[i].Status.Text + "</td>" +
                         "</tr > ";
@@ -80,6 +84,6 @@
 
     //table row clicked
     $("#processTable tbody").delegate('tr', 'click', function () {
-        window.open('/Home/Info?processID=' + $(this).find('td:first').text());
+        window.open('/Home/Info?processID=' + $(this).find('td:first').text(), '_self');
     });
 </script>

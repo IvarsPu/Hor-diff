@@ -161,10 +161,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ProcessController.cs" />
     <Compile Include="Controllers\Loader\JsonGenerator.cs" />
     <Compile Include="Controllers\Loader\Logger.cs" />
-    <Compile Include="Controllers\MetadataController.cs" />
+    <Compile Include="Controllers\Loader\MetadataController.cs" />
     <Compile Include="Controllers\Loader\Program.cs" />
     <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
     <Compile Include="Controllers\Loader\XmlIO.cs" />
@@ -218,10 +218,12 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\Info.cshtml" />
-    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\Process\Index.cshtml" />
+    <Content Include="Views\Process\Info.cshtml" />
+    <Content Include="Views\User\LogIn.cshtml" />
     <Content Include="Views\User\Create.cshtml" />
+    <Content Include="Views\User\Delete.cshtml" />
+    <Content Include="Views\User\Update.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -53,7 +53,6 @@ namespace Metadataload.Controllers
             try
             {
                 Processes[processId].TokenSource.Cancel();
-                Processes[processId].Done = true;//remove this later
                 return new KeyValuePair<bool, string>(true, "");
             }
             catch

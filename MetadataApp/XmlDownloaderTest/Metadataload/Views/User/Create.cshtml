@@ -16,9 +16,8 @@ function register() {
         type: "GET",
         url: '/User/CreateUser?username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
         success: function (i) {
-            if (i == "True") {
-                alert("Success");
-                location.replace('/User')
+            if (i != 0) {
+                alert(i);
             }
             else {
                 alert("Already exists");

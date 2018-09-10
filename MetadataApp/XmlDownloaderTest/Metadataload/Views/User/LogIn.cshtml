@@ -7,7 +7,11 @@
 <input type="password" id="password" placeholder="Password" />
 <br>
 <input type="button" value="Log in" onclick="LogIn()"/>
-<input type="button" value="Register" onclick="location.replace('/User/Create')" />
+<br>
+<br>
+<input type="button" value="Register" onclick="window.open('/User/Create', '_self');" />
+<input type="button" value="Delete" onclick="window.open('/User/Delete', '_self');" />
+<input type="button" value="Update" onclick="window.open('/User/Update', '_self');" />
 
 <script>
     function LogIn() {
@@ -15,8 +19,8 @@
             type: "GET",
             url: '/User/GetUser?username=' + $("#username").val() + '&password=' + $("#password").val(),
             success: function (i) {
-                if (i == "True") {
-                    alert("Success");
+                if (i != 0) {
+                    alert(i);
                 }
                 else {
                     alert("Wrong username or password!");

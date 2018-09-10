@@ -21,8 +21,9 @@
 <!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
 <br>
-<input type="button" value="Remove" onclick="removeUser()" />
-<input type="button" value="Update" onclick="window.open('/User/Update?id='+@ViewBag.Id, '_self')" />
+<input type="button" value="Remove user" onclick="removeUser()" />
+<input type="button" value="Update user" onclick="window.open('/User/Update', '_self')" />
+<input type="button" value="Log out" onclick="location.replace('/User/LogIn', '_self')" />
 
 <script>
     refresh();
@@ -64,13 +65,12 @@
             }
         });
     }
-
-    //Loads new metadata
+    
     function add() {
         var versionId = $("#versionId").val();
         $.ajax({
             type: "GET",
-            url: '/Metadata/StartMetadataLoad?versionId=' + versionId,
+            url: '/Process/StartMetadataLoad?version=' + versionId,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
@@ -86,7 +86,7 @@
     function removeUser() {
         $.ajax({
             type: "GET",
-            url: '/User/DeleteUser?id=' + @ViewBag.Id,
+            url: '/User/DeleteUser',
             success: function (i) {
                 if (i == "True") {
                     window.open('/User/LogIn', '_self');

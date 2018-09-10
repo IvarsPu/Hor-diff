@@ -9,6 +9,7 @@ namespace Metadataload.Controllers
     {
         public ActionResult LogIn()
         {
+            Session["userId"] = "";
             return View();
         }
 
@@ -17,9 +18,8 @@ namespace Metadataload.Controllers
             return View();
         }
 
-        public ActionResult Update(int id)
+        public ActionResult Update()
         {
-            ViewBag.Id = id;
             return View();
         }
 
@@ -34,6 +34,7 @@ namespace Metadataload.Controllers
                 XmlNode node = doc.SelectSingleNode("//Users/User[@Username='" + username + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
+                    Session["userId"] = Int32.Parse(node.Attributes["ID"].Value);
                     return Int32.Parse(node.Attributes["ID"].Value);
                 }
                 else
@@ -96,7 +97,7 @@ namespace Metadataload.Controllers
                 #endregion
 
                 doc.Save("C:/Users/ralfs.zangis/Desktop/test.xml");
-
+                Session["userId"] = id;
                 return id;
             }
             catch
@@ -107,13 +108,13 @@ namespace Metadataload.Controllers
 
         [HttpGet]
         [Route("DeleteUser")]
-        public bool DeleteUser(int id)
+        public bool DeleteUser()
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + id + "']");
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
@@ -133,13 +134,13 @@ namespace Metadataload.Controllers
         
         [HttpGet]
         [Route("UpdateUser")]
-        public bool UpdateUser(int id, string username, string password, string name)
+        public bool UpdateUser(string username, string password, string name)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + id + "']");
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
                 if (node != null)
                 {
                     if (node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Users/User[@Username='" + username + "']").Count <2)

@@ -9,63 +9,12 @@ namespace Metadataload.Controllers
     [RoutePrefix("Metadata")]
     public class MetadataController : ApiController
     {
-        public static SortedDictionary<int, Process> Processes { get; set; } = new SortedDictionary<int, Process>();
-        
-        [Route("StartMetadataLoad")]
-        [HttpGet]
-        public int StartMetadataLoad(string versionId)
-        {
-            int processId = 1;
-            if (Processes.Count > 0)
-            {
-                if (Processes.Last().Value.Done)
-                {
-                    processId = Processes.Last().Key + 1;
-                }
-                else
-                {
-                    return 0;
-                }
-                //allow each user run only once a time and controll their own stuff
-            }
-
-            Process process = new Process(processId, DateTime.Now);
-            Processes.Add(processId, process);
-            
-            //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
-
-            return processId;
-        }
-        
-        [Route("GetProcessStatus")]
-        [HttpGet]
-        public Process GetProcessStatus(int processId)
-        {
-            return Processes.TryGetValue(processId, out Process value) ? value : null;
-        }
-        
-        [Route("StopProcess")]
-        [HttpGet]
-        public KeyValuePair<bool, string> StopProcess(int processId)
-        {
-            try
-            {
-                Processes[processId].TokenSource.Cancel();
-                return new KeyValuePair<bool, string>(true, "");
-            }
-            catch
-            {
-                return new KeyValuePair<bool, string>(false, "Element doesnt exist");
-            }
-            //if (processes.Remove(processId)) do we need to clean dictionary?
-        }
-        
         [Route("GetProcessList")]
         [HttpGet]
         public List<Process> GetProcessList(int noOfProcesses = 10)
         {
             List<Process> processList = new List<Process>();
-            foreach (KeyValuePair<int , Process> pair in Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
+            foreach (KeyValuePair<int, Process> pair in ProcessController.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
             {
                 processList.Add(pair.Value);
             }

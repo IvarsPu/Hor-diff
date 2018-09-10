@@ -8,9 +8,10 @@ namespace Metadataload.Models
     [DataContract(Name = "Process")]
     public class Process
     {
-        public Process(int processId, DateTime startTime)
+        public Process(int processId, int userId, DateTime startTime)
         {
             Id = processId;
+            UserId = userId;
             StartTime = startTime;
             
             Token = TokenSource.Token;
@@ -18,6 +19,9 @@ namespace Metadataload.Models
 
         [DataMember(Name = "Id")]
         public int Id { get; set; } = 0;
+
+        [DataMember(Name = "UserId")]
+        public int UserId { get; set; } = 0;
 
         [DataMember(Name = "Version")]
         public string Version { get; set; } = "";

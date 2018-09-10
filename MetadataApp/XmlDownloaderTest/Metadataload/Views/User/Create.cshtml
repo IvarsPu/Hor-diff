@@ -17,7 +17,7 @@ function register() {
         url: '/User/CreateUser?username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
         success: function (i) {
             if (i != 0) {
-                window.open('/Process?id=' + i, '_self');
+                window.open('/Process', '_self');
             }
             else {
                 alert("Already exists");

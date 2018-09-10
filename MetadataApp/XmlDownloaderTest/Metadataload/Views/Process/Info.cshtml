@@ -88,7 +88,7 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
-        @if (process != null && !process.Done)
+        @if (process != null && !process.Done && process.UserId == Int32.Parse(Session["userId"].ToString()))
         {
             <dt>
                 Process Action
@@ -106,12 +106,14 @@
     function stop(id) {
         $.ajax({
             type: "GET",
-            url: '/Metadata/StopProcess?processId=' + id,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                alert('Success');
-                window.open('/Process', '_self');
+            url: '/Process/StopProcess?processId=' + id,
+            success: function (data) {
+                if (data == "") {
+                    window.open('/Process', '_self');
+                }
+                else {
+                    alert(data);
+                }
             },
             error: function () {
                 alert('fail');

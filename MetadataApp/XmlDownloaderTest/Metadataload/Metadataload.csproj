@@ -161,10 +161,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Loader\MetadataController.cs" />
     <Compile Include="Controllers\ProcessController.cs" />
     <Compile Include="Controllers\Loader\JsonGenerator.cs" />
     <Compile Include="Controllers\Loader\Logger.cs" />
-    <Compile Include="Controllers\Loader\MetadataController.cs" />
     <Compile Include="Controllers\Loader\Program.cs" />
     <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
     <Compile Include="Controllers\Loader\XmlIO.cs" />
@@ -179,7 +179,6 @@
     <Compile Include="Models\Loader\RestService.cs" />
     <Compile Include="Models\Loader\ServiceLoadState.cs" />
     <Compile Include="Models\Loader\XmlFile.cs" />
-    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

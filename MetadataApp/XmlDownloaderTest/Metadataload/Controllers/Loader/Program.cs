@@ -31,7 +31,7 @@ namespace Metadataload.Controllers
             int remainingServiceCount = 0;
             Logger.LogPath = this.appContext.ReleaseLocalPath;
 
-            MetadataController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
+            ProcessController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
 
             while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
             {
@@ -53,8 +53,8 @@ namespace Metadataload.Controllers
                 Logger.LogInfo("Getting REST service structure");
 
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
-                MetadataController.Processes[processId].Version = appContext.Version;
-                MetadataController.Processes[processId].Release = appContext.Release;
+                ProcessController.Processes[processId].Version = appContext.Version;
+                ProcessController.Processes[processId].Release = appContext.Release;
                 this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
                 loadState = new ServiceLoadState();

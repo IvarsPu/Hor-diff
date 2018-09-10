@@ -7,8 +7,6 @@
 <input type="password" id="password" placeholder="Password" />
 <br>
 <input type="button" value="Log in" onclick="LogIn()" />
-<br>
-<br>
 <input type="button" value="Register" onclick="window.open('/User/Create', '_self')" />
 
 <script>
@@ -18,7 +16,7 @@
             url: '/User/GetUser?username=' + $("#username").val() + '&password=' + $("#password").val(),
             success: function (i) {
                 if (i != 0) {
-                    window.open('/Process?id='+i, '_self');
+                    location.replace('/Process', '_self');
                 }
                 else {
                     alert("Wrong username or password!");

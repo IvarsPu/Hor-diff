@@ -58,7 +58,7 @@ namespace Metadataload.Controllers
                 "TdmDimObjBL"
             };
 
-            Process process = MetadataController.Processes[processId];
+            Process process = ProcessController.Processes[processId];
             try
             {
                 process.Status.Text = "Running";
@@ -234,7 +234,7 @@ namespace Metadataload.Controllers
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
 
-            Status status = MetadataController.Processes[processId].Status;
+            Status status = ProcessController.Processes[processId].Status;
 
             try
             {

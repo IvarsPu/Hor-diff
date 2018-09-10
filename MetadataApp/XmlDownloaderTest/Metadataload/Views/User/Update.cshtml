@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="text" id="username" placeholder="Username" />
+<input type="text" id="url" placeholder="URL" />
 <br>
 <input type="text" id="name" placeholder="Name" />
 <br>
@@ -14,7 +14,7 @@
     function update() {
         $.ajax({
             type: "GET",
-            url: '/User/UpdateUser?username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
+            url: '/User/UpdateUser?url=' + $("#url").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
             success: function (i) {
                 if (i == "True") {
                     window.open('/Process', '_self');

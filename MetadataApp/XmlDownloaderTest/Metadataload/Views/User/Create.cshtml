@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="text" id="username" placeholder="Username" />
+<input type="text" id="url" placeholder="URl" />
 <br>
 <input type="text" id="name" placeholder="name" />
 <br>
@@ -14,7 +14,7 @@
 function register() {
     $.ajax({
         type: "GET",
-        url: '/User/CreateUser?username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
+        url: '/User/CreateUser?url=' + $("#url").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
         success: function (i) {
             if (i != 0) {
                 window.open('/Process', '_self');

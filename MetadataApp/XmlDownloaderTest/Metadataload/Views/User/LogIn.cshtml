@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="text" id="username" placeholder="Username" />
+<input type="text" id="url" placeholder="URL" />
 <br>
 <input type="password" id="password" placeholder="Password" />
 <br>
@@ -13,7 +13,7 @@
     function LogIn() {
         $.ajax({
             type: "GET",
-            url: '/User/GetUser?username=' + $("#username").val() + '&password=' + $("#password").val(),
+            url: '/User/GetUser?url=' + $("#url").val() + '&password=' + $("#password").val(),
             success: function (i) {
                 if (i != 0) {
                     location.replace('/Process', '_self');

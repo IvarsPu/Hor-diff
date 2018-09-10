@@ -10,7 +10,7 @@ namespace Metadataload.Controllers
     {
         public ActionResult LogIn()
         {
-            Session["userId"] = "";
+            Session["Id"] = "";
             return View();
         }
 
@@ -26,16 +26,16 @@ namespace Metadataload.Controllers
 
         [HttpGet]
         [Route("GetUser")]
-        public int GetUser(string username, string password)
+        public int GetUser(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@Username='" + username + "' and @Password = '" + password + "']");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                XmlNode node = doc.SelectSingleNode("//Users/User[@Url='" + url + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
-                    Session["userId"] = Int32.Parse(node.Attributes["ID"].Value);
+                    Session["Id"] = Int32.Parse(node.Attributes["ID"].Value);
                     return Int32.Parse(node.Attributes["ID"].Value);
                 }
                 else
@@ -51,13 +51,13 @@ namespace Metadataload.Controllers
 
         [HttpGet]
         [Route("CreateUser")]
-        public int CreateUser(string username, string password, string name)
+        public int CreateUser(string url, string password, string name)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
-                if (doc.SelectSingleNode("//Users/User[@Username='" + username + "']") != null)
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                if (doc.SelectSingleNode("//Users/User[@Url='" + url + "']") != null)
                 {
                     return 0;
                 }
@@ -82,9 +82,9 @@ namespace Metadataload.Controllers
                 ID.Value = id.ToString();
                 userNode.Attributes.SetNamedItem(ID);
 
-                XmlAttribute Username = doc.CreateAttribute("Username");
-                Username.Value = username;
-                userNode.Attributes.SetNamedItem(Username);
+                XmlAttribute Url = doc.CreateAttribute("Url");
+                Url.Value = url;
+                userNode.Attributes.SetNamedItem(Url);
 
                 XmlAttribute Password = doc.CreateAttribute("Password");
                 Password.Value = password;
@@ -97,8 +97,8 @@ namespace Metadataload.Controllers
                 userNodes.AppendChild(userNode);
                 #endregion
 
-                doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
-                Session["userId"] = id;
+                doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                Session["Id"] = id;
                 return id;
             }
             catch
@@ -114,12 +114,12 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["Id"] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
-                    doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
+                    doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
                     return true;
                 }
                 else
@@ -135,21 +135,21 @@ namespace Metadataload.Controllers
         
         [HttpGet]
         [Route("UpdateUser")]
-        public bool UpdateUser(string username, string password, string name)
+        public bool UpdateUser(string url, string password, string name)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["Id"] + "']");
                 if (node != null)
                 {
-                    if (node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Users/User[@Username='" + username + "']").Count <2)
+                    if (node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count <2)
                     {
-                        node.Attributes["Username"].Value = username;
+                        node.Attributes["Username"].Value = url;
                         node.Attributes["Password"].Value = password;
                         node.Attributes["Name"].Value = name;
-                        doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
+                        doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
                         return true;
                     }
                     else

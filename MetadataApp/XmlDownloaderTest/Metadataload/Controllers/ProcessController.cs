@@ -27,12 +27,12 @@ namespace Metadataload.Controllers
         public int StartMetadataLoad(string version)
         {
             int processId = 1;
-            int userId = Int32.Parse(Session["userId"].ToString());
+            int id = Int32.Parse(Session["Id"].ToString());
             if (Processes.Count > 0)
             {
                 foreach (Process pr in Processes.Values)
                 {
-                    if (pr.UserId == userId && !pr.Done)
+                    if (pr.ServerId == id && !pr.Done)
                     {
                         return 0;
                     }
@@ -40,7 +40,7 @@ namespace Metadataload.Controllers
                 processId = Processes.Last().Key + 1;
             }
 
-            Process process = new Process(processId, userId, DateTime.Now);
+            Process process = new Process(processId, id, DateTime.Now);
             Processes.Add(processId, process);
 
             //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
@@ -59,10 +59,10 @@ namespace Metadataload.Controllers
         [HttpGet]
         public string StopProcess(int processId)
         {
-            int userId = Int32.Parse(Session["userId"].ToString());
+            int id = Int32.Parse(Session["Id"].ToString());
             try
             {
-                if (Processes[processId].UserId == userId)
+                if (Processes[processId].ServerId == id)
                 {
                     Processes[processId].TokenSource.Cancel();
                     return "";

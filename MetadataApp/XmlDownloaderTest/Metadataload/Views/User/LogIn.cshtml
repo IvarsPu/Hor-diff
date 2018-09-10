@@ -6,12 +6,10 @@
 <br>
 <input type="password" id="password" placeholder="Password" />
 <br>
-<input type="button" value="Log in" onclick="LogIn()"/>
+<input type="button" value="Log in" onclick="LogIn()" />
 <br>
 <br>
-<input type="button" value="Register" onclick="window.open('/User/Create', '_self');" />
-<input type="button" value="Delete" onclick="window.open('/User/Delete', '_self');" />
-<input type="button" value="Update" onclick="window.open('/User/Update', '_self');" />
+<input type="button" value="Register" onclick="window.open('/User/Create', '_self')" />
 
 <script>
     function LogIn() {
@@ -20,7 +18,7 @@
             url: '/User/GetUser?username=' + $("#username").val() + '&password=' + $("#password").val(),
             success: function (i) {
                 if (i != 0) {
-                    alert(i);
+                    window.open('/Process?id='+i, '_self');
                 }
                 else {
                     alert("Wrong username or password!");

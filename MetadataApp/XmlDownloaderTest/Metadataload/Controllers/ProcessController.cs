@@ -5,8 +5,9 @@ namespace Metadataload.Controllers
     [RoutePrefix("Process")]
     public class ProcessController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(int id)
         {
+            ViewBag.Id = id;
             return View();
         }
 

@@ -1,12 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<input type="text" id="versionId" placeholder="version">
-<input type="button" onclick="add()" value="Add">
-<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
-<br>
-
 <table id="processTable">
     <thead>
         <tr>
@@ -21,7 +15,14 @@
     <tbody></tbody>
 </table>
 
+<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
+<input type="text" id="versionId" placeholder="version">
+<input type="button" onclick="add()" value="Add">
 <!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
+
+<br>
+<input type="button" value="Remove" onclick="removeUser()" />
+<input type="button" value="Update" onclick="window.open('/User/Update?id='+@ViewBag.Id, '_self')" />
 
 <script>
     refresh();
@@ -82,8 +83,26 @@
         });
     }
 
+    function removeUser() {
+        $.ajax({
+            type: "GET",
+            url: '/User/DeleteUser?id=' + @ViewBag.Id,
+            success: function (i) {
+                if (i == "True") {
+                    window.open('/User/LogIn', '_self');
+                }
+                else {
+                    alert("Doesnt exist!");
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
     //table row clicked
     $("#processTable tbody").delegate('tr', 'click', function () {
-        window.open('/Home/Info?processID=' + $(this).find('td:first').text(), '_self');
+        window.open('/Process/Info?processID=' + $(this).find('td:first').text(), '_self');
     });
 </script>

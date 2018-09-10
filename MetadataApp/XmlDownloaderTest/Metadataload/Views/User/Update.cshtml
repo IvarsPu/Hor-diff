@@ -2,8 +2,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="text" id="id" placeholder="ID" />
-<br>
 <input type="text" id="username" placeholder="Username" />
 <br>
 <input type="text" id="name" placeholder="Name" />
@@ -16,10 +14,10 @@
     function update() {
         $.ajax({
             type: "GET",
-            url: '/User/UpdateUser?id=' + $("#id").val() + '&username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
+            url: '/User/UpdateUser?id=' + @ViewBag.Id + '&username=' + $("#username").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
             success: function (i) {
                 if (i == "True") {
-                    alert("Success");
+                    window.open('/Process?id=' + i, '_self');
                 }
                 else {
                     alert("Couldn't perform this operation");

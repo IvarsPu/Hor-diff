@@ -10,8 +10,7 @@ namespace Metadataload.Controllers
     public class MetadataController : ApiController
     {
         public static SortedDictionary<int, Process> Processes { get; set; } = new SortedDictionary<int, Process>();
-
-        //http://localhost:49936/Metadata/StartMetadataLoad?versionId=1
+        
         [Route("StartMetadataLoad")]
         [HttpGet]
         public int StartMetadataLoad(string versionId)
@@ -27,6 +26,7 @@ namespace Metadataload.Controllers
                 {
                     return 0;
                 }
+                //allow each user run only once a time and controll their own stuff
             }
 
             Process process = new Process(processId, DateTime.Now);
@@ -36,16 +36,14 @@ namespace Metadataload.Controllers
 
             return processId;
         }
-
-        //http://localhost:49936/Metadata/GetProcessStatus?processId=1
+        
         [Route("GetProcessStatus")]
         [HttpGet]
         public Process GetProcessStatus(int processId)
         {
             return Processes.TryGetValue(processId, out Process value) ? value : null;
         }
-
-        //http://localhost:49936/Metadata/StopProcess?processId=2
+        
         [Route("StopProcess")]
         [HttpGet]
         public KeyValuePair<bool, string> StopProcess(int processId)
@@ -61,8 +59,7 @@ namespace Metadataload.Controllers
             }
             //if (processes.Remove(processId)) do we need to clean dictionary?
         }
-
-        //http://localhost:49936/Metadata/GetProcessList?noOfProcesses=100
+        
         [Route("GetProcessList")]
         [HttpGet]
         public List<Process> GetProcessList(int noOfProcesses = 10)

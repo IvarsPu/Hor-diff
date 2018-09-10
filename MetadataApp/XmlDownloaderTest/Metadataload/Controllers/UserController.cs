@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Xml;
-using System.Xml.Serialization;
-using Metadataload.Models;
 
 namespace Metadataload.Controllers
 {
@@ -23,13 +17,9 @@ namespace Metadataload.Controllers
             return View();
         }
 
-        public ActionResult Delete()
+        public ActionResult Update(int id)
         {
-            return View();
-        }
-
-        public ActionResult Update()
-        {
+            ViewBag.Id = id;
             return View();
         }
 

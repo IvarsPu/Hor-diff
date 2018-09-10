@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Xml;
 
@@ -30,7 +31,7 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                 XmlNode node = doc.SelectSingleNode("//Users/User[@Username='" + username + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
@@ -55,7 +56,7 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                 if (doc.SelectSingleNode("//Users/User[@Username='" + username + "']") != null)
                 {
                     return 0;
@@ -96,7 +97,7 @@ namespace Metadataload.Controllers
                 userNodes.AppendChild(userNode);
                 #endregion
 
-                doc.Save("C:/Users/ralfs.zangis/Desktop/test.xml");
+                doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                 Session["userId"] = id;
                 return id;
             }
@@ -113,12 +114,12 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                 XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
-                    doc.Save("C:/Users/ralfs.zangis/Desktop/test.xml");
+                    doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                     return true;
                 }
                 else
@@ -139,7 +140,7 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load("C:/Users/ralfs.zangis/Desktop/test.xml");
+                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                 XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
                 if (node != null)
                 {
@@ -148,7 +149,7 @@ namespace Metadataload.Controllers
                         node.Attributes["Username"].Value = username;
                         node.Attributes["Password"].Value = password;
                         node.Attributes["Name"].Value = name;
-                        doc.Save("C:/Users/ralfs.zangis/Desktop/test.xml");
+                        doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["LocalFolder"].ToString()));
                         return true;
                     }
                     else

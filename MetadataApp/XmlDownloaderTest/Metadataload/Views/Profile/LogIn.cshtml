@@ -6,19 +6,20 @@
 <br>
 <input type="password" id="password" placeholder="Password" />
 <br>
-<input type="button" value="Update" onclick="update()" />
+<input type="button" value="Log in" onclick="LogIn()" />
+<input type="button" value="Register" onclick="window.open('/Profile/Create', '_self')" />
 
 <script>
-    function update() {
+    function LogIn() {
         $.ajax({
             type: "GET",
-            url: '/User/UpdateUser?url=' + $("#url").val() + '&password=' + $("#password").val(),
+            url: '/Profile/GetProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
             success: function (i) {
-                if (i == "True") {
-                    window.open('/Process', '_self');
+                if (i != 0) {
+                    location.replace('/Process');
                 }
                 else {
-                    alert("Couldn't perform this operation");
+                    alert("Wrong url or password!");
                 }
             },
             error: function () {

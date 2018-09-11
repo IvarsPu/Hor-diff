@@ -21,9 +21,9 @@
 <!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
 <br>
-<input type="button" value="Remove user" onclick="removeUser()" />
-<input type="button" value="Update user" onclick="window.open('/User/Update', '_self')" />
-<input type="button" value="Log out" onclick="location.replace('/User/LogIn', '_self')" />
+<input type="button" value="Remove profile" onclick="removeProfile()" />
+<input type="button" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
+<input type="button" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" />
 
 <script>
     refresh();
@@ -83,13 +83,13 @@
         });
     }
 
-    function removeUser() {
+    function removeProfile() {
         $.ajax({
             type: "GET",
-            url: '/User/DeleteUser',
+            url: '/Profile/DeleteProfile',
             success: function (i) {
                 if (i == "True") {
-                    window.open('/User/LogIn', '_self');
+                    window.open('/Profile/LogIn', '_self');
                 }
                 else {
                     alert("Doesnt exist!");

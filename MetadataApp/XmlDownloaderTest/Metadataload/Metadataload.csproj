@@ -169,7 +169,7 @@
     <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
     <Compile Include="Controllers\Loader\XmlIO.cs" />
     <Compile Include="Controllers\Loader\XmlMetadata.cs" />
-    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -219,9 +219,9 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Process\Index.cshtml" />
     <Content Include="Views\Process\Info.cshtml" />
-    <Content Include="Views\User\LogIn.cshtml" />
-    <Content Include="Views\User\Create.cshtml" />
-    <Content Include="Views\User\Update.cshtml" />
+    <Content Include="Views\Profile\LogIn.cshtml" />
+    <Content Include="Views\Profile\Create.cshtml" />
+    <Content Include="Views\Profile\Update.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

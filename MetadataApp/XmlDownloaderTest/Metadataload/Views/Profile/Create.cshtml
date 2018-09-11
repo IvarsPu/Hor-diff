@@ -12,7 +12,7 @@
 function register() {
     $.ajax({
         type: "GET",
-        url: '/User/CreateUser?url=' + $("#url").val() + '&password=' + $("#password").val(),
+        url: '/Profile/CreateProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
         success: function (i) {
             if (i != 0) {
                 location.replace('/Process');

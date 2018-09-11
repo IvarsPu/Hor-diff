@@ -5,12 +5,12 @@ using System.Xml;
 
 namespace Metadataload.Controllers
 {
-    [RoutePrefix("User")]
-    public class UserController : Controller
+    [RoutePrefix("Profile")]
+    public class ProfileController : Controller
     {
         public ActionResult LogIn()
         {
-            Session["userId"] = "";
+            Session["profileId"] = "";
             return View();
         }
 
@@ -25,18 +25,18 @@ namespace Metadataload.Controllers
         }
 
         [HttpGet]
-        [Route("GetUser")]
-        public int GetUser(string url, string password)
+        [Route("GetProfile")]
+        public int GetProfile(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@Url='" + url + "' and @Password = '" + password + "']");
+                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
                     int id = Int32.Parse(node.Attributes["ID"].Value);
-                    Session["userId"] = id;
+                    Session["profileId"] = id;
                     return id;
                 }
                 else
@@ -51,51 +51,51 @@ namespace Metadataload.Controllers
         }
 
         [HttpGet]
-        [Route("CreateUser")]
-        public int CreateUser(string url, string password)
+        [Route("CreateProfile")]
+        public int CreateProfile(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                if (doc.SelectSingleNode("//Users/User[@Url='" + url + "']") != null)
+                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null)
                 {
                     return 0;
                 }
             }
             catch
             {
-                doc.AppendChild(doc.CreateElement("Users"));
+                doc.AppendChild(doc.CreateElement("Profiles"));
             }
 
             try
             {
-                #region user
-                XmlNode userNodes = doc.SelectSingleNode("//Users");
-                XmlNode userNode = doc.CreateElement("User");
+                #region Profile
+                XmlNode profileNodes = doc.SelectSingleNode("//Profiles");
+                XmlNode profileNode = doc.CreateElement("Profile");
 
                 int id = 1;
-                if (userNodes.LastChild != null)
+                if (profileNodes.LastChild != null)
                 {
-                    id = Int32.Parse(userNodes.LastChild.Attributes["ID"].Value) + 1;
+                    id = Int32.Parse(profileNodes.LastChild.Attributes["ID"].Value) + 1;
                 }
                 XmlAttribute ID = doc.CreateAttribute("ID");
                 ID.Value = id.ToString();
-                userNode.Attributes.SetNamedItem(ID);
+                profileNode.Attributes.SetNamedItem(ID);
 
                 XmlAttribute Url = doc.CreateAttribute("Url");
                 Url.Value = url;
-                userNode.Attributes.SetNamedItem(Url);
+                profileNode.Attributes.SetNamedItem(Url);
 
                 XmlAttribute Password = doc.CreateAttribute("Password");
                 Password.Value = password;
-                userNode.Attributes.SetNamedItem(Password);
+                profileNode.Attributes.SetNamedItem(Password);
 
-                userNodes.AppendChild(userNode);
+                profileNodes.AppendChild(profileNode);
                 #endregion
 
                 doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                Session["userId"] = id;
+                Session["profileId"] = id;
                 return id;
             }
             catch
@@ -105,14 +105,14 @@ namespace Metadataload.Controllers
         }
 
         [HttpGet]
-        [Route("DeleteUser")]
-        public bool DeleteUser()
+        [Route("DeleteProfile")]
+        public bool DeleteProfile()
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
+                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session["profileId"] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
@@ -131,18 +131,18 @@ namespace Metadataload.Controllers
         }
         
         [HttpGet]
-        [Route("UpdateUser")]
-        public bool UpdateUser(string url, string password)
+        [Route("UpdateProfile")]
+        public bool UpdateProfile(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"].ToString() + "']");
+                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session["profileId"].ToString() + "']");
                 if (node != null)
                 {
-                    if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count <2)|| 
-                        (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count < 1))
+                    if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count <2)|| 
+                        (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 1))
                     {
                         node.Attributes["Url"].Value = url;
                         node.Attributes["Password"].Value = password;

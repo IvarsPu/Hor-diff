@@ -10,7 +10,7 @@ namespace Metadataload.Controllers
     {
         public ActionResult LogIn()
         {
-            Session["Id"] = "";
+            Session["userId"] = "";
             return View();
         }
 
@@ -35,7 +35,7 @@ namespace Metadataload.Controllers
                 XmlNode node = doc.SelectSingleNode("//Users/User[@Url='" + url + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
-                    Session["Id"] = Int32.Parse(node.Attributes["ID"].Value);
+                    Session["userId"] = Int32.Parse(node.Attributes["ID"].Value);
                     return Int32.Parse(node.Attributes["ID"].Value);
                 }
                 else
@@ -51,7 +51,7 @@ namespace Metadataload.Controllers
 
         [HttpGet]
         [Route("CreateUser")]
-        public int CreateUser(string url, string password, string name)
+        public int CreateUser(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
@@ -90,15 +90,11 @@ namespace Metadataload.Controllers
                 Password.Value = password;
                 userNode.Attributes.SetNamedItem(Password);
 
-                XmlAttribute Name = doc.CreateAttribute("Name");
-                Name.Value = name;
-                userNode.Attributes.SetNamedItem(Name);
-
                 userNodes.AppendChild(userNode);
                 #endregion
 
                 doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                Session["Id"] = id;
+                Session["userId"] = id;
                 return id;
             }
             catch
@@ -115,7 +111,7 @@ namespace Metadataload.Controllers
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["Id"] + "']");
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
@@ -135,20 +131,19 @@ namespace Metadataload.Controllers
         
         [HttpGet]
         [Route("UpdateUser")]
-        public bool UpdateUser(string url, string password, string name)
+        public bool UpdateUser(string url, string password)
         {
             XmlDocument doc = new XmlDocument();
             try
             {
                 doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["Id"] + "']");
+                XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"].ToString() + "']");
                 if (node != null)
                 {
                     if (node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count <2)
                     {
-                        node.Attributes["Username"].Value = url;
+                        node.Attributes["Url"].Value = url;
                         node.Attributes["Password"].Value = password;
-                        node.Attributes["Name"].Value = name;
                         doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
                         return true;
                     }

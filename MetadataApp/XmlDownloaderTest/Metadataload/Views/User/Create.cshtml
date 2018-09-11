@@ -4,8 +4,6 @@
 
 <input type="text" id="url" placeholder="URl" />
 <br>
-<input type="text" id="name" placeholder="name" />
-<br>
 <input type="password" id="password" placeholder="Password" />
 <br>
 <input type="button" value="Register" onclick="register()" />
@@ -14,7 +12,7 @@
 function register() {
     $.ajax({
         type: "GET",
-        url: '/User/CreateUser?url=' + $("#url").val() + '&password=' + $("#password").val() + '&name=' + $("#name").val(),
+        url: '/User/CreateUser?url=' + $("#url").val() + '&password=' + $("#password").val(),
         success: function (i) {
             if (i != 0) {
                 window.open('/Process', '_self');

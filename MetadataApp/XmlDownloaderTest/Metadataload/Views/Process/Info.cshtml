@@ -1,4 +1,5 @@
 ﻿@model Metadataload.Models.Process
+@using System.Web.Configuration;
 
 @{
     Metadataload.Models.Process process = ViewBag.Process;
@@ -88,7 +89,7 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
-        @if (process != null && !process.Done && process.ServerId == Int32.Parse(Session["Id"].ToString()))
+        @if (process != null && !process.Done && process.ServerId == Int32.Parse(Session["userId"].ToString()))
         {
             <dt>
                 Process Action

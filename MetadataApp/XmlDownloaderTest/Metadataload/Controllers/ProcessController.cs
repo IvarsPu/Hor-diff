@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using Metadataload.Models;
 
@@ -27,7 +28,7 @@ namespace Metadataload.Controllers
         public int StartMetadataLoad(string version)
         {
             int processId = 1;
-            int id = Int32.Parse(Session["Id"].ToString());
+            int id = Int32.Parse(Session["userId"].ToString());
             if (Processes.Count > 0)
             {
                 foreach (Process pr in Processes.Values)
@@ -59,7 +60,7 @@ namespace Metadataload.Controllers
         [HttpGet]
         public string StopProcess(int processId)
         {
-            int id = Int32.Parse(Session["Id"].ToString());
+            int id = Int32.Parse(Session["userId"].ToString());
             try
             {
                 if (Processes[processId].ServerId == id)

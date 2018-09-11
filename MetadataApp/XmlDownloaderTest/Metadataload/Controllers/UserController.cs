@@ -35,8 +35,9 @@ namespace Metadataload.Controllers
                 XmlNode node = doc.SelectSingleNode("//Users/User[@Url='" + url + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
-                    Session["userId"] = Int32.Parse(node.Attributes["ID"].Value);
-                    return Int32.Parse(node.Attributes["ID"].Value);
+                    int id = Int32.Parse(node.Attributes["ID"].Value);
+                    Session["userId"] = id;
+                    return id;
                 }
                 else
                 {
@@ -140,7 +141,8 @@ namespace Metadataload.Controllers
                 XmlNode node = doc.SelectSingleNode("//Users/User[@ID='" + Session["userId"].ToString() + "']");
                 if (node != null)
                 {
-                    if (node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count <2)
+                    if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count <2)|| 
+                        (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Users/User[@Url='" + url + "']").Count < 1))
                     {
                         node.Attributes["Url"].Value = url;
                         node.Attributes["Password"].Value = password;

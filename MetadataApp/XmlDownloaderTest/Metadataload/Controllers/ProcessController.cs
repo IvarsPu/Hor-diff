@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Configuration;
 using System.Web.Mvc;
 using Metadataload.Models;
 
@@ -19,12 +18,12 @@ namespace Metadataload.Controllers
 
         public ActionResult Info(int processID)
         {
-            ViewBag.Process = GetProcessStatus(processID);
+            ViewBag.Process = Processes.TryGetValue(processID, out Process value) ? value : null;
             return View();
         }
-
-        [Route("StartMetadataLoad")]
+        
         [HttpGet]
+        [Route("StartMetadataLoad")]
         public int StartMetadataLoad(string version)
         {
             int processId = 1;
@@ -48,16 +47,9 @@ namespace Metadataload.Controllers
 
             return processId;
         }
-
-        [Route("GetProcessStatus")]
+        
         [HttpGet]
-        public Process GetProcessStatus(int processId)
-        {
-            return Processes.TryGetValue(processId, out Process value) ? value : null;
-        }
-
         [Route("StopProcess")]
-        [HttpGet]
         public string StopProcess(int processId)
         {
             int id = Int32.Parse(Session["userId"].ToString());

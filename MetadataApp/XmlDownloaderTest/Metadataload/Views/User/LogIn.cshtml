@@ -16,7 +16,7 @@
             url: '/User/GetUser?url=' + $("#url").val() + '&password=' + $("#password").val(),
             success: function (i) {
                 if (i != 0) {
-                    location.replace('/Process', '_self');
+                    location.replace('/Process');
                 }
                 else {
                     alert("Wrong username or password!");

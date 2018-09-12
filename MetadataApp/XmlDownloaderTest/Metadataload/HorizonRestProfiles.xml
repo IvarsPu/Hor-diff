@@ -1,2 +1,4 @@
 <Profiles>
+  <Profile ID="1" Url="test" Password="" />
+  <Profile ID="2" Url="test1" Password="123" />
 </Profiles>

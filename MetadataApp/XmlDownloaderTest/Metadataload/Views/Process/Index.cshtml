@@ -1,6 +1,11 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<input type="button" value="Remove profile" onclick="removeProfile()" />
+<input type="button" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
+<input type="button" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" style="float: right;"/>
+<br>
 <table id="processTable">
     <thead>
         <tr>
@@ -15,24 +20,20 @@
     <tbody></tbody>
 </table>
 
-<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
 <input type="text" id="versionId" placeholder="version">
 <input type="button" onclick="add()" value="Add">
+<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
 <!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
-<br>
-<input type="button" value="Remove profile" onclick="removeProfile()" />
-<input type="button" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
-<input type="button" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" />
-
 <script>
-    refresh();
+    //Starts refresh method with selected time period
+    refresh(5000);
 
-    //refresh table on required interval
-    function refresh() {
+    //refresh table
+    function refresh(time) {
         setTimeout(function () {
-            refresh();
-        }, 5000);
+            refresh(time);
+        }, time);
         refreshTable();
     }
 
@@ -65,7 +66,8 @@
             }
         });
     }
-    
+
+    //add new process
     function add() {
         var versionId = $("#versionId").val();
         $.ajax({
@@ -83,6 +85,7 @@
         });
     }
 
+    //Delete logged in profile
     function removeProfile() {
         $.ajax({
             type: "GET",

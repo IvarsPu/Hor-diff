@@ -10,11 +10,9 @@ namespace Metadataload.Controllers
     {
         private Models.AppContext appContext;
         private WebResourceLoader webResourceLoader;
-        private int processId;
 
         public void DoTheJob(int processId)
         {
-            this.processId = processId;
             string rootUrl = WebConfigurationManager.ConnectionStrings["Server"].ConnectionString;
             string rootLocalPath = WebConfigurationManager.ConnectionStrings["MetadataLocalFolder"].ConnectionString;
             
@@ -24,7 +22,7 @@ namespace Metadataload.Controllers
             Logger.LogPath = this.appContext.RootLocalPath;
             
             // ServiceLoadState serviceState = this.LoadRestServiceTestState();
-            ServiceLoadState serviceState = this.LoadRestServiceLoadState();
+            ServiceLoadState serviceState = this.LoadRestServiceLoadState(processId);
             
             //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
             //serviceState.CalcStatistics();
@@ -44,7 +42,7 @@ namespace Metadataload.Controllers
             this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
-        public ServiceLoadState LoadRestServiceLoadState()
+        public ServiceLoadState LoadRestServiceLoadState(int processId)
         {
             ServiceLoadState loadState = null;
             List<RestService> services = null;

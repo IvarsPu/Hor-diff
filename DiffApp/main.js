@@ -273,7 +273,7 @@ function getErrorDiff(jsonVer1Doc, jsonVer2Doc) {
 		msg2 = "2. Versijas kļūda: HttpCode: " + jsonVer2Doc.httpCode + ", " + jsonVer2Doc.errorMessage;
 		jsonVer1Doc.errorMessages.push(msg2);
 	}
-	return msg1 != msg2;
+	return !jsonVer1Doc.hasOwnProperty('errorMessage') && jsonVer2Doc.hasOwnProperty('errorMessage');
 }
 
 function markTreeAsNew(root) {
@@ -448,8 +448,8 @@ function getVersionList(xmlVersions) {
 			
 			if (version.children()) {
 				version.children().each(function() {
-					versionName = versionName + "/" + $(this).attr('name');
-					versionArray.push(versionName);
+					var releaseName = versionName + "/" + $(this).attr('name');
+					versionArray.push(releaseName);
 				});
 			}
 		});

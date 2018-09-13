@@ -88,7 +88,7 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
-        @if (process != null && !process.Done && process.ServerId.ToString().Equals(Session["profileId"].ToString()))
+        @if (process != null && !process.Done && process.ServerId.ToString().Equals(Session[Metadataload.Controllers.ProfileController.profileId].ToString()))
         {
             <dt>
                 Process Action

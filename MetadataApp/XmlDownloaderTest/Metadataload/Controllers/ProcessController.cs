@@ -27,7 +27,7 @@ namespace Metadataload.Controllers
         public int StartMetadataLoad(string version)
         {
             int processId = 1;
-            int id = Int32.Parse(Session["profileId"].ToString());
+            int id = Int32.Parse(Session[ProfileController.profileId].ToString());
             if (Processes.Count > 0)
             {
                 foreach (Process pr in Processes.Values)
@@ -52,7 +52,7 @@ namespace Metadataload.Controllers
         [Route("StopProcess")]
         public string StopProcess(int processId)
         {
-            int id = Int32.Parse(Session["profileId"].ToString());
+            int id = Int32.Parse(Session[ProfileController.profileId].ToString());
             try
             {
                 if (Processes[processId].ServerId == id)

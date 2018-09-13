@@ -1,4 +1,7 @@
 <Profiles>
   <Profile ID="1" Url="test" Password="" />
   <Profile ID="2" Url="test1" Password="123" />
+  <Profile ID="3" Url="h" Password="" />
+  <Profile ID="4" Url="dfg" Password="" />
+  <Profile ID="5" Url="dfggg" Password="" />
 </Profiles>

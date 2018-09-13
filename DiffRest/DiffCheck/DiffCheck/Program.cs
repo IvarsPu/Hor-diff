@@ -10,7 +10,7 @@ namespace DiffCheck
 
         static void Main(string[] args)
         {
-            new Program(515,3,520,1);
+            new Program(515,3,520,2);
         }
 
         public Program(int firstVersion, int firstRelease, int secondVersion, int secondRelease)
@@ -23,7 +23,7 @@ namespace DiffCheck
             secondFilePath = "MetadataLocalFolder/"+ secondVersion + "/"+ secondRelease + "/";
             secondXml.Load(secondFilePath + "metadata.xml");
 
-            Compare(firstXml, secondXml, secondRelease);
+            //Compare(firstXml, secondXml, secondRelease);
 
             Console.WriteLine("Done");
         }
@@ -45,11 +45,11 @@ namespace DiffCheck
             {
                 RemoveFile(node);
             }
-
-            secondXml.Save("MetadataLocalFolder/metadata.xml");
-            //secondXml.Save(secondFilePath + "metadata.xml");//overwrites the second document
+            
+            secondXml.Save("C:/Users/ralfs.zangis/Desktop/metadata.xml");//overwrites the second document
         }
 
+        //removes the file
         private void RemoveFile(XmlNode node)
         {
             string path = node.Attributes["name"].Value;

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Web.Configuration;
 using System.Web.Mvc;
+using System.Web.WebPages;
 using System.Xml;
 
 namespace Metadataload.Controllers
@@ -8,9 +8,12 @@ namespace Metadataload.Controllers
     [RoutePrefix("Profile")]
     public class ProfileController : Controller
     {
+        public static string path;
+        public static string profileId = "profileId";
+
         public ActionResult LogIn()
         {
-            Session["profileId"] = "";
+            Session[profileId] = "";
             return View();
         }
 
@@ -31,12 +34,12 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                doc.Load(path);
                 XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "' and @Password = '" + password + "']");
                 if (node != null)
                 {
                     int id = Int32.Parse(node.Attributes["ID"].Value);
-                    Session["profileId"] = id;
+                    Session[profileId] = id;
                     return id;
                 }
                 else
@@ -54,22 +57,22 @@ namespace Metadataload.Controllers
         [Route("CreateProfile")]
         public int CreateProfile(string url, string password)
         {
-            XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null)
+                XmlDocument doc = new XmlDocument();
+                if (System.IO.File.Exists(path))
                 {
-                    return 0;
+                    doc.Load(path);
+                    if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null)
+                    {
+                        return 0;
+                    }
                 }
-            }
-            catch
-            {
-                doc.AppendChild(doc.CreateElement("Profiles"));
-            }
+                else
+                {
+                    doc.AppendChild(doc.CreateElement("Profiles"));
+                }
 
-            try
-            {
                 #region Profile
                 XmlNode profileNodes = doc.SelectSingleNode("//Profiles");
                 XmlNode profileNode = doc.CreateElement("Profile");
@@ -94,8 +97,8 @@ namespace Metadataload.Controllers
                 profileNodes.AppendChild(profileNode);
                 #endregion
 
-                doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                Session["profileId"] = id;
+                doc.Save(path);
+                Session[profileId] = id;
                 return id;
             }
             catch
@@ -111,12 +114,12 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session["profileId"] + "']");
+                doc.Load(path);
+                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session[profileId] + "']");
                 if (node != null)
                 {
                     node.ParentNode.RemoveChild(node);
-                    doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                    doc.Save(path);
                     return true;
                 }
                 else
@@ -137,8 +140,8 @@ namespace Metadataload.Controllers
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
-                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session["profileId"].ToString() + "']");
+                doc.Load(path);
+                XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + Session[profileId] + "']");
                 if (node != null)
                 {
                     if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count <2)|| 
@@ -146,7 +149,7 @@ namespace Metadataload.Controllers
                     {
                         node.Attributes["Url"].Value = url;
                         node.Attributes["Password"].Value = password;
-                        doc.Save(System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.ConnectionStrings["LocalFolder"].ConnectionString));
+                        doc.Save(path);
                         return true;
                     }
                     else

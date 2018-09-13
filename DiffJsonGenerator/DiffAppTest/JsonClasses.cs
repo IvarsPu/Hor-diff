@@ -15,6 +15,8 @@ namespace DiffAppTest
         public string extraClasses { get; set; }
 
         public int hashCode { get; set; }
+
+        public String diffHtmlFile { get; set; }
     }
 
     public class Folder : IElement

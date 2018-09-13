@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
+using System.Xml.Linq;
 
 namespace DiffAppTest
 {
@@ -13,115 +14,151 @@ namespace DiffAppTest
     {
         static void Main(string[] args)
         {
-            string versonRelease = "515.3"; // [version.release]
-            const int MAX_DEEPNESS = 5;
-            int deepness = 0;
+            string version = "515";
+            string release = "21";
 
-            var elementLists = new List<IElement>[MAX_DEEPNESS];
 
-            for (int i = 0; i < elementLists.Length; i++)
-                elementLists[i] = new List<IElement>();
+            string root = "C:/Projects/Hor-diff/DiffApp/rest/" + version + "/" + release + "/";
 
-            var folders = new Folder[MAX_DEEPNESS];
+            /*
+            string test1 = "C:/Projects/Hor-diff/DiffApp/rest/" + version + "/13/Virsgrāmata/TdmPDok/TdmPDok.wadl";
+            XDocument xdoc1 = XDocument.Load(test1, LoadOptions.None);
+            int hash1 = xdoc1.ToString().GetHashCode();
 
-            for (int i = 0; i < folders.Length; i++)
-                folders[i] = new Folder();
+            string test2 = "C:/Projects/Hor-diff/DiffApp/rest/" + version + "/21/Virsgrāmata/TdmPDok/TdmPDok.wadl";
+            XDocument xdoc2 = XDocument.Load(test2, LoadOptions.None);
+            int hash2 = xdoc1.ToString().GetHashCode();
 
-            Schema schema = new Schema();
+            Console.WriteLine(hash1);
+            Console.WriteLine(hash2);
+            Console.WriteLine(hash1 == hash2);
+            */
 
-            string filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease;
+            XmlDocument metadataXml = new XmlDocument();
+            metadataXml.Load(root + "metadata.xml");
 
-            XmlReader xmlReader = XmlReader.Create(filePath + "\\metadata.xml");
+            UpdateSchemaHash(root, metadataXml, "//service_schema");
+            UpdateSchemaHash(root, metadataXml, "//data_schema");
+            UpdateSchemaHash(root, metadataXml, "//query_schema");
 
-            while(xmlReader.Read())
+            metadataXml.Save(root + "metadata.xml");
+            Console.WriteLine("Done");
+        }
+
+        private static void UpdateSchemaHash(string root, XmlDocument metadataXml, string nodeXpath)
+        {
+            foreach (XmlNode node in metadataXml.SelectNodes(nodeXpath))
             {
-                switch (xmlReader.NodeType)
+
+                if (node.Attributes["hashCode"].Value != "-1")
                 {
-                    case XmlNodeType.Element:
-                        string name = xmlReader.GetAttribute("name");
-                        string xPath = string.Format("//service[@name='{0}']", name);
+                    String filePath = node.Attributes["name"].Value;
+                    XmlNode fileNode = node.ParentNode;
+                    do
+                    {
+                        filePath = fileNode.Attributes["name"].Value + "/" + filePath;
+                        fileNode = fileNode.ParentNode;
+                    } while (!fileNode.Name.Equals("rest_api_metadata"));
 
+                    filePath = root + filePath;
+                    XDocument xdoc = XDocument.Load(filePath, LoadOptions.None);
 
-                        if ((xmlReader.Name == "service_group") || (xmlReader.Name == "service") || (xmlReader.Name == "resource"))
-                        {
-                            folders[deepness].title = name;
+                    int hash = xdoc.ToString().GetHashCode();
+                    int noNamespaceHash = GetNoNamspaceHash(filePath, xdoc);
 
-                            folders[deepness].extraClasses = "service_ok";
-
-                            if (!xmlReader.IsEmptyElement)
-                            {
-                                filePath += "\\" + name;
-                                deepness++;
-                            }
-                            else
-                            {
-                                elementLists[deepness].Add(folders[deepness]);
-
-                                folders[deepness] = new Folder();
-                            }
-                        }
-                        else if ((xmlReader.Name == "service_schema")|| (xmlReader.Name == "data_schema"))
-                        {
-                            schema.title = name;
-
-                            filePath += "\\" + name;
-                            Console.WriteLine(filePath);
-
-                            if (xmlReader.GetAttribute("status") == "error")
-                            {
-                                schema.extraClasses = "doc_error";
-
-                                schema.hashCode = -1;
-                            }
-                            else
-                            {
-                                schema.extraClasses = "doc_ok";
-
-                                XmlDocument xmlDoc = new XmlDocument();
-
-                                xmlDoc.Load(filePath);
-
-                                string xmlContents = xmlDoc.InnerXml;
-
-                                int hashCode = xmlContents.GetHashCode();
-
-                                schema.hashCode = hashCode;
-                            }
-
-                            int removeId = filePath.LastIndexOf("\\");
-                            filePath = filePath.Remove(removeId);
-
-                            elementLists[deepness].Add(schema);
-                            schema = new Schema();
-                        }
-                        break;
-                    case XmlNodeType.EndElement:
-                        if ((xmlReader.Name == "service_group") || (xmlReader.Name == "service") || (xmlReader.Name == "resource"))
-                        {
-                            deepness--;
-
-                            folders[deepness].children = elementLists[deepness + 1];
-
-                            elementLists[deepness].Add(folders[deepness]);
-
-                            elementLists[deepness + 1] = new List<IElement>();
-                            folders[deepness] = new Folder();
-                        }
-
-                        int removeFrom = filePath.LastIndexOf("\\");
-                        filePath = filePath.Remove(removeFrom);
-                        break;
+                    node.Attributes["hashCode"].Value = hash.ToString();
+                    node.Attributes["noNamspaceHashCode"].Value = noNamespaceHash.ToString();
                 }
+
+            }
+        }
+
+        private static int GetNoNamspaceHash(string fileName, XDocument xdoc)
+        {
+            int hash = -1;
+
+            if (fileName.Contains(".wadl"))
+            {
+                CleanUpTag(xdoc, "application");
+            }
+            else if (fileName.Contains(".xsd"))
+            {
+                CleanUpTag(xdoc, "schema");
+                RemoveTags(xdoc, "import");
+            }
+            else if (fileName.Contains(".xml"))
+            {
+                CleanUpTag(xdoc, "collection");
             }
 
-            string json = JsonConvert.SerializeObject(elementLists[0]);
-            //json = string.Format("var ontJson = {0}; $(function(){{$(\"#tree\").fancytree({{source: ontJson}});}});", json);//var ontJson = {0}; $(function(){$(\"#tree\").fancytree({source: ontJson});});
+            string result = xdoc.ToString();
+            result = result.Replace(" ", "");
+            result = result.Replace("\r\n", "");
+            hash = result.GetHashCode();
             
-            string jsonFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\rest\\" + versonRelease +"\\" + versonRelease + ".json";
-            File.WriteAllText(jsonFilePath, json);
-
-            Console.WriteLine("Complete!");
-            Console.ReadKey();
+            return hash;
         }
+
+        private static void CleanUpTag(XDocument doc, string name)
+        {
+            List<XElement> clearNodes = new List<XElement>();
+
+            // Replace element with clear copy
+            clearNodes.AddRange(
+                from el in doc.Descendants()
+                where el.Name.LocalName == name
+                select el);
+
+            foreach (XElement elem in clearNodes)
+            {
+                var childs = elem.Descendants();
+                XElement newElem = new XElement(elem.Name.LocalName);
+                newElem.Add(childs);
+                elem.ReplaceWith(newElem);
+            }
+
+            // Clean up remaining namespaces created during node replacemant
+            doc.Descendants()
+              .Attributes()
+              .Where(x => x.IsNamespaceDeclaration)
+              .Remove();
+
+            foreach (var elem in doc.Descendants())
+            {
+                elem.Name = elem.Name.LocalName;
+            }
+        }
+
+        private static void RemoveTags(XDocument doc, string name)
+        {
+            doc.Descendants()
+              .Elements()
+              .Where(x => x.Name.LocalName == name)
+              .Remove();
+        }
+
+        private static string GetSchema(string filename)
+        {
+            int i = filename.LastIndexOf(".");
+            string extension = filename.Substring(i);
+            string schema = "other_schema";
+
+            if (extension == ".xsd")
+            {
+                schema = "data_schema";
+            }
+            else if (extension == ".wadl")
+            {
+                schema = "service_schema";
+            }
+            else if (filename == "query.xml")
+            {
+                schema = "query_schema";
+            }
+
+            return schema;
+        }
+
+
     }
 }

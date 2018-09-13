@@ -166,6 +166,15 @@ function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array)
 	CheckForNewTreeItems(jsonVer1Array, jsonVer2Array); 	
 }
 
+function FindItemByTitle(JsonArray, title) {
+
+		for(var i=0; i < JsonArray.length; ++i) {
+			if(JsonArray[i].title == title) {
+				return JsonArray[i];
+			}
+		}
+}
+
 function MarkServiceDifferences(ver1Service, jsonVer2Array,  parentRestPath, errStatusContainer) 
 {
 	var isDifferent = false;
@@ -178,7 +187,19 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array,  parentRestPath, err
 	ver1Service.restPath += ver1Service.title;	
 
 	if (ver1Service.children && ver1Service.title) {
-		var ver2Service = jsonVer2Array.find(item => item.title === ver1Service.title);
+		//var ver2Service = jsonVer2Array.find(item => item.title === ver1Service.title);
+		//var ver2Service = {}
+		
+		/*
+		for(var i=0; i < jsonVer2Array.length; ++i) {
+			var person_i = jsonVer2Array[i];
+			if(jsonVer2Array[i].title == ver1Service.title) {
+				var ver2Service = jsonVer2Array[i];
+				break;
+			}
+		} */
+		var ver2Service = FindItemByTitle(jsonVer2Array, ver1Service.title);
+
 
 		if (ver2Service && ver2Service.children) {
 
@@ -214,7 +235,9 @@ function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array)
 		
 	for (var f = 0; f < jsonVer2Array.length; f++){
 		var ver2ServiceChild = jsonVer2Array[f];
-		var ver1ServiceChild = jsonVer1Array.find(item => item.title === ver2ServiceChild.title);
+		//var ver1ServiceChild = jsonVer1Array.find(item => item.title === ver2ServiceChild.title);
+
+		var ver1ServiceChild = FindItemByTitle(jsonVer1Array, ver2ServiceChild.title);	
 
 		if(!ver1ServiceChild) {
 			markTreeAsNew(ver2ServiceChild);
@@ -230,7 +253,8 @@ function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, 
 	jsonVer1Doc.restPath = parentRestPath;
 	jsonVer1Doc.parentName = parentWebPath;	
 
-	var jsonVer2Doc = jsonVer2DocArray.find(item => item.title === jsonVer1Doc.title);
+	//var jsonVer2Doc = jsonVer2DocArray.find(item => item.title === jsonVer1Doc.title);
+	var jsonVer2Doc = FindItemByTitle(jsonVer2DocArray, jsonVer1Doc.title);	
 	
 	if(jsonVer1Doc.errorMessage || (jsonVer2Doc && jsonVer2Doc.errorMessage)) {
 		jsonVer1Doc.isError = true;
@@ -273,7 +297,7 @@ function getErrorDiff(jsonVer1Doc, jsonVer2Doc) {
 		msg2 = "2. Versijas kļūda: HttpCode: " + jsonVer2Doc.httpCode + ", " + jsonVer2Doc.errorMessage;
 		jsonVer1Doc.errorMessages.push(msg2);
 	}
-	return msg1 != msg2;
+	return !jsonVer1Doc.hasOwnProperty('errorMessage') && jsonVer2Doc.hasOwnProperty('errorMessage');
 }
 
 function markTreeAsNew(root) {
@@ -448,8 +472,8 @@ function getVersionList(xmlVersions) {
 			
 			if (version.children()) {
 				version.children().each(function() {
-					versionName = versionName + "/" + $(this).attr('name');
-					versionArray.push(versionName);
+					var releaseName = versionName + "/" + $(this).attr('name');
+					versionArray.push(releaseName);
 				});
 			}
 		});

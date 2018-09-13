@@ -118,10 +118,22 @@ namespace DiffCheck
                     {
 
                     }
+                    schema.diffHtmlFile = GetPath(child);
                     elements.Add(schema);
                 }
             }
             return elements;
+        }
+
+        private string GetPath(XmlNode node)
+        {
+            string path = node.Attributes["name"].Value;
+            while (!node.Name.Equals("service_group"))
+            {
+                node = node.ParentNode;
+                path = node.Attributes["name"].Value + "/" + path;
+            }
+            return path = "MetadataLocalFolder/" + path + ".xml";
         }
         #endregion
 

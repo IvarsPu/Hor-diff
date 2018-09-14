@@ -7,6 +7,7 @@ using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Newtonsoft.Json;
+using System.Web;
 
 namespace DiffCheck
 {
@@ -17,8 +18,16 @@ namespace DiffCheck
 
         static void Main(string[] args)
         {
-            new Program(515,3,520,1);
-            DiffColorer("515/3/","520/1/","metadata.xml");
+            //new Program(515, 3, 520, 1);
+            DiffColorer("515/3/", "520/1/", "metadata.xml");
+
+            //string value1 = "&lt;html&gt;";
+            //string value2 = HttpUtility.HtmlDecode(value1);
+            //string value3 = HttpUtility.HtmlEncode(value2);
+            //Console.WriteLine(value1);
+            //Console.WriteLine(value2);
+            //Console.WriteLine(value3);
+
             Console.WriteLine("Done");
         }
 
@@ -33,33 +42,34 @@ namespace DiffCheck
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
             var result = builder.BuildDiffModel(oldText, newText);
-            
+            sb.Append("<html>"+
+                "<head>" +
+                "<style>" +
+                "span { color: gray; }" +
+                ".deleted { color:black; background-color:red; } " +
+                ".new { color:black; background-color:green; } " +
+                "</style>" +
+                "</head>"+
+                "<body>");
             foreach (var line in result.Lines)
             {
                 if (line.Type == ChangeType.Inserted)
                 {
-                    sb.Append("<font color='GREEN'>");
+                    sb.Append("<span class='new'>");
                 }
                 else if (line.Type == ChangeType.Deleted)
                 {
-                    sb.Append("<font color='RED'>");
-                }
-                else if (line.Type == ChangeType.Modified)
-                {
-                    sb.Append("<font color='YELLOW'>");
-                }
-                else if (line.Type == ChangeType.Imaginary)
-                {
-                    sb.Append("<font color='FUCHSIA'>");
+                    sb.Append("<span class='deleted'>");
                 }
                 else if (line.Type == ChangeType.Unchanged)
                 {
-                    sb.Append("<font>");
+                    sb.Append("<span>");
                 }
-                sb.Append("<xmp>"+ line.Text + "</xmp></font>");
+                sb.Append(HttpUtility.HtmlEncode(line.Text) + "</span><br/>");
             }
-
-            File.WriteAllText(pathToSave + "testColored.txt", sb.ToString());
+            sb.Append("</body>"+
+                "</html>");
+            File.WriteAllText(pathToSave + "testColored.html", sb.ToString(), Encoding.UTF8);
         }
         #endregion
 

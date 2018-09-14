@@ -18,17 +18,17 @@ namespace DiffCheck
         static void Main(string[] args)
         {
             new Program(515,3,520,1);
-            DiffColorer(515,3,520,1);
+            DiffColorer("515/3/","520/1/","metadata.xml");
             Console.WriteLine("Done");
         }
 
         #region Text Color Generator
-        private static void DiffColorer(int firstVersion, int firstRelease, int secondVersion, int secondRelease)
+        private static void DiffColorer(string firstFile, string secondFile, string file)
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = File.ReadAllText(folderName + firstVersion + "/" + firstRelease + "/metadata.xml");
-            string newText = File.ReadAllText(folderName + secondVersion + "/" + secondRelease + "/metadata.xml");
+            string oldText = File.ReadAllText(folderName + firstFile + file);
+            string newText = File.ReadAllText(folderName + secondFile + file);
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
@@ -73,7 +73,6 @@ namespace DiffCheck
             secondXml.Load(folderName + secondVersion + "/" + secondRelease + "/metadata.xml");
 
             secondXml = Compare(firstXml, secondXml, secondRelease);
-            
             secondXml.RemoveChild(secondXml.FirstChild);
             
             string json = JsonConvert.SerializeObject(AddClass(secondXml));
@@ -85,12 +84,11 @@ namespace DiffCheck
         private Folder AddClass(XmlDocument xml)
         {
             Folder folder = new Folder();
-            foreach (XmlNode node in xml.SelectNodes("//rest_api_metadata"))
-            {
-                folder.title = "root";
-                folder.type = node.Name;
-                folder.children = GetChildren(node);
-            }
+            XmlNode node = xml.SelectSingleNode("//rest_api_metadata");
+            folder.title = "root";
+            folder.type = node.Name;
+            folder.children = GetChildren(node);
+
             return folder;
         }
 

@@ -12,23 +12,28 @@ namespace DiffCheck
 {
     public class Program
     {
+        private static string pathToSave = "C:/Users/ralfs.zangis/Desktop/";
+        private static string folderName = "MetadataLocalFolder/";
+
         static void Main(string[] args)
         {
             new Program(515,3,520,1);
             DiffColorer(515,3,520,1);
+            Console.WriteLine("Done");
         }
 
+        #region Text Color Generator
         private static void DiffColorer(int firstVersion, int firstRelease, int secondVersion, int secondRelease)
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = File.ReadAllText("MetadataLocalFolder/" + firstVersion + "/" + firstRelease + "/metadata.xml");
-            string newText = File.ReadAllText("MetadataLocalFolder/" + secondVersion + "/" + secondRelease + "/metadata.xml");
+            string oldText = File.ReadAllText(folderName + firstVersion + "/" + firstRelease + "/metadata.xml");
+            string newText = File.ReadAllText(folderName + secondVersion + "/" + secondRelease + "/metadata.xml");
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
             var result = builder.BuildDiffModel(oldText, newText);
-
+            
             foreach (var line in result.Lines)
             {
                 if (line.Type == ChangeType.Inserted)
@@ -51,20 +56,21 @@ namespace DiffCheck
                 {
                     sb.Append("<font>");
                 }
-
-                sb.Append(line.Text + "</font><br/>");
+                sb.Append("<xmp>"+ line.Text + "</xmp></font>");
             }
 
-            File.WriteAllText("C:/Users/ralfs.zangis/Desktop/testColored.txt", sb.ToString());
+            File.WriteAllText(pathToSave + "testColored.txt", sb.ToString());
         }
+        #endregion
 
+        #region Make Json tree
         public Program(int firstVersion, int firstRelease, int secondVersion, int secondRelease)
         {
             XmlDocument firstXml = new XmlDocument();
-            firstXml.Load("MetadataLocalFolder/" + firstVersion + "/" + firstRelease + "/metadata.xml");
+            firstXml.Load(folderName + firstVersion + "/" + firstRelease + "/metadata.xml");
 
             XmlDocument secondXml = new XmlDocument();
-            secondXml.Load("MetadataLocalFolder/" + secondVersion + "/" + secondRelease + "/metadata.xml");
+            secondXml.Load(folderName + secondVersion + "/" + secondRelease + "/metadata.xml");
 
             secondXml = Compare(firstXml, secondXml, secondRelease);
             
@@ -72,11 +78,9 @@ namespace DiffCheck
             
             string json = JsonConvert.SerializeObject(AddClass(secondXml));
 
-            File.WriteAllText("C:/Users/ralfs.zangis/Desktop/test.txt",json);
-
-            Console.WriteLine("Done");
+            File.WriteAllText(pathToSave+"test.txt",json);
         }
-
+        
         #region fill objects
         private Folder AddClass(XmlDocument xml)
         {
@@ -133,7 +137,7 @@ namespace DiffCheck
                 node = node.ParentNode;
                 path = node.Attributes["name"].Value + "/" + path;
             }
-            return path = "MetadataLocalFolder/" + path + ".xml";
+            return path = folderName + path + ".xml";
         }
         #endregion
 
@@ -174,6 +178,7 @@ namespace DiffCheck
 
             return node;
         }
+        #endregion
         #endregion
     }
 }

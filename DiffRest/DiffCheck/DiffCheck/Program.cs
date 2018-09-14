@@ -18,15 +18,8 @@ namespace DiffCheck
 
         static void Main(string[] args)
         {
-            //new Program(515, 3, 520, 1);
+            new Program(515, 3, 520, 1);
             DiffColorer("515/3/", "520/1/", "metadata.xml");
-
-            //string value1 = "&lt;html&gt;";
-            //string value2 = HttpUtility.HtmlDecode(value1);
-            //string value3 = HttpUtility.HtmlEncode(value2);
-            //Console.WriteLine(value1);
-            //Console.WriteLine(value2);
-            //Console.WriteLine(value3);
 
             Console.WriteLine("Done");
         }
@@ -36,8 +29,17 @@ namespace DiffCheck
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = File.ReadAllText(folderName + firstFile + file);
-            string newText = File.ReadAllText(folderName + secondFile + file);
+            string oldText = "";
+            if (File.Exists(folderName + firstFile + file))
+            {
+                oldText = File.ReadAllText(folderName + firstFile + file);
+            }
+
+            string newText = "";
+            if (File.Exists(folderName + secondFile + file))
+            {
+                newText = File.ReadAllText(folderName + secondFile + file);
+            }
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);

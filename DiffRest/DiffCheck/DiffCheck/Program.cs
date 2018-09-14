@@ -47,7 +47,7 @@ namespace DiffCheck
                 "<style>" +
                 "span { color: gray; }" +
                 ".deleted { color:black; background-color:red; } " +
-                ".new { color:black; background-color:green; } " +
+                ".new { color:black; background-color:yellow; } " +
                 "</style>" +
                 "</head>"+
                 "<body>");

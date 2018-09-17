@@ -18,8 +18,7 @@
 	<link href="skin-win8/ui.fancytree.css" rel="stylesheet">
 	<script src="jquery.fancytree.js"></script>
 	
-	<script src="mockup_tree_data.js"></script>	
-	<script src="diff.js"></script>	
+	<script src="tree_data.js"></script>	
 	<script src="main.js"></script>	
 
 
@@ -31,19 +30,37 @@
 	span.fancytree-node.service_changed span.fancytree-icon {
 		background-position: 0 0;
 		background-image: url("skin-custom/customFolder1.gif");
-	}	
-	span.fancytree-node.doc_ok span.fancytree-icon {
-		background-position: 0 0;
-		background-image: url("skin-custom/accept.png");
-	}	
+	}
+    span.fancytree-node.service_new span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/newFolder.gif");
+    }
+
+    span.fancytree-node.doc_ok span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/accept.png");
+    }	
 	span.fancytree-node.doc_changed span.fancytree-icon {
 		background-position: 0 0;
 		background-image: url("skin-custom/exclamation.png");
 	}	
-
-	body {
-		padding-top: 20px; 
+	span.fancytree-node.doc_error span.fancytree-icon  {
+		background-position: 0 0;
+		background-image: url("skin-custom/error.png");
 	}
+    span.fancytree-node.doc_deleted span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/cancel.png");
+    }
+    span.fancytree-node.doc_deleted span.fancytree-icon {
+        background-position: 0 0;
+        background-image: url("skin-custom/cancel.png");
+    }
+
+        cancel.png
+        body {
+            padding-top: 20px;
+        }
 	
 	.col-sm-3, .col-sm-5 {
 		padding-right: 0px;
@@ -60,12 +77,14 @@
     .pre {
 
     white-space: pre-wrap;
-	}
-
-		
+	font-family: "Courier New";
+	font-size: 16px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	line-height: 19.2px;
+	}	
 	</style>
-
-
 </head>
 
 <body height="100%">
@@ -73,24 +92,23 @@
 
 		<div class="row">
 			<div class="col-sm-3">
-				<div class="panel panel-default"  style="height: 220px">
+				<div class="panel panel-default"  style="height: 130px; ">
 					<div class="panel-heading">Horizon REST versiju izmaiņas</div>
 
-					<div class="panel-body">	
-						<b>Versija 1:</b>&nbsp;&nbsp;510.8   <input type="file" id="versionButton1" /> <br/> 
-						<b>Versija 2:</b>&nbsp;&nbsp;515.3	 <input type="file" id="versionButton2" /> <br/> 
-						
-					</div>
+                    <div class="panel-body" style="padding-left: 20px;">
+                        <b>1. Versija:</b>&nbsp;&nbsp;<select id="Version1"> </select>
+                        <br />
+                        <b>2. Versija:</b>&nbsp;&nbsp;<select id="Version2"> </select>
+                    </div>
 				</div>									
 			</div>
 			<div class="col-sm-5">
 				<div class="panel panel-default"  style="height: 130px">
 					<div class="panel-heading">Servisa informācija</div>
 
-					<div class="panel-body">									
-						<b>Servisa apraksts:</b>&nbsp;&nbsp;Krājumi \ Nomenklatūra<br/>							
-						<b>REST ceļš:</b>&nbsp;&nbsp;/rest/TNdmNom/{pk}/attachments/TNdmNomAttachmentSL.xsd<br/>	
-						<b>Izmaiņu statuss:</b>&nbsp;&nbsp;Modificēts<br/>						
+					<div class="panel-body">															
+						<b>REST ceļš:</b>&nbsp;&nbsp;<span id="restPath"></span><br/>	
+						<b>Izmaiņu statuss:</b>&nbsp;&nbsp;<span id="changeStatus"></span><br/>						
 
 					</div>
 				</div>									
@@ -99,14 +117,14 @@
 				<div class="panel panel-default" style="height: 130px">
 						<div class="panel-heading">Servisu filtri</div>
 
-						<div class="panel-body">	
-							<div class="radio">
-							  <label><input type="radio" name="optradio" checked="true">Rādīt visus</label>
-							</div>
-							<div class="radio">
-							  <label><input type="radio" name="optradio">Rādīt tikai izmainītos</label>
-							</div>						
-						</div>
+                        <div class="panel-body"  style="padding-top: 0px;">
+                            <div class="radio">
+                                <label><input type="radio" id="chars" name="optradio" value="1" disabled>Visi</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" id="lines" name="optradio" value="2" checked="true">Modificētie</label>
+                            </div>
+                        </div>
 				</div>					
 			</div>			
 	
@@ -118,7 +136,7 @@
 					<div class="panel-heading">Horizon REST servisi</div>
 					
 					<div class="link-panel-body" align = "right">
-						<a href="#">Izvērst visu</a>&nbsp;\&nbsp;<a href="#">Sakļaut visu</a>		   
+						<a href="#" id="expand_tree">Izvērst visu</a>&nbsp;\&nbsp;<a href="#" id="colapse_tree">Sakļaut visu</a>		   
 					</div>
 					<div class="panel-body tree-panel" id="tree" style='overflow:auto; '>
 								   
@@ -128,30 +146,13 @@
 			<div id="change_panel" class="col-sm-9">
 				<div class="panel panel-default scroll_section" >
 					<div id="change_header" class="panel-heading">Izmaiņas</div>
-					<div id="change_content" style='overflow:auto;' class="pre"></div>
+
+					<iframe id="diff_frame" width="100%" height="100%" style="border: none;"/>
+
 				</div>
 			
 			</div>
 		</div>			
 	</div>	
-
-<script type="text/javascript">
-	$(document).ready(function(){
-	  setDivSize();  
-	 
-	  $(window).resize(function(){
-		setDivSize();	
-	  });
-	});
-
-	function setDivSize() {
-		var divTop = $('#change_panel').position().top  + $('#change_content').position().top; 
-		var newHeight = $(window).height() - divTop - 25;
-		
-		$('#change_content').height(newHeight);
-		$('#tree').height(newHeight - 40);	
-	}
-</script>
-	
 </body>
 </html>

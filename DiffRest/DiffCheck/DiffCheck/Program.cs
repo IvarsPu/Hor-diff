@@ -13,46 +13,80 @@ namespace DiffCheck
 {
     public class Program
     {
-        private static string pathToSave = "C:/Users/ralfs.zangis/Desktop/";
-        private static string folderName = "MetadataLocalFolder/";
+        private static string exportFolderName = "C:/Projects/RSU/";
+        private static string MetadatRootFolder = "C:/Projects/Hor-diff/DiffApp/rest/";
+        private static string JsonTreeFileName = "tree_data.js";
+        private static string HtmlRootFolder = "REST";
+
+        private string FirstVersion;
+        private string FirstRelease;
+        private string SecondVersion;
+        private string SecondRelease;
 
         static void Main(string[] args)
         {
-            new Program(515, 3, 520, 1);
-            DiffColorer("515/3/", "520/1/", "metadata.xml");
+            Program prog = new Program("515", "13", "515", "21");
+            prog.GenerateReport();
 
-            Console.WriteLine("Done");
+            Console.WriteLine("Done, press any key");
+            Console.ReadKey();
+
+            //  DiffColorer("515/13/", "515/21/", "metadata.xml");
+
+            //string value1 = "&lt;html&gt;";
+            //string value2 = HttpUtility.HtmlDecode(value1);
+            //string value3 = HttpUtility.HtmlEncode(value2);
+            //Console.WriteLine(value1);
+            //Console.WriteLine(value2);
+            //Console.WriteLine(value3);
+
+
+        }
+
+        public Program(string firstVersion, string firstRelease, string secondVersion, string secondRelease)
+        {
+            FirstVersion = firstVersion;
+            FirstRelease = firstRelease;
+            SecondVersion = secondVersion;
+            SecondRelease = secondRelease;
+        }
+        public void GenerateReport()
+        {
+            XmlDocument firstXml = new XmlDocument();
+            firstXml.Load(MetadatRootFolder + FirstVersion + "/" + FirstRelease + "/metadata.xml");
+
+            XmlDocument secondXml = new XmlDocument();
+            secondXml.Load(MetadatRootFolder + SecondVersion + "/" + SecondRelease + "/metadata.xml");
+
+            secondXml = Compare(firstXml, secondXml);
+            secondXml.RemoveChild(secondXml.FirstChild);
+
+            string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
+            File.WriteAllText(exportFolderName + JsonTreeFileName, json);
+
         }
 
         #region Text Color Generator
-        private static void DiffColorer(string firstFile, string secondFile, string file)
+        private static void GenerateDiffHtmlFile(string firstFile, string secondFile, string resultFilePath)
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = "";
-            if (File.Exists(folderName + firstFile + file))
-            {
-                oldText = File.ReadAllText(folderName + firstFile + file);
-            }
-
-            string newText = "";
-            if (File.Exists(folderName + secondFile + file))
-            {
-                newText = File.ReadAllText(folderName + secondFile + file);
-            }
+            string oldText = File.ReadAllText(firstFile);
+            string newText = File.ReadAllText(secondFile);
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
             var result = builder.BuildDiffModel(oldText, newText);
-            sb.Append("<html>"+
-                "<head>" +
-                "<style>" +
-                "span { color: gray; }" +
-                ".deleted { color:black; background-color:red; } " +
-                ".new { color:black; background-color:yellow; } " +
-                "</style>" +
-                "</head>"+
-                "<body>");
+            sb.Append("<html>\n"+
+                "<head>\n" +
+                "<meta charset='UTF-8'>\n" +
+                "<style>\n" +
+                "span { color: gray;  white-space: pre; }\n" +
+                ".deleted { color:black; background-color:red; } \n" +
+                ".new { color:black; background-color:yellow; }\n " +
+                "</style>\n" +
+                "</head>\n" +
+                "<body>\n");
             foreach (var line in result.Lines)
             {
                 if (line.Type == ChangeType.Inserted)
@@ -67,31 +101,51 @@ namespace DiffCheck
                 {
                     sb.Append("<span>");
                 }
-                sb.Append(HttpUtility.HtmlEncode(line.Text) + "</span><br/>");
+                sb.Append(HttpUtility.HtmlEncode(line.Text) + "</span><br/>\n");
             }
-            sb.Append("</body>"+
+            sb.Append("</body>\n" +
                 "</html>");
-            File.WriteAllText(pathToSave + "testColored.html", sb.ToString(), Encoding.UTF8);
+            File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
         }
         #endregion
 
-        #region Make Json tree
-        public Program(int firstVersion, int firstRelease, int secondVersion, int secondRelease)
+        private string generateHtmlDiff(XmlNode node)
         {
-            XmlDocument firstXml = new XmlDocument();
-            firstXml.Load(folderName + firstVersion + "/" + firstRelease + "/metadata.xml");
+            String fileName = node.Attributes["name"].Value;
+            String filePath = "";
 
-            XmlDocument secondXml = new XmlDocument();
-            secondXml.Load(folderName + secondVersion + "/" + secondRelease + "/metadata.xml");
+            //Get file path
+            XmlNode fileNode = node.ParentNode;
+            do
+            {
+                filePath = fileNode.Attributes["name"].Value + "/" + filePath;
+                fileNode = fileNode.ParentNode;
+            } while (!fileNode.Name.Equals("rest_api_metadata"));
 
-            secondXml = Compare(firstXml, secondXml, secondRelease);
-            secondXml.RemoveChild(secondXml.FirstChild);
-            
-            string json = JsonConvert.SerializeObject(AddClass(secondXml));
+            string exportFolder = exportFolderName + HtmlRootFolder + "/" + filePath;
+            if (!Directory.Exists(exportFolder))
+            {
+                Directory.CreateDirectory(exportFolder);
+            }
 
-            File.WriteAllText(pathToSave+"test.txt",json);
+            string firstFilePath = MetadatRootFolder + FirstVersion + "/" + FirstRelease + "/" + filePath + "/" + fileName;
+            string secondFilePath = MetadatRootFolder + SecondVersion + "/" + SecondRelease + "/" + filePath + "/" + fileName;
+
+            string htmlFileName = fileName.Replace('.', '_') + ".html";
+            string htmlFilePath = exportFolder + "/" + htmlFileName;
+
+            try
+            {
+                GenerateDiffHtmlFile(firstFilePath, secondFilePath, htmlFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            filePath = filePath + htmlFileName;
+            return filePath;
         }
-        
+
         #region fill objects
         private Folder AddClass(XmlDocument xml)
         {
@@ -126,13 +180,14 @@ namespace DiffCheck
                     schema.type = child.Name;
                     try
                     {
-                        schema.errorMessage = child.Attributes["error_message"].Value;
+                        schema.diffHtmlFile = child.Attributes["diffHtmlFile"].Value;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine("Service " + child.ParentNode.Attributes["name"].Value + " schema " + child.Attributes["name"].Value);
                     }
-                    schema.diffHtmlFile = GetPath(child);
+
                     elements.Add(schema);
                 }
             }
@@ -147,35 +202,93 @@ namespace DiffCheck
                 node = node.ParentNode;
                 path = node.Attributes["name"].Value + "/" + path;
             }
-            return path = folderName + path + ".xml";
+            return path = path + ".xml";
         }
         #endregion
 
         #region compare
-        private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml, int release)
+        private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
         {
             foreach (XmlNode node in firstXml.SelectNodes("//service/*[count(child::*) = 0]"))
             {
-                XmlNode child = secondXml.SelectSingleNode("//" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                string serviceName = node.ParentNode.Attributes["name"].Value;
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
                 if (child != null)
                 {
-                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value))
+                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+                        || child.Attributes["hashCode"].Value.Equals("-1")
+                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
                     {
                         //not changed
-                        child.ParentNode.RemoveChild(child);
+                        node.ParentNode.RemoveChild(node);
+                    }
+                    else
+                    {
+                        AddXmlAttribute(node, "diffHtmlFile", generateHtmlDiff(node)) ;
                     }
                 }
-                else
-                {
-                    //removed
-                    XmlNode t = Get(node, secondXml);
-                    child = secondXml.SelectSingleNode("//" + t.ParentNode.Name + "[@name='" + t.ParentNode.Attributes["name"].Value + "']");
+                /*          else
+                          {
+                              //removed
+                              XmlNode t = Get(node, secondXml);
+                              child = secondXml.SelectSingleNode("//" + t.ParentNode.Name + "[@name='" + t.ParentNode.Attributes["name"].Value + "']");
 
-                    XmlNode newBook = secondXml.ImportNode(t, true);
-                    child.AppendChild(newBook);
+                              XmlNode newBook = secondXml.ImportNode(t, true);
+                              child.AppendChild(newBook);
+                          } */
+            }
+
+
+            //The same for attachments
+            foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
+            {
+                string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                if (child != null)
+                {
+                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+                        || child.Attributes["hashCode"].Value.Equals("-1")
+                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+                    {
+                        //not changed
+                        node.ParentNode.RemoveChild(node);
+                    }
+                    else
+                    {
+                        AddXmlAttribute(node, "diffHtmlFile", generateHtmlDiff(node));
+                    }
                 }
             }
-            return secondXml;
+            //Remove unmodified attachments
+            foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            //Remove unmodified services
+            foreach (XmlNode node in firstXml.SelectNodes("//service[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+
+            //Remove unmodified service groups
+            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            //Remove unmodified service parent groups
+            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            return firstXml;
+        }
+
+        private void AddXmlAttribute(XmlNode node, String attrName, String attrValue)
+        {
+            XmlDocument doc = node.OwnerDocument;
+            XmlAttribute attr = doc.CreateAttribute(attrName);
+            attr.Value = attrValue;   
+            node.Attributes.SetNamedItem(attr);
         }
 
         private XmlNode Get(XmlNode node, XmlDocument xml)
@@ -188,7 +301,6 @@ namespace DiffCheck
 
             return node;
         }
-        #endregion
         #endregion
     }
 }

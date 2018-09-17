@@ -9,7 +9,7 @@ namespace DiffCheck
     {
         public string title { get; set; }
 
-        public string extraClasses { get; set; }//??
+        public string extraClasses { get; set; } = "doc_changed";
 
         public int hashCode { get; set; }
 
@@ -28,7 +28,7 @@ namespace DiffCheck
     {
         public string title { get; set; }
 
-        public string extraClasses { get; set; }//??
+        public string extraClasses { get; set; } = "service_changed";
 
         public string type { get; set; }
 

@@ -26,10 +26,14 @@ $(document).ready(function() {
  		 $("#tree").fancytree("getTree").visit(function(node){
         	node.setExpanded(false);
  		 });        	
-	});	
+	});
 
-	$("#tree").fancytree({source:  JsonTree, 
-		activate: function(event, data){
+	$("#tree").fancytree({extensions: ["filter"],source:  JsonTree,
+			filter: {
+				autoExpand: true,
+				mode: "hide"
+			},
+			activate: function(event, data){
 			$("#restPath").empty();
 			setChangeStatus(data.node);
 			$("#diff_frame").attr("src", "");
@@ -66,11 +70,9 @@ $(document).ready(function() {
 			$("#restPath").append(restUrl);
 		}});
 		
- 
-	 
-	  $(window).resize(function(){
-		setDivSize();	
-	  });
+	$("input[name=search]").keyup(function(e){
+			var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
+		}).focus();
 
 
 	function setDivSize() 
@@ -293,7 +295,6 @@ function filterModifiedServicesOnly(jsonVer1Array) {
 	}
 }
 
-
 function IsFile(treeNode){
 	var isFile = false;
 						
@@ -310,4 +311,40 @@ function IsFile(treeNode){
 
 }
 
+var selectedId = 0;
 
+function next(){
+	var iframe = document.getElementById("diff_frame");
+	var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+	
+	if(selectedId < elmnts.length - 2){	
+		var pass = true;
+		while(pass){
+			selectedId = selectedId + 1;
+			
+			if(selectedId == elmnts.length - 2 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+				pass = false;
+			}
+		}
+	}
+	
+	elmnts[selectedId].scrollIntoView( true );
+}
+
+function previous(){
+	var iframe = document.getElementById("diff_frame");
+	var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+	
+	if(selectedId > 1){	
+		var pass = true;
+		while(pass){
+			selectedId = selectedId - 1;
+			
+			if(selectedId == 0 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+				pass = false;
+			}
+		}
+	}
+	
+	elmnts[selectedId].scrollIntoView( true );
+}

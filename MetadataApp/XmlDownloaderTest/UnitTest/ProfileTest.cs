@@ -1,94 +1,139 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Metadataload.Controllers;
 using System.Web.Mvc;
 using System.IO;
 using System.Web;
-using System.Collections.Generic;
 using Moq;
-using System.Web.Routing;
 
 namespace UnitTest
 {
     [TestClass]
     public class ProfileTest
     {
+        private static ProfileController pc;
+
         static ProfileTest()
         {
-            ProfileController.path = "C:/Users/ralfs.zangis/Desktop/test.xml";
-            File.Delete(ProfileController.path);
+            ProfileController.path = "test.xml";
+        }
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            SetSession("1");
+            pc.CreateProfile("test", "");
+        }
+
+        #region View
+        [TestMethod]
+        public void GetLogInView()
+        {
+            Assert.IsNotNull(pc.LogIn());
         }
 
         [TestMethod]
-        public void Test()
+        public void GetCreateView()
         {
-            var context = new Mock<HttpContextBase>();
-            var session = new Mock<HttpSessionStateBase>();
-
-            session.Setup(s => s[ProfileController.profileId]).Returns("");
-            context.Setup(c => c.Session).Returns(session.Object);
-
-            ProfileController pc = new ProfileController();
-
-            ControllerContext ctx = new ControllerContext();
-            ctx.HttpContext = context.Object;
-            pc.ControllerContext = ctx;
-
-            ViewResult v = pc.LogIn() as ViewResult;
-            Assert.IsNotNull(v);
+            Assert.IsNotNull(pc.Create());
         }
 
+        [TestMethod]
+        public void GetUpdateView()
+        {
+            Assert.IsNotNull(pc.Update());
+        }
+        #endregion
+
+        #region CreateProfile
         [TestMethod]
         public void CreateProfileSuccess()
         {
-            int result = new ProfileController().CreateProfile("test", "");
-            Assert.AreNotEqual(0, result);
+            Assert.AreNotEqual(0, pc.CreateProfile("tester", ""));
         }
 
         [TestMethod]
         public void CreateProfileUsedName()
         {
-            int result = new ProfileController().CreateProfile("test", "");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual(0, pc.CreateProfile("test", ""));
         }
+        #endregion
 
+        #region GetProfile
         [TestMethod]
         public void GetProfileSuccess()
         {
-            var controller = new ProfileController();
-            Assert.AreNotEqual(0, controller.GetProfile("test", ""));
+            Assert.AreNotEqual(0, pc.GetProfile("test", ""));
         }
 
         [TestMethod]
         public void GetProfileWrongPassword()
         {
-            var controller = new ProfileController();
-            Assert.AreEqual(0, controller.GetProfile("test", "45634534"));
+            Assert.AreEqual(0, pc.GetProfile("test", "45634534"));
         }
 
         [TestMethod]
         public void GetProfileWrongUrl()
         {
-            var controller = new ProfileController();
-            Assert.AreEqual(0, controller.GetProfile("tester", ""));
+            Assert.AreEqual(0, pc.GetProfile("tester", ""));
         }
+        #endregion
 
+        #region DeleteProfile
         [TestMethod]
         public void DeleteProfileSuccess()
         {
-            var controller = new ProfileController();
-            Assert.AreEqual(true, controller.DeleteProfile());
+            Assert.AreEqual(true, pc.DeleteProfile());
         }
-    }
 
-    public class MockHttpSession: HttpSessionStateBase
-    {
-        Dictionary<string, object> _sessionDictionary = new Dictionary<string, object>();
-
-        public override object this[string name]
+        [TestMethod]
+        public void DeleteProfileDoesntExist()
         {
-            get { return _sessionDictionary[name]; }
-            set { _sessionDictionary[name] = value; }
+            SetSession("0");
+            Assert.AreEqual(false, pc.DeleteProfile());
+        }
+        #endregion
+
+        #region UpdateProfile
+        [TestMethod]
+        public void UpdateProfileSuccess()
+        {
+            Assert.AreEqual(true, pc.UpdateProfile("tester", ""));
+        }
+
+        [TestMethod]
+        public void UpdateProfileNotFound()
+        {
+            SetSession("0");
+            Assert.AreEqual(false, pc.UpdateProfile("tester", ""));
+        }
+
+        [TestMethod]
+        public void UpdateProfileAlreadyExistsWithThisURL()
+        {
+            pc.CreateProfile("tester", "");
+            Assert.AreEqual(false, pc.UpdateProfile("tester", ""));
+        }
+        #endregion
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            File.Delete(ProfileController.path);
+        }
+        
+        private static void SetSession(string value)
+        {
+            var context = new Mock<HttpContextBase>();
+            var session = new Mock<HttpSessionStateBase>();
+
+            session.Setup(s => s[ProfileController.profileId]).Returns(value);
+            context.Setup(c => c.Session).Returns(session.Object);
+
+            pc = new ProfileController();
+
+            ControllerContext ctx = new ControllerContext();
+            ctx.HttpContext = context.Object;
+            pc.ControllerContext = ctx;
         }
     }
 }

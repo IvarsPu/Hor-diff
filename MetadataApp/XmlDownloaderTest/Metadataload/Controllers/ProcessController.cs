@@ -26,41 +26,47 @@ namespace Metadataload.Controllers
         [Route("StartMetadataLoad")]
         public int StartMetadataLoad(string version)
         {
-            int processId = 1;
-            int id = Int32.Parse(Session[ProfileController.profileId].ToString());
-            if (Processes.Count > 0)
+            try
             {
-                foreach (Process pr in Processes.Values)
+                int processId = 1;
+                int id = Int32.Parse(Session[ProfileController.profileId].ToString());
+                if (Processes.Count > 0)
                 {
-                    if (pr.ServerId == id && !pr.Done)
+                    foreach (Process pr in Processes.Values)
                     {
-                        return 0;
+                        if (pr.ServerId == id && !pr.Done)
+                        {
+                            return 0;
+                        }
                     }
+                    processId = Processes.Last().Key + 1;
                 }
-                processId = Processes.Last().Key + 1;
+
+                Process process = new Process(processId, id, DateTime.Now);
+                Processes.Add(processId, process);
+
+                //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
+
+                return processId;
             }
-
-            Process process = new Process(processId, id, DateTime.Now);
-            Processes.Add(processId, process);
-
-            //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
-
-            return processId;
+            catch
+            {
+                return 0;
+            }
         }
         
         [HttpGet]
         [Route("StopProcess")]
         public string StopProcess(int processId)
         {
-            int id = Int32.Parse(Session[ProfileController.profileId].ToString());
             try
             {
-                if (Processes[processId].ServerId == id)
+                if (Processes[processId].ServerId.ToString().Equals(Session[ProfileController.profileId]))
                 {
                     Processes[processId].TokenSource.Cancel();
                     return "";
                 }
-                return "no access";
+                return "No access";
             }
             catch
             {

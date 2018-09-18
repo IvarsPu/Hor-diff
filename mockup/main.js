@@ -9,6 +9,7 @@ var VersionText2 = { data : "", receivedOK : false};
 var isTreeLoaded = false;
 var JsonVersion1 = { data : "", receivedOK : false};
 var JsonVersion2 = { data : "", receivedOK : false};
+var selectedId = 0;
 
 
 $(document).ready(function() {
@@ -63,6 +64,7 @@ $(document).ready(function() {
 				// A node was activated:
 				if (data.node.data.diffHtmlFile) {
 					$("#diff_frame").attr("src", "REST_DIFF/" + data.node.data.diffHtmlFile);
+					selectedId = 0;
 				}
 			}
 
@@ -70,13 +72,47 @@ $(document).ready(function() {
 			$("#restPath").append(restUrl);
 		}});
 		
-	$("input[name=search]").keyup(function(e){
-			var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
-		}).focus();
+	$("input[name=search]").keyup(function(){
+		var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
+	}).focus();
+	
+	$("#next").click(function() {
+ 		var iframe = document.getElementById("diff_frame");
+		var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+		
+		if(selectedId < elmnts.length - 2){	
+			var pass = true;
+			while(pass){
+				selectedId = selectedId + 1;
+				
+				if(selectedId == elmnts.length - 2 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+					pass = false;
+				}
+			}
+		}
+		
+		elmnts[selectedId].scrollIntoView( true );
+	});
+	
+	$("#previous").click(function() {
+ 		var iframe = document.getElementById("diff_frame");
+		var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+		
+		if(selectedId > 1){	
+			var pass = true;
+			while(pass){
+				selectedId = selectedId - 1;
+				
+				if(selectedId == 0 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+					pass = false;
+				}
+			}
+		}
+		
+		elmnts[selectedId].scrollIntoView( true );
+	});
 
-
-	function setDivSize() 
-	{
+	function setDivSize() {
 		var divTop = $('#change_panel').position().top  + $('#diff_frame').position().top; 
 		var newHeight = $(window).height() - divTop - 30;
 		
@@ -309,42 +345,4 @@ function IsFile(treeNode){
 	}
 	return isFile;
 
-}
-
-var selectedId = 0;
-
-function next(){
-	var iframe = document.getElementById("diff_frame");
-	var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
-	
-	if(selectedId < elmnts.length - 2){	
-		var pass = true;
-		while(pass){
-			selectedId = selectedId + 1;
-			
-			if(selectedId == elmnts.length - 2 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
-				pass = false;
-			}
-		}
-	}
-	
-	elmnts[selectedId].scrollIntoView( true );
-}
-
-function previous(){
-	var iframe = document.getElementById("diff_frame");
-	var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
-	
-	if(selectedId > 1){	
-		var pass = true;
-		while(pass){
-			selectedId = selectedId - 1;
-			
-			if(selectedId == 0 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
-				pass = false;
-			}
-		}
-	}
-	
-	elmnts[selectedId].scrollIntoView( true );
 }

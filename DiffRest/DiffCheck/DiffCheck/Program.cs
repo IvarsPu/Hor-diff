@@ -8,15 +8,17 @@ using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Newtonsoft.Json;
 using System.Web;
+using System.IO.Compression;
 
 namespace DiffCheck
 {
     public class Program
     {
         private static string exportFolderName = "C:/Projects/RSU/";
-        private static string MetadatRootFolder = "C:/Projects/Hor-diff/DiffApp/rest/";
+        private static string MetadatRootFolder = "C:/Projects/Hor-diff/DiffApp/rest_sample/";
+        private static string LocationOfSiteInfo = "C:/Projects/Site";
         private static string JsonTreeFileName = "tree_data.js";
-        private static string HtmlRootFolder = "REST";
+        private static string HtmlRootFolder = "REST_DIFF";
 
         private string FirstVersion;
         private string FirstRelease;
@@ -25,23 +27,35 @@ namespace DiffCheck
 
         static void Main(string[] args)
         {
-            Program prog = new Program("515", "13", "515", "21");
+            Program prog = new Program("515", "3", "520", "1");
             prog.GenerateReport();
+
+
+            /*
+            Copy(LocationOfSiteInfo, exportFolderName);
+
+            string zip = exportFolderName.Trim('/') + ".zip";
+            if (File.Exists(zip))
+            {
+                File.Delete(zip);
+            }
+            ZipFile.CreateFromDirectory(exportFolderName.Trim('/'), zip);
+            */
 
             Console.WriteLine("Done, press any key");
             Console.ReadKey();
-
-            //  DiffColorer("515/13/", "515/21/", "metadata.xml");
-
-            //string value1 = "&lt;html&gt;";
-            //string value2 = HttpUtility.HtmlDecode(value1);
-            //string value3 = HttpUtility.HtmlEncode(value2);
-            //Console.WriteLine(value1);
-            //Console.WriteLine(value2);
-            //Console.WriteLine(value3);
-
-
         }
+
+        //private static void Copy(string sourceDir, string targetDir)
+        //{
+        //    Directory.CreateDirectory(targetDir);
+
+        //    foreach (var file in Directory.GetFiles(sourceDir))
+        //        File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), overwrite: true);
+
+        //    foreach (var directory in Directory.GetDirectories(sourceDir))
+        //        Copy(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
+        //}
 
         public Program(string firstVersion, string firstRelease, string secondVersion, string secondRelease)
         {
@@ -50,6 +64,7 @@ namespace DiffCheck
             SecondVersion = secondVersion;
             SecondRelease = secondRelease;
         }
+
         public void GenerateReport()
         {
             XmlDocument firstXml = new XmlDocument();
@@ -67,7 +82,7 @@ namespace DiffCheck
         }
 
         #region Text Color Generator
-        private static void GenerateDiffHtmlFile(string firstFile, string secondFile, string resultFilePath)
+        private void GenerateDiffHtmlFile(string firstFile, string secondFile, string resultFilePath)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -107,9 +122,8 @@ namespace DiffCheck
                 "</html>");
             File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
         }
-        #endregion
 
-        private string generateHtmlDiff(XmlNode node)
+        private string GenerateHtmlDiff(XmlNode node)
         {
             String fileName = node.Attributes["name"].Value;
             String filePath = "";
@@ -145,6 +159,7 @@ namespace DiffCheck
             filePath = filePath + htmlFileName;
             return filePath;
         }
+        #endregion
 
         #region fill objects
         private Folder AddClass(XmlDocument xml)
@@ -224,7 +239,7 @@ namespace DiffCheck
                     }
                     else
                     {
-                        AddXmlAttribute(node, "diffHtmlFile", generateHtmlDiff(node)) ;
+                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node)) ;
                     }
                 }
                 /*          else
@@ -255,7 +270,7 @@ namespace DiffCheck
                     }
                     else
                     {
-                        AddXmlAttribute(node, "diffHtmlFile", generateHtmlDiff(node));
+                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
                     }
                 }
             }

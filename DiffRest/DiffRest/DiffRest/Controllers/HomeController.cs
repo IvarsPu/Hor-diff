@@ -207,3 +207,16 @@ namespace DiffRest.Controllers
         #endregion
     }
 }
+
+/*
+ *  [HttpGet("{fileName}")]
+       public HttpResponseMessage LoadFile(string fileName, string tenantId = null)
+       {
+           var path = @"C:\Temp\" + fileName;
+           HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+           var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+           result.Content = new StreamContent(stream);
+           result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+           return result;
+       }
+ */

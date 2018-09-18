@@ -17,9 +17,9 @@ namespace DiffCheck
 
         public string type { get; set; }
 
-        public String diffHtmlFile { get; set; }//ill do it
+        public String diffHtmlFile { get; set; }
 
-        public int httpCode { get; set; }//ill do it
+        public int httpCode { get; set; }
 
         public String errorMessage { get; set; }
     }

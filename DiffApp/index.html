@@ -17,6 +17,7 @@
 
 	<link href="skin-win8/ui.fancytree.css" rel="stylesheet">
 	<script src="jquery.fancytree.js"></script>
+	<script src="jquery.fancytree.filter.js"></script>
 	
 	<script src="diff.js"></script>	
 	<script src="main.js"></script>	
@@ -141,7 +142,9 @@
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="panel panel-default" >
-					<div class="panel-heading">Horizon REST servisi</div>
+					<div class="panel-heading">Horizon REST servisi
+						<input name="search" type="text" class="form-control" placeholder="service name"/>
+					</div>
 					
 					<div class="link-panel-body" align = "right">
 						<a href="#" id="expand_tree">Izvērst visu</a>&nbsp;\&nbsp;<a href="#" id="colapse_tree">Sakļaut visu</a>		   
@@ -153,7 +156,10 @@
 			</div>
 			<div id="change_panel" class="col-sm-9">
 				<div class="panel panel-default scroll_section" >
-					<div id="change_header" class="panel-heading">Izmaiņas</div>
+					<div id="change_header" class="panel-heading" style="overflow: hidden;">Izmaiņas
+						<input id="next" type="button" class="btn btn-primary mb-2" value="Nākamais" style="float: right;"/>
+						<input id="previous" type="button" class="btn btn-primary mb-2" value="Iepriekšējais" style="float: right;"/>
+					</div>
 					<div id="change_content" style='overflow:auto;' class="pre"></div>
 				</div>
 			

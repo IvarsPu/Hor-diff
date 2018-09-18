@@ -7,12 +7,13 @@ var VersionText2 = { data : "", receivedOK : false};
 var isTreeLoaded = false;
 var JsonVersion1 = { data : "", receivedOK : false};
 var JsonVersion2 = { data : "", receivedOK : false};
-diffJson = [{
+var selectedId = 0;
+
+JsonTree = [{
 	    "title": "Izvēlieties salīdzināmās versijas",
     "extraClasses": "service_ok",
     "children": null
 }];
-
 
 $(document).ready(function() {
 	loadVersionsAjax();
@@ -49,8 +50,12 @@ $(document).ready(function() {
  		 });        	
 	});	
 
-	$("#tree").fancytree({source: diffJson, 
-		activate: function(event, data){
+	$("#tree").fancytree({extensions: ["filter"],source:  JsonTree,
+			filter: {
+				autoExpand: true,
+				mode: "hide"
+			},
+			activate: function(event, data){
 			$("#restPath").empty();
 			setChangeStatus(data.node);
 			var display = $("#change_content");
@@ -83,12 +88,52 @@ $(document).ready(function() {
 				var path2 = "rest/" + $("#Version2 option:selected").val() + "/" + data.node.data.restPath + "/" + data.node.title;
 				getFileAjax(path1, "text", VersionText1);
 				getFileAjax(path2, "text", VersionText2);
+				selectedId = 0;
 			}
 
 			var restUrl = getNodeRestUrl(data.node);
 			$("#restPath").append(restUrl);
 		}});
-
+		
+	$("input[name=search]").keyup(function(){
+		var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
+	}).focus();
+	
+	$("#next").click(function() {
+ 		var iframe = document.getElementById("diff_frame");
+		var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+		
+		if(selectedId < elmnts.length - 2){	
+			var pass = true;
+			while(pass){
+				selectedId = selectedId + 1;
+				
+				if(selectedId == elmnts.length - 2 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+					pass = false;
+				}
+			}
+		}
+		
+		elmnts[selectedId].scrollIntoView( true );
+	});
+	
+	$("#previous").click(function() {
+ 		var iframe = document.getElementById("diff_frame");
+		var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+		
+		if(selectedId > 1){	
+			var pass = true;
+			while(pass){
+				selectedId = selectedId - 1;
+				
+				if(selectedId == 0 || (elmnts[selectedId - 1].className == "" && elmnts[selectedId].className != "")){
+					pass = false;
+				}
+			}
+		}
+		
+		elmnts[selectedId].scrollIntoView( true );
+	});
 });
 
 function PopulateVersionsSelect(id, versionInfo){
@@ -102,18 +147,18 @@ function PopulateVersionsSelect(id, versionInfo){
 function DocumentReceived(){
 
 	if(JsonVersion1.receivedOK && JsonVersion2.receivedOK ){
-		diffJson = JSON.parse(JSON.stringify(JsonVersion1.data));
-		MarkSchemaDifferences(diffJson, JsonVersion2.data);
+		JsonTree = JSON.parse(JSON.stringify(JsonVersion1.data));
+		MarkSchemaDifferences(JsonTree, JsonVersion2.data);
 
 		var radioResult = $('input[name=optradio]:checked').val() - 0;
 		if(radioResult === 2) {		
-			filterModifiedServicesOnly(diffJson);
+			filterModifiedServicesOnly(JsonTree);
 		} else if(radioResult === 3) {
-			filterErrorServicesOnly(diffJson);
+			filterErrorServicesOnly(JsonTree);
 		}
 
-			//$('#tree').fancytree('option', 'source', diffJson);
-			$("#tree").fancytree('getTree').reload(diffJson);
+			//$('#tree').fancytree('option', 'source', JsonTree);
+			$("#tree").fancytree('getTree').reload(JsonTree);
 	}
 }
 

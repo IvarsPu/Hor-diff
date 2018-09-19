@@ -34,6 +34,25 @@ namespace DiffRest.Controllers
             return versions;
         }
 
+        //will be removed- proof of concept
+        [Route("GetTree")]
+        [HttpGet]
+        public Folder GetTree(string file1, string file2)
+        {
+            XmlDocument firstXml = new XmlDocument();
+            firstXml.Load(MetadatRootFolder + file1 + "/metadata.xml");
+
+            XmlDocument secondXml = new XmlDocument();
+            secondXml.Load(MetadatRootFolder + file2 + "/metadata.xml");
+
+            secondXml = Compare(firstXml, secondXml);
+            secondXml.RemoveChild(secondXml.FirstChild);
+
+            ChangeController change = new ChangeController();
+
+            return change.AddClass(secondXml);
+        }
+
         [Route("CompareFiles")]
         [HttpGet]
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
@@ -203,6 +222,88 @@ namespace DiffRest.Controllers
                 service.Status = "eddited";
                 return service;
             }
+        }
+        #endregion
+
+
+
+
+        #region created for now, remove duplicate latter
+        private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
+        {
+            foreach (XmlNode node in firstXml.SelectNodes("//service/*[count(child::*) = 0]"))
+            {
+                string serviceName = node.ParentNode.Attributes["name"].Value;
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                if (child != null)
+                {
+                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+                        || child.Attributes["hashCode"].Value.Equals("-1")
+                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+                    {
+                        //not changed
+                        node.ParentNode.RemoveChild(node);
+                    }
+                    else
+                    {
+                        AddXmlAttribute(node, "diffHtmlFile", "");
+                    }
+                }
+            }
+            
+            //The same for attachments
+            foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
+            {
+                string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                if (child != null)
+                {
+                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+                        || child.Attributes["hashCode"].Value.Equals("-1")
+                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+                    {
+                        //not changed
+                        node.ParentNode.RemoveChild(node);
+                    }
+                    else
+                    {
+                        AddXmlAttribute(node, "diffHtmlFile", "");
+                    }
+                }
+            }
+
+            //Remove unmodified attachments
+            foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+
+            //Remove unmodified services
+            foreach (XmlNode node in firstXml.SelectNodes("//service[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+
+            //Remove unmodified service groups
+            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+
+            //Remove unmodified service parent groups
+            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            return firstXml;
+        }
+
+        private void AddXmlAttribute(XmlNode node, string attrName, string attrValue)
+        {
+            XmlDocument doc = node.OwnerDocument;
+            XmlAttribute attr = doc.CreateAttribute(attrName);
+            attr.Value = attrValue;
+            node.Attributes.SetNamedItem(attr);
         }
         #endregion
     }

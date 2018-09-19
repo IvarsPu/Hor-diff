@@ -29,21 +29,21 @@ $(document).ready(function () {
     $("#Version2").change(function () {
         //var url = "rest/" + $("#Version2 option:selected").val() + "/metadata.xml";
         //getFileAjax(url, "xml", JsonVersion2);
-        if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--") {
-            alert("Wait!");
-            $.ajax({
-                url: "http://localhost:51458/Home/GetTree?file1=" + $("#Version1 option:selected").val() + "&file2=" + $("#Version2 option:selected").val(),
-                dataType: 'JSON',
-                error: function () {
-                    alert("Error Loading comparison");
-                },
-                success: function (data) {
-                    alert("done");
-                    JsonTree = data;
-                    $("#tree").fancytree('getTree').reload(JsonTree);
-                }
-            });
-        }
+        //if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--") {
+        //    alert("Wait!");
+        //    $.ajax({
+        //        url: "http://localhost:51458/Home/GetTree?file1=" + $("#Version1 option:selected").val() + "&file2=" + $("#Version2 option:selected").val(),
+        //        dataType: 'JSON',
+        //        error: function () {
+        //            alert("Error Loading comparison");
+        //        },
+        //        success: function (data) {
+        //            alert("done");
+        //            JsonTree = data;
+        //            $("#tree").fancytree('getTree').reload(JsonTree);
+        //        }
+        //    });
+        //}
     });
 
 

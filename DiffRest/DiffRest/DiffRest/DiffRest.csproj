@@ -226,8 +226,42 @@
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-reboot.css" />
     <Content Include="Content\bootstrap-reboot.min.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\skin-custom\accept.png" />
+    <Content Include="Content\skin-custom\arrow_right.png" />
+    <Content Include="Content\skin-custom\bug.png" />
+    <Content Include="Content\skin-custom\cancel.png" />
+    <Content Include="Content\skin-custom\custom.css" />
+    <Content Include="Content\skin-custom\customDoc1.gif" />
+    <Content Include="Content\skin-custom\customDoc2.gif" />
+    <Content Include="Content\skin-custom\customFolder1.gif" />
+    <Content Include="Content\skin-custom\doc_with_children.gif" />
+    <Content Include="Content\skin-custom\emoticon_smile.png" />
+    <Content Include="Content\skin-custom\emoticon_unhappy.png" />
+    <Content Include="Content\skin-custom\error.png" />
+    <Content Include="Content\skin-custom\exclamation.png" />
+    <Content Include="Content\skin-custom\eye.png" />
+    <Content Include="Content\skin-custom\flag_red.png" />
+    <Content Include="Content\skin-custom\folder_bug.png" />
+    <Content Include="Content\skin-custom\folder_docs.gif" />
+    <Content Include="Content\skin-custom\folder_images.gif" />
+    <Content Include="Content\skin-custom\folder_page.gif" />
+    <Content Include="Content\skin-custom\help.png" />
+    <Content Include="Content\skin-custom\key.png" />
+    <Content Include="Content\skin-custom\new.png" />
+    <Content Include="Content\skin-custom\note.png" />
+    <Content Include="Content\skin-custom\page_white_lightning.png" />
+    <Content Include="Content\skin-custom\page_white_star.png" />
+    <Content Include="Content\skin-win8\icons-rtl.gif" />
+    <Content Include="Content\skin-win8\icons.gif" />
+    <Content Include="Content\skin-win8\loading.gif" />
+    <Content Include="Content\skin-win8\ui.fancytree - Copy.css" />
+    <Content Include="Content\skin-win8\ui.fancytree.css" />
+    <Content Include="Content\skin-win8\vline-rtl.gif" />
+    <Content Include="Content\skin-win8\vline.gif" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -256,6 +290,9 @@
     <Content Include="Scripts\esm\popper.js.map" />
     <Content Include="Scripts\esm\popper-utils.min.js.map" />
     <Content Include="Scripts\esm\popper-utils.js.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\skin-win8\ui.fancytree.less" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\diff.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
@@ -263,20 +300,30 @@
     <Content Include="Scripts\jquery-3.3.1.slim.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery-ui-iife.js" />
+    <Content Include="Scripts\jquery-ui.js" />
+    <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="Scripts\jquery.fancytree.filter.js" />
+    <Content Include="Scripts\jquery.fancytree.js" />
+    <Content Include="Scripts\jquery.fancytree.ui-deps.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\main.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\popper-utils.js" />
     <Content Include="Scripts\popper-utils.min.js" />
     <Content Include="Scripts\popper.js" />
     <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\tree_data.js" />
     <Content Include="Scripts\umd\popper-utils.js" />
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />
     <Content Include="Scripts\umd\popper.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -287,7 +334,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\umd\popper.min.js.map" />
     <Content Include="Scripts\umd\popper.js.map" />
     <Content Include="Scripts\umd\popper-utils.min.js.map" />
@@ -297,10 +343,11 @@
     <Content Include="Scripts\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
+    <Content Include="Views\Change\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Change\" />
+    <Folder Include="Views\Home\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

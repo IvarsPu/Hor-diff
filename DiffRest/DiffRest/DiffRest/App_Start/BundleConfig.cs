@@ -20,11 +20,21 @@ namespace DiffRest
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js"));
+                      "~/Scripts/bootstrap.js",
+                      "~/Scripts/bootstrap.min.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/fancytree").Include(
+                      "~/Scripts/jquery.fancytree.ui-deps.js",
+                      "~/Scripts/jquery.fancytree.js",
+                      "~/Scripts/jquery.fancytree.filter.js",
+                      "~/Scripts/tree_data.js",
+                      "~/Scripts/main.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css",
+                      "~/Content/bootstrap-theme.min.css",
+                      "~/Content/skin-win8/ui.fancytree.css"));
         }
     }
 }

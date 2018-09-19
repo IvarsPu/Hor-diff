@@ -48,3 +48,71 @@ table th {
     background-color: #acb4c1;
     color: white;
 }
+
+span.fancytree-node.service_ok span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/folder_page.gif");
+}
+
+span.fancytree-node.service_changed span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/customFolder1.gif");
+}
+
+span.fancytree-node.service_new span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/newFolder.gif");
+}
+
+span.fancytree-node.doc_ok span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/accept.png");
+}
+
+span.fancytree-node.doc_changed span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/exclamation.png");
+}
+
+span.fancytree-node.doc_error span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/error.png");
+}
+
+span.fancytree-node.doc_deleted span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/cancel.png");
+}
+
+span.fancytree-node.doc_deleted span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/cancel.png");
+}
+
+cancel.png
+body {
+    padding-top: 20px;
+}
+
+.col-sm-3, .col-sm-5 {
+    padding-right: 0px;
+}
+
+.link-panel-body {
+    padding-top: 5px;
+    padding-right: 10px;
+}
+
+.tree-panel {
+    padding-top: 0px;
+}
+
+.pre {
+    white-space: pre-wrap;
+    font-family: "Courier New";
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 19.2px;
+}

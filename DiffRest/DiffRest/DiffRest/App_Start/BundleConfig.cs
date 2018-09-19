@@ -27,8 +27,8 @@ namespace DiffRest
                       "~/Scripts/jquery.fancytree.ui-deps.js",
                       "~/Scripts/jquery.fancytree.js",
                       "~/Scripts/jquery.fancytree.filter.js",
-                      "~/Scripts/tree_data.js",
-                      "~/Scripts/main.js"));
+                      "~/Scripts/main.js",
+                      "~/Scripts/tree_data.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",

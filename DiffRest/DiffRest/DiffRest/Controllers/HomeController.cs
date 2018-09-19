@@ -10,14 +10,14 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        private static string MetadatRootFolder = System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
+        private static readonly string MetadatRootFolder = System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
 
         [Route("GetVersions")]
         [HttpGet]
         public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + "Versions.xml"));
+            xml.Load(MetadatRootFolder + "Versions.xml");
 
             IList<HorizonVersion> versions = new List<HorizonVersion>();
 
@@ -39,10 +39,10 @@ namespace DiffRest.Controllers
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + oldRelease + "/metadata.xml"));//old file
+            xml.Load(MetadatRootFolder + oldRelease + "/metadata.xml");//old file
             Dictionary<string, Service> services = GetServices(xml);
 
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + newRelease + "/metadata.xml"));//new file
+            xml.Load(MetadatRootFolder + newRelease + "/metadata.xml");//new file
             return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 

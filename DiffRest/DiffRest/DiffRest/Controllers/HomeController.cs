@@ -10,13 +10,14 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
+        private static string MetadatRootFolder = System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
+
         [Route("GetVersions")]
         [HttpGet]
         public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
-            string path = WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString();
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path+ "Versions.xml"));
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + "Versions.xml"));
 
             IList<HorizonVersion> versions = new List<HorizonVersion>();
 
@@ -38,11 +39,10 @@ namespace DiffRest.Controllers
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
         {
             XmlDocument xml = new XmlDocument();
-            string path = WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString();
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + oldRelease + "/metadata.xml"));//old file
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + oldRelease + "/metadata.xml"));//old file
             Dictionary<string, Service> services = GetServices(xml);
 
-            xml.Load(System.Web.HttpContext.Current.Server.MapPath(path + newRelease + "/metadata.xml"));//new file
+            xml.Load(System.Web.HttpContext.Current.Server.MapPath(MetadatRootFolder + newRelease + "/metadata.xml"));//new file
             return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 
@@ -207,16 +207,3 @@ namespace DiffRest.Controllers
         #endregion
     }
 }
-
-/*
- *  [HttpGet("{fileName}")]
-       public HttpResponseMessage LoadFile(string fileName, string tenantId = null)
-       {
-           var path = @"C:\Temp\" + fileName;
-           HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-           var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-           result.Content = new StreamContent(stream);
-           result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-           return result;
-       }
- */

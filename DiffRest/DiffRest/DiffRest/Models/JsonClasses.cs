@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DiffCheck
+namespace DiffRest.Models
 {
     public interface IElement { }
 

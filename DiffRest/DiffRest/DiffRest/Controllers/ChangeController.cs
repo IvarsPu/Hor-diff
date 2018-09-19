@@ -1,22 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Text;
+using System.Web;
+using System.Web.Mvc;
 using System.Xml;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
+using DiffRest.Models;
+using System.IO;
+using System.Web.Configuration;
+using System;
 using Newtonsoft.Json;
-using System.Web;
 using System.IO.Compression;
+using System.Net.Http;
+using System.Net;
+using System.Net.Http.Headers;
 
-namespace DiffCheck
+namespace DiffRest.Controllers
 {
-    public class Program
+    [RoutePrefix("Change")]
+    public class ChangeController : Controller
     {
-        private static string exportFolderName = "C:/Projects/RSU/";
-        private static string MetadatRootFolder = "C:/Projects/Hor-diff/DiffApp/rest_sample/";
-        private static string LocationOfSiteInfo = "C:/Projects/Site";
+        private static string FolderLocation = System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + "Projects/");
+        private static string MetadatRootFolder = System.Web.HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() +  WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
         private static string JsonTreeFileName = "tree_data.js";
         private static string HtmlRootFolder = "REST_DIFF";
 
@@ -24,49 +30,25 @@ namespace DiffCheck
         private string FirstRelease;
         private string SecondVersion;
         private string SecondRelease;
+        private string Company;
 
-        static void Main(string[] args)
+        // GET: Change
+        public ActionResult Index()
         {
-            Program prog = new Program("515", "3", "520", "1");
-            prog.GenerateReport();
-
-
-            /*
-            Copy(LocationOfSiteInfo, exportFolderName);
-
-            string zip = exportFolderName.Trim('/') + ".zip";
-            if (File.Exists(zip))
-            {
-                File.Delete(zip);
-            }
-            ZipFile.CreateFromDirectory(exportFolderName.Trim('/'), zip);
-            */
-
-            Console.WriteLine("Done, press any key");
-            Console.ReadKey();
+            return View();
         }
 
-        //private static void Copy(string sourceDir, string targetDir)
-        //{
-        //    Directory.CreateDirectory(targetDir);
-
-        //    foreach (var file in Directory.GetFiles(sourceDir))
-        //        File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), overwrite: true);
-
-        //    foreach (var directory in Directory.GetDirectories(sourceDir))
-        //        Copy(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
-        //}
-
-        public Program(string firstVersion, string firstRelease, string secondVersion, string secondRelease)
+        //http://localhost:51458/Change/GenerateReport?firstVersion=515&secondVersion=520&firstRelease=3&secondRelease=1&company=test
+        [Route("GenerateReport")]
+        [HttpGet]
+        public void GenerateReport(string firstVersion, string firstRelease, string secondVersion, string secondRelease, string company)
         {
             FirstVersion = firstVersion;
             FirstRelease = firstRelease;
             SecondVersion = secondVersion;
             SecondRelease = secondRelease;
-        }
+            Company = company;
 
-        public void GenerateReport()
-        {
             XmlDocument firstXml = new XmlDocument();
             firstXml.Load(MetadatRootFolder + FirstVersion + "/" + FirstRelease + "/metadata.xml");
 
@@ -77,22 +59,61 @@ namespace DiffCheck
             secondXml.RemoveChild(secondXml.FirstChild);
 
             string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
-            File.WriteAllText(exportFolderName + JsonTreeFileName, json);
+            System.IO.File.WriteAllText(FolderLocation + Company + "/" + JsonTreeFileName, json);
 
+            MakeLocalCopy();
         }
+
+        //http://localhost:51458/Change/LoadFile?fileName=test
+        [Route("LoadFile")]
+        [HttpGet]
+        public HttpResponseMessage LoadFile(string fileName)
+        {
+            var path = FolderLocation + fileName + ".zip";
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            result.Content = new StreamContent(stream);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            return result;
+        }
+
+        #region Make copy
+        private void MakeLocalCopy()
+        {
+            Copy(FolderLocation + "Site", FolderLocation + Company);
+
+            string zip = FolderLocation + Company + ".zip";
+            if (System.IO.File.Exists(zip))
+            {
+                System.IO.File.Delete(zip);
+            }
+            ZipFile.CreateFromDirectory(FolderLocation + Company, zip);
+        }
+
+        private void Copy(string sourceDir, string targetDir)
+        {
+            Directory.CreateDirectory(targetDir);
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+                System.IO.File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), overwrite: true);
+
+            foreach (var directory in Directory.GetDirectories(sourceDir))
+                Copy(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
+        }
+        #endregion
 
         #region Text Color Generator
         private void GenerateDiffHtmlFile(string firstFile, string secondFile, string resultFilePath)
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = File.ReadAllText(firstFile);
-            string newText = File.ReadAllText(secondFile);
+            string oldText = System.IO.File.ReadAllText(firstFile);
+            string newText = System.IO.File.ReadAllText(secondFile);
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
             var result = builder.BuildDiffModel(oldText, newText);
-            sb.Append("<html>\n"+
+            sb.Append("<html>\n" +
                 "<head>\n" +
                 "<meta charset='UTF-8'>\n" +
                 "<style>\n" +
@@ -120,7 +141,7 @@ namespace DiffCheck
             }
             sb.Append("</body>\n" +
                 "</html>");
-            File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
+            System.IO.File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
         }
 
         private string GenerateHtmlDiff(XmlNode node)
@@ -136,7 +157,7 @@ namespace DiffCheck
                 fileNode = fileNode.ParentNode;
             } while (!fileNode.Name.Equals("rest_api_metadata"));
 
-            string exportFolder = exportFolderName + HtmlRootFolder + "/" + filePath;
+            string exportFolder = FolderLocation + Company + "/" + HtmlRootFolder + "/" + filePath;
             if (!Directory.Exists(exportFolder))
             {
                 Directory.CreateDirectory(exportFolder);
@@ -152,10 +173,8 @@ namespace DiffCheck
             {
                 GenerateDiffHtmlFile(firstFilePath, secondFilePath, htmlFilePath);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            catch (Exception)
+            {}
             filePath = filePath + htmlFileName;
             return filePath;
         }
@@ -197,27 +216,13 @@ namespace DiffCheck
                     {
                         schema.diffHtmlFile = child.Attributes["diffHtmlFile"].Value;
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine("Service " + child.ParentNode.Attributes["name"].Value + " schema " + child.Attributes["name"].Value);
-                    }
+                    catch (Exception)
+                    {}
 
                     elements.Add(schema);
                 }
             }
             return elements;
-        }
-
-        private string GetPath(XmlNode node)
-        {
-            string path = node.Attributes["name"].Value;
-            while (!node.Name.Equals("service_group"))
-            {
-                node = node.ParentNode;
-                path = node.Attributes["name"].Value + "/" + path;
-            }
-            return path = path + ".xml";
         }
         #endregion
 
@@ -239,7 +244,7 @@ namespace DiffCheck
                     }
                     else
                     {
-                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node)) ;
+                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
                     }
                 }
                 /*          else
@@ -302,7 +307,7 @@ namespace DiffCheck
         {
             XmlDocument doc = node.OwnerDocument;
             XmlAttribute attr = doc.CreateAttribute(attrName);
-            attr.Value = attrValue;   
+            attr.Value = attrValue;
             node.Attributes.SetNamedItem(attr);
         }
 

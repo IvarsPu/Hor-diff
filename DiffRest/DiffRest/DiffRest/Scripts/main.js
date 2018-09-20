@@ -21,31 +21,24 @@ $(document).ready(function () {
     loadVersionsAjax();
 
     $("#Version1").change(function () {
-        versionPath = $("#Version1 option:selected").val().replace(".", "/");
-        var url = "rest/" + $("#Version1 option:selected").val() + "/metadata.xml";
-        getFileAjax(url, "xml", JsonVersion1);
+        //versionPath = $("#Version1 option:selected").val().replace(".", "/");
+        //var url = "rest/" + $("#Version1 option:selected").val() + "/metadata.xml";
+        //getFileAjax(url, "xml", JsonVersion1);
+        GetChanges();
     });
 
     $("#Version2").change(function () {
         //var url = "rest/" + $("#Version2 option:selected").val() + "/metadata.xml";
         //getFileAjax(url, "xml", JsonVersion2);
-        //if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--") {
-        //    alert("Wait!");
-        //    $.ajax({
-        //        url: "http://localhost:51458/Home/GetTree?file1=" + $("#Version1 option:selected").val() + "&file2=" + $("#Version2 option:selected").val(),
-        //        dataType: 'JSON',
-        //        error: function () {
-        //            alert("Error Loading comparison");
-        //        },
-        //        success: function (data) {
-        //            alert("done");
-        //            JsonTree = data;
-        //            $("#tree").fancytree('getTree').reload(JsonTree);
-        //        }
-        //    });
-        //}
+        GetChanges();
     });
 
+    $('#download').click(function () {
+        if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
+                && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
+            window.location = "http://localhost:51458/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val();
+        }
+    });
 
     $('input[name=optradio]').change(function () {
         DocumentReceived();
@@ -170,6 +163,24 @@ $(document).ready(function () {
     }
 });
 
+function GetChanges() {
+    if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--") {
+        alert("Wait!");
+        $.ajax({
+            url: "http://localhost:51458/Home/GenerateReport?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val(),
+            dataType: 'JSON',
+            error: function () {
+                alert("Error Loading comparison");
+            },
+            success: function (data) {
+                alert("done");
+                JsonTree = data;
+                $("#tree").fancytree('getTree').reload(JsonTree);
+            }
+        });
+    }
+}
+
 function PopulateVersionsSelect(id, versionInfo) {
     $(id).empty();
     $(id).append("<option>--Select--</option>");
@@ -230,7 +241,7 @@ function setChangeStatus(treeNode) {
 }
 
 function getNodeRestUrl(treeNode) {
-    return "/rest/" + treeNode.data.parentName + "/" + treeNode.title;
+    return treeNode.data.diffHtmlFile;
 }
 
 function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {

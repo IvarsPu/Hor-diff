@@ -27,11 +27,9 @@ namespace DiffRest.Controllers
         private static string JsonTreeFileName = "tree_data.js";
         private static string HtmlRootFolder = "REST_DIFF";
 
-        private string FirstVersion;
-        private string FirstRelease;
-        private string SecondVersion;
-        private string SecondRelease;
-        private string Company;
+        private string First;
+        private string Second;
+        private string Result;
 
         [Route("GetVersions")]
         [HttpGet]
@@ -229,57 +227,73 @@ namespace DiffRest.Controllers
         
         [Route("GenerateReport")]
         [HttpGet]
-        public Folder GenerateReport(string firstVersion, string firstRelease, string secondVersion, string secondRelease, string company)
+        public object GenerateReport(string first, string second)
         {
-            FirstVersion = firstVersion;
-            FirstRelease = firstRelease;
-            SecondVersion = secondVersion;
-            SecondRelease = secondRelease;
-            Company = company;
+            if (!first.Equals(second))
+            {
+                First = first;
+                Second = second;
+                Result = (First + "_" + Second).Replace('/', '.');
+                if (File.Exists(FolderLocation + Result + "/" + JsonTreeFileName))
+                {
+                    string j = File.ReadAllText(FolderLocation + Result + "/" + JsonTreeFileName);
+                    j = j.Substring(15);
+                    object obj = JsonConvert.DeserializeObject(j);
+                    return obj;
+                }
 
-            XmlDocument firstXml = new XmlDocument();
-            firstXml.Load(MetadatRootFolder + FirstVersion + "/" + FirstRelease + "/metadata.xml");
+                XmlDocument firstXml = new XmlDocument();
+                firstXml.Load(MetadatRootFolder + First + "/metadata.xml");
 
-            XmlDocument secondXml = new XmlDocument();
-            secondXml.Load(MetadatRootFolder + SecondVersion + "/" + SecondRelease + "/metadata.xml");
+                XmlDocument secondXml = new XmlDocument();
+                secondXml.Load(MetadatRootFolder + Second + "/metadata.xml");
 
-            secondXml = Compare(firstXml, secondXml);
-            secondXml.RemoveChild(secondXml.FirstChild);
+                secondXml = Compare(firstXml, secondXml);
+                secondXml.RemoveChild(secondXml.FirstChild);
 
-            Folder folder = AddClass(secondXml);
+                Folder folder = AddClass(secondXml);
 
-            string json = "var JsonTree = " + JsonConvert.SerializeObject(folder);
-            File.WriteAllText(FolderLocation + Company + "/" + JsonTreeFileName, json);
+                string json = "var JsonTree = " + JsonConvert.SerializeObject(folder);
+                File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
 
-            MakeLocalCopy();
+                MakeLocalCopy();
 
-            return folder;
+                return folder;
+            }
+            else
+            {
+                return null;
+            }
         }
-
-        //http://localhost:51458/Change/LoadFile?fileName=test
+        
         [Route("LoadFile")]
         [HttpGet]
-        public HttpResponseMessage LoadFile(string fileName)
+        public HttpResponseMessage LoadFile(string first, string second)
         {
-            var path = FolderLocation + fileName + ".zip";
+            string fileName = (first + "_" + second).Replace('/', '.') + ".zip";
+            string path = FolderLocation + fileName;
             HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = fileName
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             return result;
         }
 
         #region Make copy
         private void MakeLocalCopy()
         {
-            Copy(FolderLocation + "Site", FolderLocation + Company);
+            Copy(FolderLocation + "Site", FolderLocation + Result);
 
-            string zip = FolderLocation + Company + ".zip";
+            string zip = FolderLocation + Result + ".zip";
             if (File.Exists(zip))
             {
                 File.Delete(zip);
             }
-            ZipFile.CreateFromDirectory(FolderLocation + Company, zip);
+            ZipFile.CreateFromDirectory(FolderLocation + Result, zip);
         }
 
         private void Copy(string sourceDir, string targetDir)
@@ -299,8 +313,8 @@ namespace DiffRest.Controllers
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = System.IO.File.ReadAllText(firstFile);
-            string newText = System.IO.File.ReadAllText(secondFile);
+            string oldText = File.ReadAllText(firstFile);
+            string newText = File.ReadAllText(secondFile);
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
@@ -333,7 +347,7 @@ namespace DiffRest.Controllers
             }
             sb.Append("</body>\n" +
                 "</html>");
-            System.IO.File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
+            File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
         }
 
         private string GenerateHtmlDiff(XmlNode node)
@@ -349,14 +363,14 @@ namespace DiffRest.Controllers
                 fileNode = fileNode.ParentNode;
             } while (!fileNode.Name.Equals("rest_api_metadata"));
 
-            string exportFolder = FolderLocation + Company + "/" + HtmlRootFolder + "/" + filePath;
+            string exportFolder = FolderLocation + Result + "/" + HtmlRootFolder + "/" + filePath;
             if (!Directory.Exists(exportFolder))
             {
                 Directory.CreateDirectory(exportFolder);
             }
 
-            string firstFilePath = MetadatRootFolder + FirstVersion + "/" + FirstRelease + "/" + filePath + "/" + fileName;
-            string secondFilePath = MetadatRootFolder + SecondVersion + "/" + SecondRelease + "/" + filePath + "/" + fileName;
+            string firstFilePath = MetadatRootFolder + First + "/" + filePath + "/" + fileName;
+            string secondFilePath = MetadatRootFolder + Second + "/" + filePath + "/" + fileName;
 
             string htmlFileName = fileName.Replace('.', '_') + ".html";
             string htmlFilePath = exportFolder + "/" + htmlFileName;
@@ -501,17 +515,6 @@ namespace DiffRest.Controllers
             XmlAttribute attr = doc.CreateAttribute(attrName);
             attr.Value = attrValue;
             node.Attributes.SetNamedItem(attr);
-        }
-
-        private XmlNode Get(XmlNode node, XmlDocument xml)
-        {
-            XmlNode child = xml.SelectSingleNode("//" + node.ParentNode.Name + "[@name='" + node.ParentNode.Attributes["name"].Value + "']");
-            if (child == null)
-            {
-                child = Get(node, xml);
-            }
-
-            return node;
         }
         #endregion
     }

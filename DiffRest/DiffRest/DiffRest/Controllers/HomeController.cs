@@ -109,6 +109,22 @@ namespace DiffRest.Controllers
             return result;
         }
 
+        //http://localhost:51458/Home/GetDiffHtml?first=515/3&second=520/1&filePath=Virsgr%C4%81mata/TdmPDok/TdmPDok_wadl.html
+        [Route("GetDiffHtml")]
+        [HttpGet]
+        public object GetDiffHtml(string first, string second, string filePath)
+        {
+            Result = (first + "_" + second).Replace('/', '.');
+            if (File.Exists(FolderLocation + Result + "/REST_DIFF/" + filePath))
+            {
+                return File.ReadAllText(FolderLocation + Result + "/REST_DIFF/" + filePath);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         #region Make zip
         private void MakeLocalZip()
         {

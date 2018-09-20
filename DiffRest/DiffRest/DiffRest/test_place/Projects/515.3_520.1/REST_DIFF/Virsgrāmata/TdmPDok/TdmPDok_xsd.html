@@ -1,0 +1,293 @@
+﻿<html>
+<head>
+<meta charset='UTF-8'>
+<style>
+span { color: gray;  white-space: pre; }
+.deleted { color:black; background-color:red; } 
+.new { color:black; background-color:yellow; }
+ </style>
+</head>
+<body>
+<span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br/>
+<span>&lt;application xmlns=&quot;http://wadl.dev.java.net/2009/02&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xml=&quot;http://www.w3.org/XML/1998/namespace&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:global=&quot;global.xsd&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:schemaLocation=&quot;global.xsd ../global/global.xsd&quot;&gt;</span><br/>
+<span>  &lt;resources base=&quot;rest&quot;&gt;</span><br/>
+<span>    &lt;resource path=&quot;TdmKonApgrDSar&quot;&gt;</span><br/>
+<span>      &lt;method name=&quot;GET&quot; id=&quot;handleget&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;method name=&quot;OPTIONS&quot; id=&quot;getOPTION&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;resource path=&quot;query&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getsar&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;param name=&quot;hierarchy&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;criteria&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;filter&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;columns&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;orderby&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;limit&quot; type=&quot;global:LimitType&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;STRV_PK_STRV&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;IZMP_PK_IZMPANT&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FIN_PK_FINAN&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM1_PK_DIM1&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM2_PK_DIM2&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM3_PK_DIM3&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;PR_PK_PROJ&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM1&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM2&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM3&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM4&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM5&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM6&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM7&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FUNCOBJ&quot; type=&quot;xsd:double&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;NODAT&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;LIDZDAT&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;KONGR&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;STRVDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='deleted'>            &lt;param name=&quot;IZMPDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FINDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM1DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM2DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM3DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;PROJDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;IESTADE&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DSTRV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIZMPANT&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DFINANS&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DPROJ&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM4&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM5&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM6&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM7&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDARV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DINSTSEKT&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIESTADE&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORSTRV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORIZMP&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORFIN&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKLIENTS&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORKON&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;KONTS&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;default&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getsar&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;param name=&quot;hierarchy&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;criteria&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;filter&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;columns&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;orderby&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;limit&quot; type=&quot;global:LimitType&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;STRV_PK_STRV&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;IZMP_PK_IZMPANT&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FIN_PK_FINAN&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM1_PK_DIM1&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM2_PK_DIM2&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM3_PK_DIM3&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;PR_PK_PROJ&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM1&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM2&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM3&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM4&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM5&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM6&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;OBJDIM7&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FUNCOBJ&quot; type=&quot;xsd:double&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;NODAT&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;LIDZDAT&quot; type=&quot;xsd:string&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;KONGR&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;STRVDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;IZMPDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;FINDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM1DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM2DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIM3DIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;PROJDIM&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;IESTADE&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DSTRV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIZMPANT&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DFINANS&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DPROJ&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM4&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM5&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM6&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DOBJDIM7&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DDARV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DINSTSEKT&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DIESTADE&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORSTRV&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORIZMP&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORFIN&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM1&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM2&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKORDIM3&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;DKLIENTS&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='deleted'>            &lt;param name=&quot;DKORKON&quot; type=&quot;xsd:boolean&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;param name=&quot;KONTS&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;TdmKonApgrDSar.wadl&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getwadl&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;TdmKonApgrDSar.xsd&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getsarxsd&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;TdmKonApgrDSar.csv&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getcsv&quot;&gt;&lt;/method&gt;</span><br/>
+<span>        &lt;method name=&quot;OPTIONS&quot; id=&quot;getOPTION&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;TdmKonApgrDSar.uml&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;getuml&quot;&gt;&lt;/method&gt;</span><br/>
+<span>        &lt;method name=&quot;OPTIONS&quot; id=&quot;getOPTION&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;criteria&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;handleget&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;view&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;handleget&quot;&gt;&lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;AllowedRight&quot;&gt;&lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;ReadUserParam&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;POST&quot; id=&quot;ReadUserParam&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/x-www-form-urlencoded&quot;&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;sKods&quot; required=&quot;true&quot; type=&quot;xsd:string&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/representation&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>          &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>          &lt;/response&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;GetUzskValPk&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;POST&quot; id=&quot;GetUzskValPk&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/x-www-form-urlencoded&quot;&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;dtWhen&quot; required=&quot;true&quot; type=&quot;xsd:date&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/representation&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>          &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>          &lt;/response&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;GetReferenceRateFactor&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;POST&quot; id=&quot;GetReferenceRateFactor&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/x-www-form-urlencoded&quot;&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;dtWhen&quot; required=&quot;true&quot; type=&quot;xsd:date&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;pkValFrom&quot; required=&quot;true&quot; type=&quot;xsd:int&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='deleted'>              &lt;param style=&quot;query&quot; name=&quot;pkValTo&quot; required=&quot;true&quot; type=&quot;xsd:int&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/representation&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>          &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>          &lt;/response&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;GetReferencedAmount&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;POST&quot; id=&quot;GetReferencedAmount&quot;&gt;</span><br/>
+<span>          &lt;request&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/x-www-form-urlencoded&quot;&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;dtWhen&quot; required=&quot;true&quot; type=&quot;xsd:date&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;pkValFrom&quot; required=&quot;true&quot; type=&quot;xsd:int&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;pkValTo&quot; required=&quot;true&quot; type=&quot;xsd:int&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;amount&quot; required=&quot;true&quot; type=&quot;xsd:decimal&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param style=&quot;query&quot; name=&quot;precision&quot; required=&quot;true&quot; type=&quot;xsd:int&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/representation&gt;</span><br/>
+<span>          &lt;/request&gt;</span><br/>
+<span>          &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>            &lt;representation mediaType=&quot;application/xml&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>          &lt;/response&gt;</span><br/>
+<span>        &lt;/method&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>      &lt;resource path=&quot;print&quot;&gt;</span><br/>
+<span>        &lt;method name=&quot;GET&quot; id=&quot;handleget&quot;&gt;&lt;/method&gt;</span><br/>
+<span>        &lt;method name=&quot;OPTIONS&quot; id=&quot;getOPTION&quot;&gt;&lt;/method&gt;</span><br/>
+<span>        &lt;resource path=&quot;rtQRFastRep/1/0&quot;&gt;</span><br/>
+<span>          &lt;method name=&quot;GET&quot; id=&quot;get&quot;&gt;</span><br/>
+<span>            &lt;request&gt;</span><br/>
+<span>              &lt;param name=&quot;copyCount&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;fromPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;toPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;Accept&quot; type=&quot;xsd:string&quot; style=&quot;header&quot; required=&quot;true&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/request&gt;</span><br/>
+<span>            &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;application/pdf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;text/html&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;/response&gt;</span><br/>
+<span>          &lt;/method&gt;</span><br/>
+<span>        &lt;/resource&gt;</span><br/>
+<span>        &lt;resource path=&quot;rtExcelRep/0/0&quot;&gt;</span><br/>
+<span>          &lt;method name=&quot;GET&quot; id=&quot;get&quot;&gt;</span><br/>
+<span>            &lt;request&gt;</span><br/>
+<span>              &lt;param name=&quot;copyCount&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;fromPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;toPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;Accept&quot; type=&quot;xsd:string&quot; style=&quot;header&quot; required=&quot;true&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/request&gt;</span><br/>
+<span>            &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;text/html&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;text/plain&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;application/rtf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;/response&gt;</span><br/>
+<span>          &lt;/method&gt;</span><br/>
+<span>        &lt;/resource&gt;</span><br/>
+<span>        &lt;resource path=&quot;rtQRRepSar/2/0&quot;&gt;</span><br/>
+<span>          &lt;method name=&quot;GET&quot; id=&quot;get&quot;&gt;</span><br/>
+<span>            &lt;request&gt;</span><br/>
+<span>              &lt;param name=&quot;copyCount&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;fromPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;toPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span>              &lt;param name=&quot;Accept&quot; type=&quot;xsd:string&quot; style=&quot;header&quot; required=&quot;true&quot;&gt;&lt;/param&gt;</span><br/>
+<span>            &lt;/request&gt;</span><br/>
+<span>            &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;application/pdf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;text/html&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>              &lt;representation mediaType=&quot;application/rtf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span>            &lt;/response&gt;</span><br/>
+<span>          &lt;/method&gt;</span><br/>
+<span>        &lt;/resource&gt;</span><br/>
+<span class='new'>        &lt;resource path=&quot;rtQRRepSar/2/-1&quot;&gt;</span><br/>
+<span class='new'>          &lt;method name=&quot;GET&quot; id=&quot;get&quot;&gt;</span><br/>
+<span class='new'>            &lt;request&gt;</span><br/>
+<span class='new'>              &lt;param name=&quot;copyCount&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='new'>              &lt;param name=&quot;fromPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='new'>              &lt;param name=&quot;toPage&quot; type=&quot;xsd:integer&quot; style=&quot;query&quot; required=&quot;false&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='new'>              &lt;param name=&quot;Accept&quot; type=&quot;xsd:string&quot; style=&quot;header&quot; required=&quot;true&quot;&gt;&lt;/param&gt;</span><br/>
+<span class='new'>            &lt;/request&gt;</span><br/>
+<span class='new'>            &lt;response status=&quot;200&quot;&gt;</span><br/>
+<span class='new'>              &lt;representation mediaType=&quot;application/pdf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span class='new'>              &lt;representation mediaType=&quot;text/html&quot;&gt;&lt;/representation&gt;</span><br/>
+<span class='new'>              &lt;representation mediaType=&quot;application/rtf&quot;&gt;&lt;/representation&gt;</span><br/>
+<span class='new'>            &lt;/response&gt;</span><br/>
+<span class='new'>          &lt;/method&gt;</span><br/>
+<span class='new'>        &lt;/resource&gt;</span><br/>
+<span>      &lt;/resource&gt;</span><br/>
+<span>    &lt;/resource&gt;</span><br/>
+<span>  &lt;/resources&gt;</span><br/>
+<span>&lt;/application&gt;</span><br/>
+<span></span><br/>
+</body>
+</html>

@@ -11,25 +11,16 @@ var JsonVersion1 = { data: "", receivedOK: false };
 var JsonVersion2 = { data: "", receivedOK: false };
 var selectedId = 0;
 
-JsonTree = [{
-    "title": "Izvēlieties salīdzināmās versijas",
-    "extraClasses": "service_ok",
-    "children": null
-}];
+var JsonTree = [];
 
 $(document).ready(function () {
     loadVersionsAjax();
 
     $("#Version1").change(function () {
-        //versionPath = $("#Version1 option:selected").val().replace(".", "/");
-        //var url = "rest/" + $("#Version1 option:selected").val() + "/metadata.xml";
-        //getFileAjax(url, "xml", JsonVersion1);
         GetChanges();
     });
 
     $("#Version2").change(function () {
-        //var url = "rest/" + $("#Version2 option:selected").val() + "/metadata.xml";
-        //getFileAjax(url, "xml", JsonVersion2);
         GetChanges();
     });
 
@@ -98,12 +89,12 @@ $(document).ready(function () {
                 // A node was activated:
                 var path1 = "rest/" + $("#Version1 option:selected").val() + "/" + data.node.data.restPath + "/" + data.node.title;
                 var path2 = "rest/" + $("#Version2 option:selected").val() + "/" + data.node.data.restPath + "/" + data.node.title;
-                getFileAjax(path1, "text", VersionText1);
-                getFileAjax(path2, "text", VersionText2);
+                //getFileAjax(path1, "text", VersionText1);
+                //getFileAjax(path2, "text", VersionText2);
                 selectedId = 0;
             }
 
-            var restUrl = getNodeRestUrl(data.node);
+            var restUrl = data.node.data.diffHtmlFile;
             $("#restPath").append(restUrl);
         }
     });
@@ -163,22 +154,32 @@ $(document).ready(function () {
     }
 });
 
-function GetChanges() {
-    if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--") {
-        alert("Wait!");
-        $.ajax({
-            url: "http://localhost:51458/Home/GenerateReport?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val(),
-            dataType: 'JSON',
-            error: function () {
-                alert("Error Loading comparison");
-            },
-            success: function (data) {
-                alert("done");
-                JsonTree = data;
-                $("#tree").fancytree('getTree').reload(JsonTree);
-            }
-        });
-    }
+function showPage() {
+    $('#VersionControl :input').attr('disabled', false);
+    document.getElementById("loader").style.display = "none";
+}
+
+function showLoad() {
+    $('#VersionControl :input').attr('disabled', true);
+    document.getElementById("loader").style.display = "block";
+}
+
+function loadVersionsAjax() {
+    showLoad();
+    $.ajax({
+        url: 'http://localhost:51458/Home/GetVersions',
+        dataType: 'xml',
+        error: function () {
+            showPage();
+        },
+        success: function (data) {
+            var versions = getVersionList(data);
+
+            PopulateVersionsSelect("#Version1", versions);
+            PopulateVersionsSelect("#Version2", versions);
+            showPage();
+        }
+    });
 }
 
 function PopulateVersionsSelect(id, versionInfo) {
@@ -188,6 +189,24 @@ function PopulateVersionsSelect(id, versionInfo) {
         $(id).append("<option value=" + text + ">" + text + "</option>");
     });
 }
+
+function GetChanges() {
+    showLoad();
+    $.ajax({
+        url: "http://localhost:51458/Home/GenerateReport?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val(),
+        dataType: 'JSON',
+        error: function () {
+            showPage();
+        },
+        success: function (data) {
+            showPage();
+            JsonTree = data;
+            $("#tree").fancytree('getTree').reload(JsonTree);
+        }
+    });
+}
+
+//havent check thease methods
 
 function DocumentReceived() {
 
@@ -201,8 +220,7 @@ function DocumentReceived() {
         } else if (radioResult === 3) {
             filterErrorServicesOnly(JsonTree);
         }
-
-        //$('#tree').fancytree('option', 'source', JsonTree);
+        
         $("#tree").fancytree('getTree').reload(JsonTree);
     }
 }
@@ -240,10 +258,6 @@ function setChangeStatus(treeNode) {
     $("#changeStatus").append(status);
 }
 
-function getNodeRestUrl(treeNode) {
-    return treeNode.data.diffHtmlFile;
-}
-
 function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {
     var rootContainer = { isError: false };
 
@@ -273,17 +287,6 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     ver1Service.restPath += ver1Service.title;
 
     if (ver1Service.children && ver1Service.title) {
-        //var ver2Service = jsonVer2Array.find(item => item.title === ver1Service.title);
-        //var ver2Service = {}
-
-		/*
-		for(var i=0; i < jsonVer2Array.length; ++i) {
-			var person_i = jsonVer2Array[i];
-			if(jsonVer2Array[i].title == ver1Service.title) {
-				var ver2Service = jsonVer2Array[i];
-				break;
-			}
-		} */
         var ver2Service = FindItemByTitle(jsonVer2Array, ver1Service.title);
 
 
@@ -518,22 +521,6 @@ function getFileAjax(path, datatype, ResultObject) {
                 ResultObject.data = getTreeJsonFromXmlMetadata(data);
                 DocumentReceived();
             }
-        }
-    });
-}
-
-function loadVersionsAjax() {
-    $.ajax({
-        url: 'http://localhost:51458/Home/GetVersions',
-        dataType: 'xml',
-        error: function () {
-            alert("Error Loading versions");
-        },
-        success: function (data) {
-            var versions = getVersionList(data);
-
-            PopulateVersionsSelect("#Version1", versions);
-            PopulateVersionsSelect("#Version2", versions);
         }
     });
 }

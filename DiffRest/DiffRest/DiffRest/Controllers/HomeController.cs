@@ -27,9 +27,7 @@ namespace DiffRest.Controllers
         private static string JsonTreeFileName = "tree_data.js";
         private static string HtmlRootFolder = "REST_DIFF";
 
-        private string First;
-        private string Second;
-        private string Result;
+        private string Result, First, Second;
 
         [Route("GetVersions")]
         [HttpGet]
@@ -53,187 +51,15 @@ namespace DiffRest.Controllers
             return versions;
         }
 
-        [Route("CompareFiles")]
-        [HttpGet]
-        public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
-        {
-            XmlDocument xml = new XmlDocument();
-            xml.Load(MetadatRootFolder + oldRelease + "/metadata.xml");//old file
-            Dictionary<string, Service> services = GetServices(xml);
-
-            xml.Load(MetadatRootFolder + newRelease + "/metadata.xml");//new file
-            return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
-        }
-
-        #region Change detection
-        /// <summary>
-        /// Gets all services and resources in xml file
-        /// </summary>
-        /// <param name="xml">Old Xml file</param>
-        /// <returns></returns>
-        private Dictionary<string, Service> GetServices(XmlDocument xml)
-        {
-            Dictionary<string, Service> services = new Dictionary<string, Service>();
-            foreach (XmlNode node in xml.SelectNodes("//service"))
-            {
-                try
-                {
-                    services.Add(node.Attributes["name"].Value, AddService(node));
-                }
-                catch
-                {
-                    //element with this key already exists
-                }
-            }
-            return services;
-        }
-        
-        /// <summary>
-        /// Create service from xml service node
-        /// </summary>
-        /// <param name="node">Service node</param>
-        /// <returns></returns>
-        private Service AddService(XmlNode node)
-        {
-            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, "removed");
-            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
-            {
-                service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
-            }
-            return service;
-        }
-
-        /// <summary>
-        /// Compares all services in the two xml files
-        /// </summary>
-        /// <param name="services">Services from old xml</param>
-        /// <param name="xml">New xml file</param>
-        /// <param name="noChange">Show services with no change</param>
-        /// <param name="added">Show services that were added</param>
-        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
-        /// <returns></returns>
-        private List<Service> CompareServices(Dictionary<string, Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
-        {
-            foreach (XmlNode node in xml.SelectNodes("//service"))
-            {
-                Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
-                if (service == null)//new service
-                {
-                    if (added)
-                    {
-                        service = AddService(node);
-                        service.Status = "added";
-                        foreach (Resource resource in service.ResourceList)
-                        {
-                            resource.Status = "added";
-                        }
-                        services.Add(node.Attributes["name"].Value, service);
-                    }
-                }
-                else//existing
-                { 
-                    service = GetService(CompareResources(node, service, ignoreNamespaceChanges), noChange, added);
-                    if (service == null)
-                    {
-                        services.Remove(node.Attributes["name"].Value);
-                    }
-                    else
-                    {
-                        services[node.Attributes["name"].Value] = service;
-                    }
-                }
-            }
-
-            return services.Values.ToList();
-        }
-
-        /// <summary>
-        /// Compares resources to determine if and how they they have been changed
-        /// </summary>
-        /// <param name="node">Service node</param>
-        /// <param name="service">Existing service</param>
-        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
-        /// <returns></returns>
-        private Service CompareResources(XmlNode node, Service service, bool ignoreNamespaceChanges)
-        {
-            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
-            {
-                Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
-                if (resource != null)
-                {
-                    if ((!ignoreNamespaceChanges && resource.HashCode.Equals(leaf.Attributes["hashCode"].Value)) || 
-                        (ignoreNamespaceChanges && resource.NoNamspaceHashCode.Equals(leaf.Attributes["noNamspaceHashCode"].Value)))
-                    {
-                        resource.Status = "no change";
-                    }
-                    else
-                    {
-                        resource.Status = "eddited";
-                    }
-                }
-                else
-                {
-                    service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
-                }
-            }
-            return service;
-        }
-
-        /// <summary>
-        /// Gets service and check if its what consumer asked for
-        /// </summary>
-        /// <param name="service">Service to be checked</param>
-        /// <param name="noChange">If false services that were not changed wont show</param>
-        /// <param name="added">If false services that were added wont show</param>
-        /// <returns></returns>
-        private Service GetService(Service service, bool noChange, bool added)
-        {
-            List<Resource> list = service.ResourceList;
-            if (list.All(o => o.Status.Equals(list[0].Status)))
-            {
-                if (list.Count > 0)
-                {
-                    service.Status = list[0].Status;
-                    if ((!noChange && service.Status.Equals("no change")) || 
-                        (!added && service.Status.Equals("added")))
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return service;
-                    }
-                }
-                else
-                {
-                    if (!noChange)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        service.Status = "no change";
-                        return service;
-                    }
-                }
-            }
-            else
-            {
-                service.Status = "eddited";
-                return service;
-            }
-        }
-        #endregion
-        
         [Route("GenerateReport")]
         [HttpGet]
         public object GenerateReport(string first, string second)
         {
-            if (!first.Equals(second))
+            if (!first.Equals(second) & !first.Equals("--Select--") & !second.Equals("--Select--"))
             {
                 First = first;
                 Second = second;
-                Result = (First + "_" + Second).Replace('/', '.');
+                Result = (first + "_" + second).Replace('/', '.');
                 if (File.Exists(FolderLocation + Result + "/" + JsonTreeFileName))
                 {
                     string j = File.ReadAllText(FolderLocation + Result + "/" + JsonTreeFileName);
@@ -243,10 +69,10 @@ namespace DiffRest.Controllers
                 }
 
                 XmlDocument firstXml = new XmlDocument();
-                firstXml.Load(MetadatRootFolder + First + "/metadata.xml");
+                firstXml.Load(MetadatRootFolder + first + "/metadata.xml");
 
                 XmlDocument secondXml = new XmlDocument();
-                secondXml.Load(MetadatRootFolder + Second + "/metadata.xml");
+                secondXml.Load(MetadatRootFolder + second + "/metadata.xml");
 
                 secondXml = Compare(firstXml, secondXml);
                 secondXml.RemoveChild(secondXml.FirstChild);
@@ -256,8 +82,6 @@ namespace DiffRest.Controllers
                 string json = "var JsonTree = " + JsonConvert.SerializeObject(folder);
                 File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
 
-                MakeLocalCopy();
-
                 return folder;
             }
             else
@@ -265,35 +89,39 @@ namespace DiffRest.Controllers
                 return null;
             }
         }
-        
+
         [Route("LoadFile")]
         [HttpGet]
         public HttpResponseMessage LoadFile(string first, string second)
         {
-            string fileName = (first + "_" + second).Replace('/', '.') + ".zip";
-            string path = FolderLocation + fileName;
+            Result = (first + "_" + second).Replace('/', '.');
+            MakeLocalZip();
+            
+            string path = FolderLocation + Result + ".zip";
             HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             result.Content = new StreamContent(stream);
             result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
             {
-                FileName = fileName
+                FileName = Result + ".zip"
             };
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             return result;
         }
 
-        #region Make copy
-        private void MakeLocalCopy()
+        #region Make zip
+        private void MakeLocalZip()
         {
             Copy(FolderLocation + "Site", FolderLocation + Result);
 
             string zip = FolderLocation + Result + ".zip";
-            if (File.Exists(zip))
+            foreach (string file in Directory.GetFiles(FolderLocation, "*.zip"))
             {
-                File.Delete(zip);
+                File.Delete(file);
             }
             ZipFile.CreateFromDirectory(FolderLocation + Result, zip);
+
+            Delete();
         }
 
         private void Copy(string sourceDir, string targetDir)
@@ -305,6 +133,30 @@ namespace DiffRest.Controllers
 
             foreach (var directory in Directory.GetDirectories(sourceDir))
                 Copy(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
+        }
+
+        private void Delete()
+        {
+            string[] filePaths = Directory.GetFiles(FolderLocation + Result);
+            foreach (string filePath in filePaths)
+            {
+                var name = new FileInfo(filePath).Name;
+                if (name != "tree_data.js")
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+
+            string[] directoryPaths = Directory.GetDirectories(FolderLocation + Result);
+            foreach (string directoryPath in directoryPaths)
+            {
+                var name = new DirectoryInfo(directoryPath).Name;
+                if (name != "REST_DIFF")
+                {
+                    Directory.Delete(directoryPath, true);
+                }
+            }
         }
         #endregion
 
@@ -516,6 +368,182 @@ namespace DiffRest.Controllers
             attr.Value = attrValue;
             node.Attributes.SetNamedItem(attr);
         }
+        #endregion
+
+
+
+        #region Not in use
+        [Route("CompareFiles")]
+        [HttpGet]
+        public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.Load(MetadatRootFolder + oldRelease + "/metadata.xml");//old file
+            Dictionary<string, Service> services = GetServices(xml);
+
+            xml.Load(MetadatRootFolder + newRelease + "/metadata.xml");//new file
+            return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
+        }
+
+        #region Change detection
+        /// <summary>
+        /// Gets all services and resources in xml file
+        /// </summary>
+        /// <param name="xml">Old Xml file</param>
+        /// <returns></returns>
+        private Dictionary<string, Service> GetServices(XmlDocument xml)
+        {
+            Dictionary<string, Service> services = new Dictionary<string, Service>();
+            foreach (XmlNode node in xml.SelectNodes("//service"))
+            {
+                try
+                {
+                    services.Add(node.Attributes["name"].Value, AddService(node));
+                }
+                catch
+                {
+                    //element with this key already exists
+                }
+            }
+            return services;
+        }
+
+        /// <summary>
+        /// Create service from xml service node
+        /// </summary>
+        /// <param name="node">Service node</param>
+        /// <returns></returns>
+        private Service AddService(XmlNode node)
+        {
+            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, "removed");
+            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
+            {
+                service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
+            }
+            return service;
+        }
+
+        /// <summary>
+        /// Compares all services in the two xml files
+        /// </summary>
+        /// <param name="services">Services from old xml</param>
+        /// <param name="xml">New xml file</param>
+        /// <param name="noChange">Show services with no change</param>
+        /// <param name="added">Show services that were added</param>
+        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
+        /// <returns></returns>
+        private List<Service> CompareServices(Dictionary<string, Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
+        {
+            foreach (XmlNode node in xml.SelectNodes("//service"))
+            {
+                Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
+                if (service == null)//new service
+                {
+                    if (added)
+                    {
+                        service = AddService(node);
+                        service.Status = "added";
+                        foreach (Resource resource in service.ResourceList)
+                        {
+                            resource.Status = "added";
+                        }
+                        services.Add(node.Attributes["name"].Value, service);
+                    }
+                }
+                else//existing
+                {
+                    service = GetService(CompareResources(node, service, ignoreNamespaceChanges), noChange, added);
+                    if (service == null)
+                    {
+                        services.Remove(node.Attributes["name"].Value);
+                    }
+                    else
+                    {
+                        services[node.Attributes["name"].Value] = service;
+                    }
+                }
+            }
+
+            return services.Values.ToList();
+        }
+
+        /// <summary>
+        /// Compares resources to determine if and how they they have been changed
+        /// </summary>
+        /// <param name="node">Service node</param>
+        /// <param name="service">Existing service</param>
+        /// <param name="ignoreNamespaceChanges">Compare using noNamspaceHashCode instead of hashCode</param>
+        /// <returns></returns>
+        private Service CompareResources(XmlNode node, Service service, bool ignoreNamespaceChanges)
+        {
+            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
+            {
+                Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
+                if (resource != null)
+                {
+                    if ((!ignoreNamespaceChanges && resource.HashCode.Equals(leaf.Attributes["hashCode"].Value)) ||
+                        (ignoreNamespaceChanges && resource.NoNamspaceHashCode.Equals(leaf.Attributes["noNamspaceHashCode"].Value)))
+                    {
+                        resource.Status = "no change";
+                    }
+                    else
+                    {
+                        resource.Status = "eddited";
+                    }
+                }
+                else
+                {
+                    service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
+                }
+            }
+            return service;
+        }
+
+        /// <summary>
+        /// Gets service and check if its what consumer asked for
+        /// </summary>
+        /// <param name="service">Service to be checked</param>
+        /// <param name="noChange">If false services that were not changed wont show</param>
+        /// <param name="added">If false services that were added wont show</param>
+        /// <returns></returns>
+        private Service GetService(Service service, bool noChange, bool added)
+        {
+            List<Resource> list = service.ResourceList;
+            if (list.All(o => o.Status.Equals(list[0].Status)))
+            {
+                if (list.Count > 0)
+                {
+                    service.Status = list[0].Status;
+                    if ((!noChange && service.Status.Equals("no change")) ||
+                        (!added && service.Status.Equals("added")))
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return service;
+                    }
+                }
+                else
+                {
+                    if (!noChange)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        service.Status = "no change";
+                        return service;
+                    }
+                }
+            }
+            else
+            {
+                service.Status = "eddited";
+                return service;
+            }
+        }
+        #endregion
         #endregion
     }
 }

@@ -2,27 +2,27 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="button" value="Remove profile" onclick="removeProfile()" />
-<input type="button" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
-<input type="button" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" style="float: right;"/>
+<input type="button" class="btn btn-primary mb-2" value="Remove profile" onclick="removeProfile()" />
+<input type="button" class="btn btn-primary mb-2" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
+<input type="button" class="btn btn-primary mb-2" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" style="float: right;"/>
 <br>
-<table id="processTable">
-    <thead>
+<table id="processTable" class="table table-hover">
+    <thead style="background: #dedede;">
         <tr>
-            <td style='display: none;'><p>Id</p></td>
-            <td><p>Start time</p></td>
-            <td><p>Version</p></td>
-            <td><p>Release</p></td>
-            <td><p>Progress</p></td>
-            <td><p>Status text</p></td>
+            <td style='display: none;' scope="col"><p>Id</p></td>
+            <td scope="col"><p>Start time</p></td>
+            <td scope="col"><p>Version</p></td>
+            <td scope="col"><p>Release</p></td>
+            <td scope="col"><p>Progress</p></td>
+            <td scope="col"><p>Status text</p></td>
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
-<input type="text" id="versionId" placeholder="version">
-<input type="button" onclick="add()" value="Add">
-<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
+<input type="text" class="form-control" id="versionId" placeholder="version">
+<input type="button" class="btn btn-primary mb-2" onclick="add()" value="Add">
+<input type="text" class="form-control" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
 <!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
 <script>
@@ -57,7 +57,7 @@
                         "<td>" + data[i].Release + "</td>" +
                         "<td>" + data[i].Progress + "</td>" +
                         "<td>" + data[i].Status.Text + "</td>" +
-                        "</tr > ";
+                        "</tr> ";
                 }
                 $("#processTable tbody").html(htmlText)
             },

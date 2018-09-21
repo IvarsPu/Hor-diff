@@ -141,11 +141,13 @@ function setDivSize() {
 
 function showPage() {
     $('#VersionControl :input').attr('disabled', false);
+    $(":ui-fancytree").fancytree("enable");
     document.getElementById("loader").style.display = "none";
 }
 
 function showLoad() {
     $('#VersionControl :input').attr('disabled', true);
+    $(":ui-fancytree").fancytree("disable");
     document.getElementById("loader").style.display = "block";
 }
 
@@ -197,9 +199,10 @@ function GetChanges() {
             showPage();
         },
         success: function (data) {
-            showPage();
             JsonTree = data;
             $("#tree").fancytree('getTree').reload(JsonTree);
+            $("#diff_frame").contents().find('html').html("");
+            showPage();
         }
     });
 }

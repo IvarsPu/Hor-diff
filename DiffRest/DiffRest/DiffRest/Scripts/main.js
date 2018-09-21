@@ -132,11 +132,10 @@ $(document).ready(function () {
 });
 
 function setDivSize() {
-    var divTop = $('#change_panel').position().top + $('#diff_frame').position().top;
-    var newHeight = $(window).height() - divTop - 30;
+    var newHeight = $(window).height() - 200;
 
-    $('#diff_frame').height(newHeight);
-    $('#tree').height(newHeight - 42);
+    $('#treeControl').height(newHeight);
+    $('#htmlControl').height(newHeight);
 }
 
 function showPage() {

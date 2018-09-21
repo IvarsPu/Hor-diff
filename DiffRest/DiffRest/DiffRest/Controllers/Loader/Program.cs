@@ -41,7 +41,7 @@ namespace DiffRest.Controllers
             this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
         }
 
-        public ServiceLoadState LoadRestServiceLoadState(int processId)
+        private ServiceLoadState LoadRestServiceLoadState(int processId)
         {
             ServiceLoadState loadState = null;
             List<RestService> services = null;
@@ -82,7 +82,7 @@ namespace DiffRest.Controllers
             return loadState;
         }
 
-        public ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
+        private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
         {
             List<RestService> services = loadState.Services;
             try

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Xml.Linq;
 using DiffRest.Models;
-using DiffRest.Models;
 
 namespace DiffRest.Controllers
 {
@@ -40,11 +39,6 @@ namespace DiffRest.Controllers
             {
                 throw new Exception(string.Format("Exception: {0} while parsing {1}", ex.Message, xmlFile.HttpResponse));
             }
-        }
-
-        internal void ParseXml(XmlFile xmlFile)
-        {
-            throw new NotImplementedException();
         }
     }
 }

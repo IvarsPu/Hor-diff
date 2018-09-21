@@ -265,3 +265,5 @@ rest
 .gitattributes
 /RestLog/RestLogService/RestLogService/Web.config
 MetadataApp/XmlDownloaderTest/Metadataload/Web.config
+/DiffRest/DiffRest/DiffRest/test_place/MetadataLocalFolder
+DiffRest/DiffRest/DiffRest/Web.config

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using System.Xml;
+using DiffRest.Models;
 
 namespace DiffRest.Controllers
 {
@@ -26,22 +27,21 @@ namespace DiffRest.Controllers
             return View();
         }
 
-        [HttpGet]
-        [Route("GetProfile")]
-        public int GetProfile(string url, string password)
+        [HttpPost]
+        public ActionResult LogIn(Profile profile)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
-            XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "' and @Password = '" + password + "']");
+            XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@Url='" + profile.Url + "' and @Password = '" + profile.Password + "']");
             if (node != null)
             {
                 int id = Int32.Parse(node.Attributes["ID"].Value);
                 Session[profileId] = id;
-                return id;
+                return View("../Process/Index");
             }
             else
             {
-                return 0;
+                return View("LogIn");
             }
         }
 

@@ -211,7 +211,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ChangeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\Loader\JsonGenerator.cs" />
     <Compile Include="Controllers\Loader\Logger.cs" />
     <Compile Include="Controllers\Loader\MetadataController.cs" />
     <Compile Include="Controllers\Loader\Program.cs" />
@@ -233,6 +232,7 @@
     <Compile Include="Models\MetadataLoad\Loader\ServiceLoadState.cs" />
     <Compile Include="Models\MetadataLoad\Loader\XmlFile.cs" />
     <Compile Include="Models\MetadataLoad\Process.cs" />
+    <Compile Include="Models\Profile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

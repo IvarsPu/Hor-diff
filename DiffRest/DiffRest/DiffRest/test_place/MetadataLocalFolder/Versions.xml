@@ -1,10 +1,10 @@
 <versions>
 	<version name="515">
-		<release name="3"/>
+		<release name="13"/>
+		<release name="21"/>		
 	</version>
 	<version name="520">
 		<release name="1"/>
-		<release name="2"/>		
 	</version>
 	<version name="525">
 		<release name="0"/>

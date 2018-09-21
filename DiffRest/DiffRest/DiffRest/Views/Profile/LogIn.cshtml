@@ -1,33 +1,44 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@model DiffRest.Models.Profile
 
-<input type="text" id="url" class="form-control" placeholder="URL" />
+@using (Html.BeginForm())
+{
+    <div class="form-group centerlook">
+        <h1> Login </h1>
+    </div>
+    <div class="form-group centerlook">
+        <label>User Name: </label>
+        @Html.EditorFor(model => model.Url)
+        @Html.ValidationMessageFor(model => model.Url)
+    </div>
+    <div class="form-group centerlook">
+        <label>Password:</label>
+        @Html.EditorFor(model => model.Password)
+        @Html.ValidationMessageFor(model => model.Password)
+
+    </div>
+    <div class="form-group error">
+        @if (@ViewBag.Failedcount != null)
+        {
+
+            <label> Failed Attempt count is: @ViewBag.Failedcount</label>
+        }
+
+        @if (@ViewBag.NotValidUser != null)
+        {
+
+            <label> @ViewBag.NotValidUser</label>
+        }
+    </div>
+    <div class="loginbtn">
+
+        <input type="submit" value="Login" class="btn btn-primary" />
+        <input type="button" class="btn btn-primary mb-2" value="Register" onclick="window.open('/Profile/Create', '_self')" />
+    </div>
+}
+
+
 <br>
-<input type="password" id="password" class="form-control" placeholder="Password" />
-<br>
-<input type="button" class="btn btn-primary mb-2" value="Log in" onclick="LogIn()" />
-<input type="button" class="btn btn-primary mb-2" value="Register" onclick="window.open('/Profile/Create', '_self')" />
-<br><br>
 <input type="button" class="btn btn-primary mb-2" value="Check diff" onclick="window.open('/Change/Index', '_self')" />
-
-<script>
-    //Logging into profile
-    function LogIn() {
-        $.ajax({
-            type: "GET",
-            url: '/Profile/GetProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
-            success: function (i) {
-                if (i != 0) {
-                    location.replace('/Process');
-                }
-                else {
-                    alert("Wrong url or password!");
-                }
-            },
-            error: function () {
-                alert('fail');
-            }
-        });
-    }
-</script>

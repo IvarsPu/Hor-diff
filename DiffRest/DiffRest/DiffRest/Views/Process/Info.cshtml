@@ -1,0 +1,123 @@
+﻿@model DiffRest.Models.Process
+
+@{
+    DiffRest.Models.Process process = ViewBag.Process;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h3>Process</h3>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.StartTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.StartTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EndTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.EndTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Version)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Version)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Release)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Release)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Progress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Progress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Done)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Done)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Text)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Text)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Total)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Total)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Loaded)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Loaded)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status.Failed)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(modelItem => process.Status.Failed)
+        </dd>
+
+        @if (process != null && !process.Done && process.ServerId.ToString().Equals(Session[DiffRest.Controllers.ProfileController.profileId].ToString()))
+        {
+            <dt>
+                Process Action
+            </dt>
+
+            <dd>
+                <input type="button" value="Stop" onclick="stop(@process.Id)">
+            </dd>
+        }
+    </dl>
+</div>
+
+<script>
+    //Stops Metadata Load
+    function stop(id) {
+        $.ajax({
+            type: "GET",
+            url: '/Process/StopProcess?processId=' + id,
+            success: function (data) {
+                if (data == "") {
+                    window.open('/Process', '_self');
+                }
+                else {
+                    alert(data);
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+</script>

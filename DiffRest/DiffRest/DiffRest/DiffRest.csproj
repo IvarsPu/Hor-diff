@@ -211,14 +211,28 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ChangeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\Loader\JsonGenerator.cs" />
+    <Compile Include="Controllers\Loader\Logger.cs" />
+    <Compile Include="Controllers\Loader\MetadataController.cs" />
+    <Compile Include="Controllers\Loader\Program.cs" />
+    <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
+    <Compile Include="Controllers\Loader\XmlIO.cs" />
+    <Compile Include="Controllers\Loader\XmlMetadata.cs" />
+    <Compile Include="Controllers\ProcessController.cs" />
+    <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\HorizonRelease.cs" />
-    <Compile Include="Models\HorizonVersion.cs" />
-    <Compile Include="Models\JsonClasses.cs" />
-    <Compile Include="Models\Resource.cs" />
-    <Compile Include="Models\Service.cs" />
+    <Compile Include="Models\HorizonREST\HorizonRelease.cs" />
+    <Compile Include="Models\HorizonREST\HorizonVersion.cs" />
+    <Compile Include="Models\DiffJson\JsonClasses.cs" />
+    <Compile Include="Models\DiffObjects\Resource.cs" />
+    <Compile Include="Models\DiffObjects\Service.cs" />
+    <Compile Include="Models\MetadataLoad\Loader\AppContext.cs" />
+    <Compile Include="Models\MetadataLoad\Loader\RestService.cs" />
+    <Compile Include="Models\MetadataLoad\Loader\ServiceLoadState.cs" />
+    <Compile Include="Models\MetadataLoad\Loader\XmlFile.cs" />
+    <Compile Include="Models\MetadataLoad\Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -334,6 +348,11 @@
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Change\Index.cshtml" />
+    <Content Include="Views\Process\Index.cshtml" />
+    <Content Include="Views\Process\Info.cshtml" />
+    <Content Include="Views\Profile\Create.cshtml" />
+    <Content Include="Views\Profile\LogIn.cshtml" />
+    <Content Include="Views\Profile\Update.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

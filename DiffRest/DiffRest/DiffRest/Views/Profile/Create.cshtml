@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="text" id="url" placeholder="URl" />
+<br>
+<input type="password" id="password" placeholder="Password" />
+<br>
+<input type="button" value="Register" onclick="register()" />
+
+<script>
+//register new profile
+function register() {
+    $.ajax({
+        type: "GET",
+        url: '/Profile/CreateProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
+        success: function (i) {
+            if (i != 0) {
+                location.replace('/Process');
+            }
+            else {
+                alert("Already exists");
+            }
+        },
+        error: function () {
+            alert('fail');
+        }
+    });
+}
+</script>

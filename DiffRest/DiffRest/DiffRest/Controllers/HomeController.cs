@@ -22,8 +22,8 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        private static string FolderLocation = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + "Projects/");
-        private static string MetadatRootFolder = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["testPlace"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
+        private static string FolderLocation = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["result"].ToString());
+        public static string MetadatRootFolder;
         private static string JsonTreeFileName = "tree_data.js";
         private static string HtmlRootFolder = "REST_DIFF";
 
@@ -259,9 +259,9 @@ namespace DiffRest.Controllers
         {
             Folder folder = new Folder();
             XmlNode node = xml.SelectSingleNode("//rest_api_metadata");
-            folder.title = "root";
-            folder.type = node.Name;
-            folder.children = GetChildren(node);
+            folder.Title = "root";
+            folder.Type = node.Name;
+            folder.Children = GetChildren(node);
 
             return folder;
         }
@@ -274,21 +274,21 @@ namespace DiffRest.Controllers
                 if (child.Name.Equals("service") || child.Name.Equals("service_group") || child.Name.Equals("resource"))
                 {
                     Folder folder = new Folder();
-                    folder.title = child.Attributes["name"].Value;
-                    folder.type = child.Name;
-                    folder.children = GetChildren(child);
+                    folder.Title = child.Attributes["name"].Value;
+                    folder.Type = child.Name;
+                    folder.Children = GetChildren(child);
                     elements.Add(folder);
                 }
                 else
                 {
                     Schema schema = new Schema();
-                    schema.title = child.Attributes["name"].Value;
-                    schema.hashCode = Int32.Parse(child.Attributes["hashCode"].Value);
-                    schema.noNamspaceHashCode = Int32.Parse(child.Attributes["noNamspaceHashCode"].Value);
-                    schema.type = child.Name;
+                    schema.Title = child.Attributes["name"].Value;
+                    schema.HashCode = Int32.Parse(child.Attributes["hashCode"].Value);
+                    schema.NoNamspaceHashCode = Int32.Parse(child.Attributes["noNamspaceHashCode"].Value);
+                    schema.Type = child.Name;
                     try
                     {
-                        schema.diffHtmlFile = child.Attributes["diffHtmlFile"].Value;
+                        schema.DiffHtmlFile = child.Attributes["diffHtmlFile"].Value;
                     }
                     catch (Exception)
                     { }

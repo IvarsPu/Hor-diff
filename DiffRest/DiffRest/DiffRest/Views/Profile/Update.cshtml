@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="text" id="url" placeholder="URL" />
+<br>
+<input type="password" id="password" placeholder="Password" />
+<br>
+<input type="button" value="Update" onclick="update()" />
+
+<script>
+    //Updates profile
+    function update() {
+        $.ajax({
+            type: "GET",
+            url: '/Profile/UpdateProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
+            success: function (i) {
+                if (i == "True") {
+                    window.open('/Process', '_self');
+                }
+                else {
+                    alert("Couldn't perform this operation");
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+</script>

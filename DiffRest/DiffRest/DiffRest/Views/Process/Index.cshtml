@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="button" value="Remove profile" onclick="removeProfile()" />
+<input type="button" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
+<input type="button" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" style="float: right;"/>
+<br>
+<table id="processTable">
+    <thead>
+        <tr>
+            <td style='display: none;'><p>Id</p></td>
+            <td><p>Start time</p></td>
+            <td><p>Version</p></td>
+            <td><p>Release</p></td>
+            <td><p>Progress</p></td>
+            <td><p>Status text</p></td>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<input type="text" id="versionId" placeholder="version">
+<input type="button" onclick="add()" value="Add">
+<input type="text" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
+<!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
+
+<script>
+    //Starts refresh method with selected time period
+    refresh(5000);
+
+    //refresh table
+    function refresh(time) {
+        setTimeout(function () {
+            refresh(time);
+        }, time);
+        refreshTable();
+    }
+
+    //refreshes table
+    function refreshTable() {
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/GetProcessList?noOfProcesses=' + $("#nrOfRows").val(),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var htmlText = "";
+                for (var i = 0; i < data.length; i++) {
+                    var datetime = new Date(data[i].StartTime);
+                    var date = datetime.getDate() + "-" + (datetime.getMonth() + 1) + "-" + datetime.getFullYear();
+                    var time = datetime.getHours() + ":" + datetime.getMinutes() + ":" + datetime.getSeconds();
+                    htmlText += "<tr>" +
+                        "<td style='display: none;'>" + data[i].Id + "</td>" +
+                        "<td>" + date + " " + time + "</td>" +
+                        "<td>" + data[i].Version + "</td>" +
+                        "<td>" + data[i].Release + "</td>" +
+                        "<td>" + data[i].Progress + "</td>" +
+                        "<td>" + data[i].Status.Text + "</td>" +
+                        "</tr > ";
+                }
+                $("#processTable tbody").html(htmlText)
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
+    //add new process
+    function add() {
+        var versionId = $("#versionId").val();
+        $.ajax({
+            type: "GET",
+            url: '/Process/StartMetadataLoad?version=' + versionId,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                $("#versionId").val("");
+                refreshTable();
+            },
+            error: function () {
+                alert('fail');
+            },
+        });
+    }
+
+    //Delete logged in profile
+    function removeProfile() {
+        $.ajax({
+            type: "GET",
+            url: '/Profile/DeleteProfile',
+            success: function (i) {
+                if (i == "True") {
+                    window.open('/Profile/LogIn', '_self');
+                }
+                else {
+                    alert("Doesnt exist!");
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
+    //table row clicked
+    $("#processTable tbody").delegate('tr', 'click', function () {
+        window.open('/Process/Info?processID=' + $(this).find('td:first').text(), '_self');
+    });
+</script>

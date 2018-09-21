@@ -12,28 +12,28 @@ namespace DiffRest.Models
     public class Schema : IElement
     {
         [DataMember(Name = "title")]
-        public string title { get; set; }
+        public string Title { get; set; }
 
         [DataMember(Name = "extraClasses")]
-        public string extraClasses { get; set; } = "doc_changed";
+        public string ExtraClasses { get; set; } = "doc_changed";
 
         [DataMember(Name = "hashCode")]
-        public int hashCode { get; set; }
+        public int HashCode { get; set; }
 
         [DataMember(Name = "noNamspaceHashCode")]
-        public int noNamspaceHashCode { get; set; }
+        public int NoNamspaceHashCode { get; set; }
 
         [DataMember(Name = "type")]
-        public string type { get; set; }
+        public string Type { get; set; }
 
         [DataMember(Name = "diffHtmlFile")]
-        public String diffHtmlFile { get; set; }
+        public String DiffHtmlFile { get; set; }
 
         [DataMember(Name = "httpCode")]
-        public int httpCode { get; set; }
+        public int HttpCode { get; set; }
 
         [DataMember(Name = "errorMessage")]
-        public String errorMessage { get; set; }
+        public String ErrorMessage { get; set; }
     }
 
     [Serializable]
@@ -42,15 +42,15 @@ namespace DiffRest.Models
     public class Folder : IElement
     {
         [DataMember(Name = "title")]
-        public string title { get; set; }
+        public string Title { get; set; }
 
         [DataMember(Name = "extraClasses")]
-        public string extraClasses { get; set; } = "service_changed";
+        public string ExtraClasses { get; set; } = "service_changed";
 
         [DataMember(Name = "type")]
-        public string type { get; set; }
+        public string Type { get; set; }
 
         [DataMember(Name = "children")]
-        public IList<IElement> children { get; set; }
+        public IList<IElement> Children { get; set; }
     }
 }

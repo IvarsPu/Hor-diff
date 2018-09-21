@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="text" id="url" placeholder="URL" />
+<br>
+<input type="password" id="password" placeholder="Password" />
+<br>
+<input type="button" value="Log in" onclick="LogIn()" />
+<input type="button" value="Register" onclick="window.open('/Profile/Create', '_self')" />
+
+<script>
+    //Logging into profile
+    function LogIn() {
+        $.ajax({
+            type: "GET",
+            url: '/Profile/GetProfile?url=' + $("#url").val() + '&password=' + $("#password").val(),
+            success: function (i) {
+                if (i != 0) {
+                    location.replace('/Process');
+                }
+                else {
+                    alert("Wrong url or password!");
+                }
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+</script>

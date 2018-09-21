@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
-using System.Web;
+﻿using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using DiffRest.Controllers;
 
 namespace DiffRest
 {
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         protected void Application_Start()
         {
@@ -20,6 +17,8 @@ namespace DiffRest
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            ProfileController.path = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["profileInfo"].ToString());
+            HomeController.MetadatRootFolder = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
         }
     }
 }

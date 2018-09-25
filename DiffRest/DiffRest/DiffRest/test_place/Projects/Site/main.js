@@ -63,7 +63,7 @@ $(document).ready(function() {
 				}
 			}
 
-			var restUrl = getNodeRestUrl(data.node);
+			var restUrl = data.node.data.diffHtmlFile;
 			$("#restPath").append(restUrl);
 		}});
 		
@@ -107,15 +107,18 @@ $(document).ready(function() {
 		elmnts[selectedId].scrollIntoView( true );
 	});
 
-	setDivSize(); 
+	setDivSize();
+
+    $(window).resize(function () {
+        setDivSize();
+    });
 });
 
 function setDivSize() {
-	var divTop = $('#change_panel').position().top  + $('#diff_frame').position().top; 
-	var newHeight = $(window).height() - divTop - 30;
-	
-	$('#diff_frame').height(newHeight);
-	$('#tree').height(newHeight - 35);	
+    var newHeight = $(window).height() - 200;
+
+    $('#treeControl').height(newHeight);
+    $('#htmlControl').height(newHeight);
 }
 
 function setChangeStatus(treeNode) 
@@ -150,11 +153,6 @@ function setChangeStatus(treeNode)
 
 	$("#changeStatus").empty();
 	$("#changeStatus").append(status);
-}
-
-function getNodeRestUrl(treeNode) 
-{
-	return "/rest/" + treeNode.parent.title + "/" +treeNode.title;
 }
 
 function IsFile(treeNode){

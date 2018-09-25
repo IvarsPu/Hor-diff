@@ -131,8 +131,8 @@ namespace DiffRest.Controllers
 
             string[] arrLine = File.ReadAllLines(FolderLocation + Result + "/main.js");
             arrLine[5 - 1] = "var firstVersion = '" + first + "';";
-            arrLine[6 - 1] = "var firstVersion = '" + second + "';";
-            File.WriteAllLines(FolderLocation + Result + "main.js", arrLine);
+            arrLine[6 - 1] = "var secondVersion = '" + second + "';";
+            File.WriteAllLines(FolderLocation + Result + "/main.js", arrLine);
 
             string zip = FolderLocation + Result + ".zip";
             foreach (string file in Directory.GetFiles(FolderLocation, "*.zip"))

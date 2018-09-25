@@ -50,51 +50,32 @@ namespace DiffRest.Controllers
 
             return versions;
         }
-
-        [Route("GenerateReport")]
-        [HttpGet]
-        public object GenerateReport(string first, string second)
+        
+        private void GenerateReport(string first, string second)
         {
-            if (!first.Equals(second) & !first.Equals("--Select--") & !second.Equals("--Select--"))
-            {
-                First = first;
-                Second = second;
-                Result = (first + "_" + second).Replace('/', '.');
-                if (File.Exists(FolderLocation + Result + "/" + JsonTreeFileName))
-                {
-                    string j = File.ReadAllText(FolderLocation + Result + "/" + JsonTreeFileName);
-                    j = j.Substring(15);
-                    object obj = JsonConvert.DeserializeObject(j);
-                    return obj;
-                }
+            First = first;
+            Second = second;
+            Result = (first + "_" + second).Replace('/', '.');
+                
+            XmlDocument firstXml = new XmlDocument();
+            firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
 
-                XmlDocument firstXml = new XmlDocument();
-                firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
+            XmlDocument secondXml = new XmlDocument();
+            secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
 
-                XmlDocument secondXml = new XmlDocument();
-                secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
+            secondXml = Compare(firstXml, secondXml);
+            secondXml.RemoveChild(secondXml.FirstChild);
 
-                secondXml = Compare(firstXml, secondXml);
-                secondXml.RemoveChild(secondXml.FirstChild);
-
-                Folder folder = AddClass(secondXml);
-
-                string json = "var JsonTree = " + JsonConvert.SerializeObject(folder);
-                File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
-
-                return folder;
-            }
-            else
-            {
-                return null;
-            }
+            string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
+            File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
         }
 
         [Route("LoadFile")]
         [HttpGet]
         public HttpResponseMessage LoadFile(string first, string second)
         {
-            Result = (first + "_" + second).Replace('/', '.');
+            GenerateReport(first, second);
+            
             MakeLocalZip(first, second);
             
             string path = FolderLocation + Result + ".zip";
@@ -108,20 +89,49 @@ namespace DiffRest.Controllers
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             return result;
         }
-        
-        [Route("GetDiffHtml")]
+
+        [Route("DiffColor")]
         [HttpGet]
-        public object GetDiffHtml(string first, string second, string filePath)
+        public string DiffColor(string firstFile, string secondFile)
         {
-            Result = (first + "_" + second).Replace('/', '.');
-            if (File.Exists(FolderLocation + Result + "/REST_DIFF/" + filePath))
+            StringBuilder sb = new StringBuilder();
+
+            string oldText = File.ReadAllText(MetadataRootFolder + firstFile);
+            string newText = File.ReadAllText(MetadataRootFolder + secondFile);
+
+            var d = new Differ();
+            var builder = new InlineDiffBuilder(d);
+            var result = builder.BuildDiffModel(oldText, newText);
+            sb.Append("<html>\n" +
+                "<head>\n" +
+                "<meta charset='UTF-8'>\n" +
+                "<style>\n" +
+                "span { color: gray;  white-space: pre; }\n" +
+                ".deleted { color:black; background-color:red; } \n" +
+                ".new { color:black; background-color:yellow; }\n " +
+                "</style>\n" +
+                "</head>\n" +
+                "<body>\n");
+            foreach (var line in result.Lines)
             {
-                return File.ReadAllText(FolderLocation + Result + "/REST_DIFF/" + filePath);
+                if (line.Type == ChangeType.Inserted)
+                {
+                    sb.Append("<span class='new'>");
+                }
+                else if (line.Type == ChangeType.Deleted)
+                {
+                    sb.Append("<span class='deleted'>");
+                }
+                else if (line.Type == ChangeType.Unchanged)
+                {
+                    sb.Append("<span>");
+                }
+                sb.Append(HttpUtility.HtmlEncode(line.Text) + "</span><br/>\n");
             }
-            else
-            {
-                return null;
-            }
+            sb.Append("</body>\n" +
+                "</html>");
+
+            return sb.ToString();
         }
 
         #region Make zip
@@ -157,22 +167,11 @@ namespace DiffRest.Controllers
 
         private void Delete()
         {
-            string[] filePaths = Directory.GetFiles(FolderLocation + Result);
-            foreach (string filePath in filePaths)
-            {
-                var name = new FileInfo(filePath).Name;
-                if (name != "tree_data.js")
-                {
-                    File.Delete(filePath);
-                }
-            }
-
-
-            string[] directoryPaths = Directory.GetDirectories(FolderLocation + Result);
+            string[] directoryPaths = Directory.GetDirectories(FolderLocation);
             foreach (string directoryPath in directoryPaths)
             {
                 var name = new DirectoryInfo(directoryPath).Name;
-                if (name != "REST_DIFF")
+                if (name != "Site")
                 {
                     Directory.Delete(directoryPath, true);
                 }

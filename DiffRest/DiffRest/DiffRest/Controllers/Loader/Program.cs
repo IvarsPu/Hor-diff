@@ -15,7 +15,7 @@ namespace DiffRest.Controllers
         {
             string rootUrl = WebConfigurationManager.ConnectionStrings["Server"].ConnectionString;
 
-            this.appContext = new Models.AppContext(rootUrl, HomeController.MetadatRootFolder);
+            this.appContext = new Models.AppContext(rootUrl, HomeController.MetadataRootFolder);
 
             // Set the initial log path in root until the version folder is not known
             Logger.LogPath = this.appContext.RootLocalPath;

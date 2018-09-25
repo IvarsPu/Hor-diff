@@ -22,8 +22,8 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        private static string FolderLocation = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["result"].ToString());
-        public static string MetadatRootFolder;
+        public static string FolderLocation;
+        public static string MetadataRootFolder;
         private static string JsonTreeFileName = "tree_data.js";
         private static string HtmlRootFolder = "REST_DIFF";
 
@@ -34,7 +34,7 @@ namespace DiffRest.Controllers
         public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(MetadatRootFolder + "Versions.xml");
+            xml.Load(MetadataRootFolder + "Versions.xml");
 
             IList<HorizonVersion> versions = new List<HorizonVersion>();
 
@@ -69,10 +69,10 @@ namespace DiffRest.Controllers
                 }
 
                 XmlDocument firstXml = new XmlDocument();
-                firstXml.Load(MetadatRootFolder + first + "/metadata.xml");
+                firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
 
                 XmlDocument secondXml = new XmlDocument();
-                secondXml.Load(MetadatRootFolder + second + "/metadata.xml");
+                secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
 
                 secondXml = Compare(firstXml, secondXml);
                 secondXml.RemoveChild(secondXml.FirstChild);
@@ -95,7 +95,7 @@ namespace DiffRest.Controllers
         public HttpResponseMessage LoadFile(string first, string second)
         {
             Result = (first + "_" + second).Replace('/', '.');
-            MakeLocalZip();
+            MakeLocalZip(first, second);
             
             string path = FolderLocation + Result + ".zip";
             HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
@@ -108,8 +108,7 @@ namespace DiffRest.Controllers
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             return result;
         }
-
-        //http://localhost:51458/Home/GetDiffHtml?first=515/3&second=520/1&filePath=Virsgr%C4%81mata/TdmPDok/TdmPDok_wadl.html
+        
         [Route("GetDiffHtml")]
         [HttpGet]
         public object GetDiffHtml(string first, string second, string filePath)
@@ -126,9 +125,14 @@ namespace DiffRest.Controllers
         }
 
         #region Make zip
-        private void MakeLocalZip()
+        private void MakeLocalZip(string first, string second)
         {
             Copy(FolderLocation + "Site", FolderLocation + Result);
+
+            string[] arrLine = File.ReadAllLines(FolderLocation + Result + "/main.js");
+            arrLine[5 - 1] = "var firstVersion = '" + first + "';";
+            arrLine[6 - 1] = "var firstVersion = '" + second + "';";
+            File.WriteAllLines(FolderLocation + Result + "main.js", arrLine);
 
             string zip = FolderLocation + Result + ".zip";
             foreach (string file in Directory.GetFiles(FolderLocation, "*.zip"))
@@ -237,8 +241,8 @@ namespace DiffRest.Controllers
                 Directory.CreateDirectory(exportFolder);
             }
 
-            string firstFilePath = MetadatRootFolder + First + "/" + filePath + "/" + fileName;
-            string secondFilePath = MetadatRootFolder + Second + "/" + filePath + "/" + fileName;
+            string firstFilePath = MetadataRootFolder + First + "/" + filePath + "/" + fileName;
+            string secondFilePath = MetadataRootFolder + Second + "/" + filePath + "/" + fileName;
 
             string htmlFileName = fileName.Replace('.', '_') + ".html";
             string htmlFilePath = exportFolder + "/" + htmlFileName;
@@ -394,10 +398,10 @@ namespace DiffRest.Controllers
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(MetadatRootFolder + oldRelease + "/metadata.xml");//old file
+            xml.Load(MetadataRootFolder + oldRelease + "/metadata.xml");//old file
             Dictionary<string, Service> services = GetServices(xml);
 
-            xml.Load(MetadatRootFolder + newRelease + "/metadata.xml");//new file
+            xml.Load(MetadataRootFolder + newRelease + "/metadata.xml");//new file
             return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 

@@ -1,20 +1,15 @@
-
+﻿
 var TreeExtraClasses = {ServiceType : "service_ok", ServiceChanged: "service_changed", ServiceDeleted: "service_deleted", ServiceNew: "service_new", ServiceError: "service_error",
 						DocumentType : "doc_ok", DocumentChanged: "doc_changed", DocumentDeleted: "doc_deleted", DocumentNew: "doc_new", DocumentError: "doc_error" };
 
-var Version1 = "515.13";
-var Version2 = "515.21";
-var VersionText1 = { data : "", receivedOK : false};
-var VersionText2 = { data : "", receivedOK : false};
-var isTreeLoaded = false;
-var JsonVersion1 = { data : "", receivedOK : false};
-var JsonVersion2 = { data : "", receivedOK : false};
+
+
 var selectedId = 0;
 
 
 $(document).ready(function() {
-	$("#Version1").empty();
-	$("#Version2").empty();
+	$("#Version1").append("<option value=" + firstVersion + ">" + firstVersion + "</option>");
+	$("#Version2").append("<option value=" + secondVersion + ">" + secondVersion + "</option>");
 	
 
 	$("#expand_tree").click(function() {
@@ -112,18 +107,16 @@ $(document).ready(function() {
 		elmnts[selectedId].scrollIntoView( true );
 	});
 
-	function setDivSize() {
-		var divTop = $('#change_panel').position().top  + $('#diff_frame').position().top; 
-		var newHeight = $(window).height() - divTop - 30;
-		
-		$('#diff_frame').height(newHeight);
-		$('#tree').height(newHeight - 35);	
-	}
-	
 	setDivSize(); 
 });
 
-
+function setDivSize() {
+	var divTop = $('#change_panel').position().top  + $('#diff_frame').position().top; 
+	var newHeight = $(window).height() - divTop - 30;
+	
+	$('#diff_frame').height(newHeight);
+	$('#tree').height(newHeight - 35);	
+}
 
 function setChangeStatus(treeNode) 
 {

@@ -17,8 +17,10 @@ namespace DiffRest
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            ProfileController.path = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["profileInfo"].ToString());
-            HomeController.MetadatRootFolder = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["infoLocation"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
+
+            ProfileController.path = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["profileInfo"].ToString());
+            HomeController.MetadataRootFolder = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
+            HomeController.FolderLocation = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["result"].ToString());
         }
     }
 }

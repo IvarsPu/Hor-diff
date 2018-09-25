@@ -52,34 +52,22 @@ namespace DiffRest.Controllers
             return versions;
         }
         
-        private void GenerateReport(string first, string second)
-        {
-            First = first;
-            Second = second;
-            Result = (first + "_" + second).Replace('/', '.');
-                
-            XmlDocument firstXml = new XmlDocument();
-            firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
-
-            XmlDocument secondXml = new XmlDocument();
-            secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
-
-            secondXml = Compare(firstXml, secondXml);
-            secondXml.RemoveChild(secondXml.FirstChild);
-
-            string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
-            File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
-        }
-
         [Route("LoadFile")]
         [HttpGet]
         public HttpResponseMessage LoadFile(string first, string second)
         {
-            GenerateReport(first, second);
-            
-            MakeLocalZip(first, second);
-            
+            First = first;
+            Second = second;
+            Result = (first + "_" + second).Replace('/', '.');
+
             string path = FolderLocation + Result + ".zip";
+            if (!File.Exists(path))
+            {
+                GenerateReport(first, second);
+            
+                MakeLocalZip(first, second);
+            }
+            
             HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             result.Content = new StreamContent(stream);
@@ -323,6 +311,21 @@ namespace DiffRest.Controllers
         #endregion
 
         #region compare
+        private void GenerateReport(string first, string second)
+        {
+            XmlDocument firstXml = new XmlDocument();
+            firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
+
+            XmlDocument secondXml = new XmlDocument();
+            secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
+
+            secondXml = Compare(firstXml, secondXml);
+            secondXml.RemoveChild(secondXml.FirstChild);
+
+            string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
+            File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
+        }
+
         private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
         {
             foreach (XmlNode node in firstXml.SelectNodes("//service/*[count(child::*) = 0]"))

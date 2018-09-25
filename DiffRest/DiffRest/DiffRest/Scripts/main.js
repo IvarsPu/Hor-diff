@@ -24,7 +24,7 @@ $(document).ready(function () {
 
     $('#download').click(function () {
         if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
-                && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
+            && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
             window.location = "http://localhost:51458/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val();
         }
     });

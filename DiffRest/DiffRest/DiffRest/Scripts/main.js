@@ -13,12 +13,12 @@ $(document).ready(function () {
     loadVersionsAjax();
 
     $("#Version1").change(function () {
-        var url = "../test_place/MetadataLocalFolder/" + $("#Version1 option:selected").val() + "/metadata.xml";
+        var url = "http://localhost:51458/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion1);		
     });
 
     $("#Version2").change(function () {
-        var url = "../test_place/MetadataLocalFolder/" + $("#Version2 option:selected").val() + "/metadata.xml";
+        var url = "http://localhost:51458/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion2);
     });
 
@@ -508,8 +508,6 @@ function getFileAjax(path, datatype, ResultObject) {
 
         type: "GET",
 
-        dataType: datatype,
-
         /**
          * A function to be called if the request fails. 
          */
@@ -526,6 +524,9 @@ function getFileAjax(path, datatype, ResultObject) {
          * A function to be called if the request succeeds.
          */
         success: function (data, textStatus, jqXHR) {
+            var parser = new DOMParser();
+            data = parser.parseFromString(data, "text/xml");
+
             ResultObject.receivedOK = true;
             if (datatype == "json") {
                 ResultObject.data = data;

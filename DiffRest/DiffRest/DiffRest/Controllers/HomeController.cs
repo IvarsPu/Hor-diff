@@ -16,6 +16,7 @@ using DiffPlex;
 using DiffPlex.DiffBuilder.Model;
 using System.Web;
 using System;
+using System.Xml.Linq;
 
 namespace DiffRest.Controllers
 {
@@ -132,6 +133,24 @@ namespace DiffRest.Controllers
                 "</html>");
 
             return sb.ToString();
+        }
+
+        [Route("GetFile")]
+        [HttpGet]
+        public string GetFile(string filePath)
+        {
+            try
+            {
+                if (File.Exists(MetadataRootFolder + filePath))
+                {
+                    return File.ReadAllText(MetadataRootFolder + filePath);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         #region Make zip

@@ -23,11 +23,8 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        public static string FolderLocation;
-        public static string MetadataRootFolder;
-        private static string JsonTreeFileName = "tree_data.js";
-        private static string HtmlRootFolder = "REST_DIFF";
-
+        public static string FolderLocation, MetadataRootFolder;
+        private static readonly string JsonTreeFileName = "tree_data.js", HtmlRootFolder = "REST_DIFF";
         private string Result, First, Second;
 
         [Route("GetVersions")]
@@ -411,9 +408,7 @@ namespace DiffRest.Controllers
         }
         #endregion
 
-
-
-        #region Not in use
+        
         [Route("CompareFiles")]
         [HttpGet]
         public IList<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
@@ -584,7 +579,6 @@ namespace DiffRest.Controllers
                 return service;
             }
         }
-        #endregion
         #endregion
     }
 }

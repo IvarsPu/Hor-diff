@@ -13,19 +13,19 @@ $(document).ready(function () {
     loadVersionsAjax();
 
     $("#Version1").change(function () {
-        var url = "http://localhost:51458/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/metadata.xml";
+        var url = "/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion1);		
     });
 
     $("#Version2").change(function () {
-        var url = "http://localhost:51458/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/metadata.xml";
+        var url = "/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion2);
     });
 
     $('#download').click(function () {
         if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
             && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
-            window.location = "http://localhost:51458/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val();
+            window.location = "/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val();
         }
     });
 
@@ -90,7 +90,7 @@ $(document).ready(function () {
     });
 
     $("input[name=search]").keyup(function () {
-        var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
+        $("#tree").fancytree("getTree").applyFilter($(this).val());
     }).focus();
 
     $("#next").click(function () {
@@ -158,7 +158,7 @@ function showLoad() {
 function loadVersionsAjax() {
     showLoad();
     $.ajax({
-        url: 'http://localhost:51458/Home/GetVersions',
+        url: '/Home/GetVersions',
         dataType: 'xml',
         error: function () {
             showPage();
@@ -197,7 +197,7 @@ function PopulateVersionsSelect(id, versionInfo) {
 function GetChanges(file1, file2) {
     showLoad();
     $.ajax({
-        url: "http://localhost:51458/Home/DiffColor?firstFile=" + file1 + "&secondFile=" + file2,
+        url: "/Home/DiffColor?firstFile=" + file1 + "&secondFile=" + file2,
         error: function () {
             showPage();
         },
@@ -214,7 +214,6 @@ function GetChanges(file1, file2) {
 
 
 
-
 function DocumentReceived() {
 
     if (JsonVersion1.receivedOK && JsonVersion2.receivedOK) {
@@ -224,11 +223,8 @@ function DocumentReceived() {
         var radioResult = $('input[name=optradio]:checked').val() - 0;
         if (radioResult === 2) {
             filterModifiedServicesOnly(JsonTree);
-        } else if (radioResult === 3) {
-            filterErrorServicesOnly(JsonTree);
         }
-
-        //$('#tree').fancytree('option', 'source', JsonTree);
+        
         $("#tree").fancytree('getTree').reload(JsonTree);
     }
 }
@@ -266,10 +262,6 @@ function setChangeStatus(treeNode) {
     $("#changeStatus").append(status);
 }
 
-function getNodeRestUrl(treeNode) {
-    return "/rest/" + treeNode.data.parentName + "/" + treeNode.title;
-}
-
 function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {
     var rootContainer = { isError: false };
 
@@ -299,17 +291,6 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     ver1Service.restPath += ver1Service.title;
 
     if (ver1Service.children && ver1Service.title) {
-        //var ver2Service = jsonVer2Array.find(item => item.title === ver1Service.title);
-        //var ver2Service = {}
-
-		/*
-		for(var i=0; i < jsonVer2Array.length; ++i) {
-			var person_i = jsonVer2Array[i];
-			if(jsonVer2Array[i].title == ver1Service.title) {
-				var ver2Service = jsonVer2Array[i];
-				break;
-			}
-		} */
         var ver2Service = FindItemByTitle(jsonVer2Array, ver1Service.title);
 
 
@@ -346,7 +327,6 @@ function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array) {
 
     for (var f = 0; f < jsonVer2Array.length; f++) {
         var ver2ServiceChild = jsonVer2Array[f];
-        //var ver1ServiceChild = jsonVer1Array.find(item => item.title === ver2ServiceChild.title);
 
         var ver1ServiceChild = FindItemByTitle(jsonVer1Array, ver2ServiceChild.title);
 
@@ -362,8 +342,7 @@ function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array) {
 function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, parentWebPath, statusContainer) {
     jsonVer1Doc.restPath = parentRestPath;
     jsonVer1Doc.parentName = parentWebPath;
-
-    //var jsonVer2Doc = jsonVer2DocArray.find(item => item.title === jsonVer1Doc.title);
+    
     var jsonVer2Doc = FindItemByTitle(jsonVer2DocArray, jsonVer1Doc.title);
 
     if (jsonVer1Doc.errorMessage || (jsonVer2Doc && jsonVer2Doc.errorMessage)) {
@@ -433,18 +412,6 @@ function filterModifiedServicesOnly(jsonVer1Array) {
             jsonVer1Array.splice(i, 1);
         } else if (jsonVer1Array[i].children) {
             filterModifiedServicesOnly(jsonVer1Array[i].children);
-        }
-    }
-}
-
-function filterErrorServicesOnly(jsonVer1Array) {
-
-    for (var i = jsonVer1Array.length - 1; i >= 0; i--) {
-
-        if (!jsonVer1Array[i].isError) {
-            jsonVer1Array.splice(i, 1);
-        } else if (jsonVer1Array[i].children) {
-            filterErrorServicesOnly(jsonVer1Array[i].children);
         }
     }
 }
@@ -544,8 +511,7 @@ function getFileAjax(path, datatype, ResultObject) {
 
 function getTreeJsonFromXmlMetadata(xmlMetadata) {
     var json = [];
-
-    //var xmlDoc = $.parseXML(xmlMetadata);    
+ 
     var $xml = $(xmlMetadata);
 
     var rest_api_metadata = $xml.find("rest_api_metadata");
@@ -556,8 +522,7 @@ function getTreeJsonFromXmlMetadata(xmlMetadata) {
             addJsonServiceMetadata($(this), json);
         });
     }
-
-    //console.log(JSON.stringify(json));	
+    
     return json;
 }
 

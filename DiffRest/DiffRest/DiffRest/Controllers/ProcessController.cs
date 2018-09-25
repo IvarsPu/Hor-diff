@@ -24,17 +24,16 @@ namespace DiffRest.Controllers
         
         [HttpGet]
         [Route("StartMetadataLoad")]
-        public int StartMetadataLoad(string version)
+        public int StartMetadataLoad(int version)
         {
             try
             {
                 int processId = 1;
-                int id = Int32.Parse(Session[ProfileController.profileId].ToString());
                 if (Processes.Count > 0)
                 {
                     foreach (Process pr in Processes.Values)
                     {
-                        if (pr.ServerId == id && !pr.Done)
+                        if (pr.ServerId == version && !pr.Done)
                         {
                             return 0;
                         }
@@ -42,7 +41,7 @@ namespace DiffRest.Controllers
                     processId = Processes.Last().Key + 1;
                 }
 
-                Process process = new Process(processId, id, DateTime.Now);
+                Process process = new Process(processId, version, DateTime.Now);
                 Processes.Add(processId, process);
 
                 //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
@@ -61,12 +60,8 @@ namespace DiffRest.Controllers
         {
             try
             {
-                if (Processes[processId].ServerId.ToString().Equals(Session[ProfileController.profileId].ToString()))
-                {
-                    Processes[processId].TokenSource.Cancel();
-                    return "";
-                }
-                return "No access";
+                Processes[processId].TokenSource.Cancel();
+                return "";
             }
             catch
             {

@@ -2,9 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<input type="button" class="btn btn-primary mb-2" value="Remove profile" onclick="removeProfile()" />
-<input type="button" class="btn btn-primary mb-2" value="Update profile" onclick="window.open('/Profile/Update', '_self')" />
-<input type="button" class="btn btn-primary mb-2" value="Log out" onclick="location.replace('/Profile/LogIn', '_self')" style="float: right;"/>
+<input type="button" class="btn btn-primary mb-2" value="Profiles" onclick="window.open('/Profile/Index', '_self')" />
 <br>
 <table id="processTable" class="table table-hover">
     <thead style="background: #dedede;">
@@ -23,7 +21,6 @@
 <input type="text" class="form-control" id="versionId" placeholder="version">
 <input type="button" class="btn btn-primary mb-2" onclick="add()" value="Add">
 <input type="text" class="form-control" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
-<!--<input type="button" value="refresh table" onclick="refreshTable()" />-->
 
 <script>
     //Starts refresh method with selected time period

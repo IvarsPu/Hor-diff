@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DiffRest.Models
+﻿namespace DiffRest.Models
 {
     public class Profile
     {
-        [Required(ErrorMessage = "UserName is required")]
+        public int Id { get; set; }
+        public string Name { get; set; }
         public string Url { get; set; }
-        [Required(ErrorMessage = "Password is required")]
-        [DataType(DataType.Password)]
+        public string Username { get; set; }
         public string Password { get; set; }
     }
 }

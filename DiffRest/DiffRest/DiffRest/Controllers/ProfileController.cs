@@ -120,5 +120,27 @@ namespace DiffRest.Controllers
                 return false;
             }
         }
+        
+        internal static Profile GetProfile(int id)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(path);
+            XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + id + "']");
+            if (node != null)
+            {
+
+                Profile profile = new Profile();
+                profile.Id = Int32.Parse(node.Attributes["ID"].Value);
+                profile.Name = node.Attributes["Name"].Value;
+                profile.Url = node.Attributes["Url"].Value;
+                profile.Username = node.Attributes["Username"].Value;
+                profile.Password = node.Attributes["Password"].Value;
+                return profile;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

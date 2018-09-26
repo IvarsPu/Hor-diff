@@ -14,7 +14,7 @@
     <tbody></tbody>
 </table>
 
-<input type="text" class="form-control" id="versionId" placeholder="versija">
+<input type="text" class="form-control" id="profileId" placeholder="profila ID">
 <input type="button" class="btn btn-primary mb-2" onclick="add()" value="Pievienot">
 <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
 
@@ -69,10 +69,9 @@
 
     //add new process
     function add() {
-        var versionId = $("#versionId").val();
         $.ajax({
             type: "GET",
-            url: '/Process/StartMetadataLoad?version=' + versionId,
+            url: '/Process/StartMetadataLoad?profileId=' + $("#profileId").val(),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
@@ -84,26 +83,7 @@
             },
         });
     }
-
-    //Delete logged in profile
-    function removeProfile() {
-        $.ajax({
-            type: "GET",
-            url: '/Profile/DeleteProfile',
-            success: function (i) {
-                if (i == "True") {
-                    window.open('/Profile/LogIn', '_self');
-                }
-                else {
-                    alert("Doesnt exist!");
-                }
-            },
-            error: function () {
-                alert('fail');
-            }
-        });
-    }
-
+    
     //table row clicked
     $("#processTable tbody").delegate('tr', 'click', function () {
         window.open('/Process/Info?processID=' + $(this).find('td:first').text(), '_self');

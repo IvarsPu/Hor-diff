@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using System.Web.Configuration;
 using System.Xml.Linq;
 using DiffRest.Models;
 using static DiffRest.Models.RestService;
@@ -31,9 +30,7 @@ namespace DiffRest.Controllers
         internal async Task<WebResponse> GetResponseFromSite(string urlPath)
         {
             WebRequest request = WebRequest.Create(urlPath);
-            string login = WebConfigurationManager.ConnectionStrings["Login"].ConnectionString;
-            string password = WebConfigurationManager.ConnectionStrings["Password"].ConnectionString;
-            request.Credentials = new NetworkCredential(login, password);
+            request.Credentials = new NetworkCredential(appContext.Username, appContext.Password);
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             WebResponse response = await request.GetResponseAsync();
 
@@ -414,9 +411,8 @@ namespace DiffRest.Controllers
         private List<HttpClient> GetHttpClients(int count)
         {
             List<HttpClient> httpClients = new List<HttpClient>();
-            string login = WebConfigurationManager.ConnectionStrings["Login"].ConnectionString;
-            string password = WebConfigurationManager.ConnectionStrings["Password"].ConnectionString;
-            var credentials = new NetworkCredential(login, password);
+            Profile profile = ProfileController.GetProfile(ProcessController.Processes[processId].ProfileId);
+            var credentials = new NetworkCredential(appContext.Username, appContext.Password);
             var handler = new HttpClientHandler { Credentials = credentials };
             for (int i = 0; i < count; i++)
             {

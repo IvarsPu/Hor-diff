@@ -13,32 +13,38 @@ namespace DiffRest.Controllers
 
         public void DoTheJob(int processId)
         {
-            string rootUrl = WebConfigurationManager.ConnectionStrings["Server"].ConnectionString;
-
-            this.appContext = new Models.AppContext(rootUrl, HomeController.MetadataRootFolder);
-
-            // Set the initial log path in root until the version folder is not known
-            Logger.LogPath = this.appContext.RootLocalPath;
-            
-            // ServiceLoadState serviceState = this.LoadRestServiceTestState();
-            ServiceLoadState serviceState = this.LoadRestServiceLoadState(processId);
-            
-            //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
-            //serviceState.CalcStatistics();
-            int remainingServiceCount = 0;
-            Logger.LogPath = this.appContext.ReleaseLocalPath;
-
-            ProcessController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
-
-            while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
+            try
             {
-                remainingServiceCount = serviceState.PendingLoadServices;
-                serviceState = this.LoadRestServiceMetadata(serviceState);
-                serviceState.Services = this.GetPendingServices(serviceState.Services);
-                serviceState.CalcStatistics();
+                Profile profile = ProfileController.GetProfile(ProcessController.Processes[processId].ProfileId);
+                this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, HomeController.MetadataRootFolder);
+
+                // Set the initial log path in root until the version folder is not known
+                Logger.LogPath = this.appContext.RootLocalPath;
+
+                // ServiceLoadState serviceState = this.LoadRestServiceTestState();
+                ServiceLoadState serviceState = this.LoadRestServiceLoadState(processId);
+
+                //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
+                //serviceState.CalcStatistics();
+                int remainingServiceCount = 0;
+                Logger.LogPath = this.appContext.ReleaseLocalPath;
+
+                ProcessController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
+
+                while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
+                {
+                    remainingServiceCount = serviceState.PendingLoadServices;
+                    serviceState = this.LoadRestServiceMetadata(serviceState);
+                    serviceState.Services = this.GetPendingServices(serviceState.Services);
+                    serviceState.CalcStatistics();
+                }
+
+                this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
             }
-            
-            this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
+            catch
+            {
+
+            }
         }
 
         private ServiceLoadState LoadRestServiceLoadState(int processId)

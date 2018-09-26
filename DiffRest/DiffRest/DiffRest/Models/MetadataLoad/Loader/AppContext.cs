@@ -7,13 +7,19 @@ namespace DiffRest.Models
 {
     internal class AppContext
     {
-        public AppContext(string rootUrl, string rootLocalPath)
+        public AppContext(string rootUrl, string username, string password, string rootLocalPath)
         {
             this.RootUrl = rootUrl;
+            this.Username = username;
+            this.Password = password;
             this.RootLocalPath = rootLocalPath;
         }
 
         public string RootUrl { get; set; }
+
+        public string Username { get; set; }
+
+        public string Password { get; set; }
 
         public string RootLocalPath { get; set; }
 

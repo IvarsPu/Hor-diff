@@ -24,16 +24,16 @@ namespace DiffRest.Controllers
         
         [HttpGet]
         [Route("StartMetadataLoad")]
-        public int StartMetadataLoad(int version)
+        public int StartMetadataLoad(int profileId)
         {
             try
             {
                 int processId = 1;
                 if (Processes.Count > 0)
                 {
-                    foreach (Process pr in Processes.Values)
+                    foreach (Process processValue in Processes.Values)
                     {
-                        if (pr.ServerId == version && !pr.Done)
+                        if (processValue.ProfileId == profileId && !processValue.Done)
                         {
                             return 0;
                         }
@@ -41,10 +41,10 @@ namespace DiffRest.Controllers
                     processId = Processes.Last().Key + 1;
                 }
 
-                Process process = new Process(processId, version, DateTime.Now);
+                Process process = new Process(processId, profileId, DateTime.Now);
                 Processes.Add(processId, process);
 
-                //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId), process.Token);
+                System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId), process.Token);
 
                 return processId;
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Web.Configuration;
 using DiffRest.Models;
 using static DiffRest.Models.RestService;
 
@@ -56,10 +55,10 @@ namespace DiffRest.Controllers
                 Logger.LogInfo("Getting REST service structure");
 
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
-                ProcessController.Processes[processId].Version = appContext.Version;
-                ProcessController.Processes[processId].Release = appContext.Release;
                 this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
+                ProcessController.Processes[processId].Version = appContext.Version;
+                ProcessController.Processes[processId].Release = appContext.Release;
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
                 

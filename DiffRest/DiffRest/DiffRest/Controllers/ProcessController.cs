@@ -28,25 +28,30 @@ namespace DiffRest.Controllers
         {
             try
             {
-                int processId = 1;
-                if (Processes.Count > 0)
+                if (ProfileController.GetProfile(profileId) != null)
                 {
-                    foreach (Process processValue in Processes.Values)
+
+                    int processId = 1;
+                    if (Processes.Count > 0)
                     {
-                        if (processValue.ProfileId == profileId && !processValue.Done)
+                        foreach (Process processValue in Processes.Values)
                         {
-                            return 0;
+                            if (processValue.ProfileId == profileId && !processValue.Done)
+                            {
+                                return 0;
+                            }
                         }
+                        processId = Processes.Last().Key + 1;
                     }
-                    processId = Processes.Last().Key + 1;
+
+                    Process process = new Process(processId, profileId, DateTime.Now);
+                    Processes.Add(processId, process);
+
+                    System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
+
+                    return processId;
                 }
-
-                Process process = new Process(processId, profileId, DateTime.Now);
-                Processes.Add(processId, process);
-
-                System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId), process.Token);
-
-                return processId;
+                return 0;
             }
             catch
             {

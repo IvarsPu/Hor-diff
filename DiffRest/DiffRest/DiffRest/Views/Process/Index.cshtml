@@ -60,9 +60,6 @@
                         "</tr> ";
                 }
                 $("#processTable tbody").html(htmlText)
-            },
-            error: function () {
-                alert('fail');
             }
         });
     }
@@ -77,10 +74,7 @@
             success: function () {
                 $("#versionId").val("");
                 refreshTable();
-            },
-            error: function () {
-                alert('fail');
-            },
+            }
         });
     }
     

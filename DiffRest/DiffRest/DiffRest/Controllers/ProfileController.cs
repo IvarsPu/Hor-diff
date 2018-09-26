@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Xml;
 using DiffRest.Models;
@@ -16,35 +15,7 @@ namespace DiffRest.Controllers
         {
             return View();
         }
-
-        [HttpGet]
-        [Route("GetProfiles")]
-        public List<Profile> GetProfiles()
-        {
-            XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(path))
-            {
-                doc.Load(path);
-                List<Profile> profiles = new List<Profile>();
-                foreach (XmlNode node in doc.SelectNodes("//Profile"))
-                {
-                    try
-                    {
-                        Profile profile = new Profile();
-                        profile.Id = Int32.Parse(node.Attributes["ID"].Value);
-                        profile.Name = node.Attributes["Name"].Value;
-                        profile.Url = node.Attributes["Url"].Value;
-                        profile.Username = node.Attributes["Username"].Value;
-                        profile.Password = node.Attributes["Password"].Value;
-                        profiles.Add(profile);
-                    }
-                    catch { }
-                }
-                return profiles;
-            }
-            return null;
-        }
-
+        
         [HttpGet]
         [Route("CreateProfile")]
         public int CreateProfile(string name, string url, string username, string password)
@@ -53,7 +24,7 @@ namespace DiffRest.Controllers
             if (System.IO.File.Exists(path))
             {
                 doc.Load(path);
-                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null)
+                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null || doc.SelectSingleNode("//Profiles/Profile[@Username='" + username + "']") != null)
                 {
                     return 0;
                 }
@@ -127,8 +98,10 @@ namespace DiffRest.Controllers
             XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + id + "']");
             if (node != null)
             {
-                if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 2) ||
-                    (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 1))
+                if (((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 2) ||
+                    (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 1)) &&
+                    ((node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Profiles/Profile[@Username='" + username + "']").Count < 2) ||
+                    (!node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Profiles/Profile[@Username='" + username + "']").Count < 1)))
                 {
                     node.Attributes["Name"].Value = name;
                     node.Attributes["Url"].Value = url;

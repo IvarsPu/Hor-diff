@@ -1,6 +1,7 @@
 ﻿<input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process/Index', '_self')" />
+<input type="button" class="btn btn-primary mb-2" value="Atsvaidzināt tabulu" onclick="refreshTable()" style="float: right;" />
 
-<table class="table table-hover">
+<table id="profileTable" class="table table-hover">
     <thead style="background: #dedede;">
         <tr>
             <td scope="col"><p>Id</p></td>
@@ -11,25 +12,111 @@
             <td scope="col"><p>Darbība</p></td>
         </tr>
     </thead>
-    <tbody>
-        <tr>
-            <td scope="col"><p>1</p></td>
-            <td scope="col"><input type="text" class="form-control" value="515 versija" style="width: 100%;"></td>
-            <td scope="col"><input type="text" class="form-control" value="https://github.com/IvarsPu/Hor-diff" style="width: 100%;"></td>
-            <td scope="col"><input type="text" class="form-control" value="test" style="width: 100%;"></td>
-            <td scope="col"><input type="password" class="form-control" value="123" style="width: 100%;"></td>
-            <td scope="col"><input type="button" class="btn" value="Saglabāt" style="width: 50%; background-color: #20bd08; color: white;"><input type="button" class="btn" value="Dzēst" style="width: 50%; background-color: #b21010; color: white;"></td>
-        </tr>
-    </tbody>
+    <tbody></tbody>
     <tfoot>
         <tr>
-            <td scope="col"><p></p></td>
-            <td scope="col"><input type="text" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="text" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="text" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="password" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="button" class="btn" value="Izveidot" style="width: 100%; background-color: #20bd08; color: white;"></td>
+            <td scope="col"></td>
+            <td scope="col"><input type="text" name="name" class="form-control" style="width: 100%;"></td>
+            <td scope="col"><input type="text" name="url" class="form-control" style="width: 100%;"></td>
+            <td scope="col"><input type="text" name="username" class="form-control" style="width: 100%;"></td>
+            <td scope="col"><input type="password" name="password" class="form-control" style="width: 100%;"></td>
+            <td scope="col"><input type="button" id="createButton" class="btn" value="Izveidot" style="width: 100%; background-color: #20bd08; color: white;"></td>
         </tr>
     </tfoot>
 </table>
 
+<script>
+    $(document).ready(function () {
+        refreshTable();
+
+        $("#createButton").click(function () {
+            var row = $("#profileTable tfoot tr:last");
+            $.ajax({
+                type: "GET",
+                url: '/Profile/CreateProfile?name=' + row.find('[name=name]').val() +
+                    '&url=' + row.find('[name=url]').val() +
+                    '&username=' + row.find('[name=username]').val() +
+                    '&password=' + row.find('[name=password]').val(),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data != 0) {
+                        refreshTable();
+                        row.find('[name=name]').val("")
+                        row.find('[name=url]').val("")
+                        row.find('[name=username]').val("")
+                        row.find('[name=password]').val("")
+                    }
+                    else {
+                        alert('error')
+                    }
+                },
+                error: function () {
+                    alert('fail');
+                }
+            });
+        });
+    });
+
+    //refreshes table
+    function refreshTable() {
+        $.ajax({
+            type: "GET",
+            url: '/Metadata/GetProfiles',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var htmlText = "";
+                for (var i = 0; i < data.length; i++) {
+                    htmlText += "<tr>" +
+                        "<td scope='col'><p name='id'>" + data[i].Id + "</p></td>" +
+                        "<td scope='col'><input type='text' name='name' class='form-control' value='" + data[i].Name + "' style='width: 100%;'/></td>" +
+                        "<td scope='col'><input type='text' name='url' class='form-control' value='" + data[i].Url + "' style='width: 100%;'/></td>" +
+                        "<td scope='col'><input type='text' name='username' class='form-control' value='" + data[i].Username + "' style='width: 100%;'/></td>" +
+                        "<td scope='col'><input type='password' name='password' class='form-control' value='" + data[i].Password + "' style='width: 100%;'/></td>" +
+                        "<td scope='col'><input type='button' class='btn' value='Saglabāt' onclick='saveRow(this);' style='width: 50%; background-color: #20bd08; color: white;'/><input type='button' class='btn' value='Dzēst' onclick='deleteRow(this);' style='width: 50%; background-color: #b21010; color: white;'/></td>" +
+                        "</tr> ";
+                }
+                $("#profileTable tbody").html(htmlText)
+            },
+            error: function () {
+                alert('fail');
+            }
+        });
+    }
+
+    //deletes profile
+    function deleteRow(btn) {
+        if (typeof (btn) == "object") {
+            $.ajax({
+                type: "GET",
+                url: '/Profile/DeleteProfile?id=' + $(btn).closest("tr").find('[name=id]').text(),
+                success: function (data) {
+                    if (data == "True") {
+                        refreshTable();
+                    }
+                }
+            });
+        }
+    }
+
+    //saves changes
+    function saveRow(btn) {
+        if (typeof (btn) == "object") {
+            var row = $(btn).closest("tr");
+            $.ajax({
+                type: "GET",
+                url: '/Profile/UpdateProfile?id=' + row.find('[name=id]').text() +
+                    '&name=' + row.find('[name = name]').val() +
+                    '&url=' + row.find('[name=url]').val() +
+                    '&username=' + row.find('[name=username]').val() +
+                    '&password=' + row.find('[name=password]').val(),
+                success: function (data) {
+                    if (data == "True") {
+                        refreshTable();
+                    }
+                }
+            });
+        }
+    }
+</script>

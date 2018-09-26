@@ -212,7 +212,7 @@
     <Compile Include="Controllers\ChangeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Loader\Logger.cs" />
-    <Compile Include="Controllers\Loader\MetadataController.cs" />
+    <Compile Include="Controllers\MetadataController.cs" />
     <Compile Include="Controllers\Loader\Program.cs" />
     <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
     <Compile Include="Controllers\Loader\XmlIO.cs" />
@@ -350,9 +350,6 @@
     <Content Include="Views\Change\Index.cshtml" />
     <Content Include="Views\Process\Index.cshtml" />
     <Content Include="Views\Process\Info.cshtml" />
-    <Content Include="Views\Profile\Create.cshtml" />
-    <Content Include="Views\Profile\LogIn.cshtml" />
-    <Content Include="Views\Profile\Update.cshtml" />
     <Content Include="Views\Profile\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>

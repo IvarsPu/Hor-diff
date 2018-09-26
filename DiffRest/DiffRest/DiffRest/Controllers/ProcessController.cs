@@ -44,7 +44,7 @@ namespace DiffRest.Controllers
                 Process process = new Process(processId, version, DateTime.Now);
                 Processes.Add(processId, process);
 
-                //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
+                //System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId), process.Token);
 
                 return processId;
             }

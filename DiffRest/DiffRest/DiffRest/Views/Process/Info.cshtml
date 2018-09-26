@@ -87,14 +87,14 @@
             @Html.DisplayFor(modelItem => process.Status.Failed)
         </dd>
 
-        @if (process != null && !process.Done && process.ServerId.ToString().Equals(Session[DiffRest.Controllers.ProfileController.profileId].ToString()))
+        @if (process != null && !process.Done)
         {
             <dt>
                 Process Action
             </dt>
 
             <dd>
-                <input type="button" value="Stop" onclick="stop(@process.Id)">
+                <input type="button" class="btn btn-primary mb-2" value="Stop" onclick="stop(@process.Id)">
             </dd>
         }
     </dl>

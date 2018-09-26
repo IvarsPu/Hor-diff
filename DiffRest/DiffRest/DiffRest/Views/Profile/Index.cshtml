@@ -1,4 +1,4 @@
-﻿<input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process/Index', '_self')" />
+﻿<input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process', '_self')" />
 <input type="button" class="btn btn-primary mb-2" value="Atsvaidzināt tabulu" onclick="refreshTable()" style="float: right;" />
 
 <table id="profileTable" class="table table-hover">
@@ -16,10 +16,10 @@
     <tfoot>
         <tr>
             <td scope="col"></td>
-            <td scope="col"><input type="text" name="name" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="text" name="url" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="text" name="username" class="form-control" style="width: 100%;"></td>
-            <td scope="col"><input type="password" name="password" class="form-control" style="width: 100%;"></td>
+            <td scope="col"><input type="text" name="name" class="form-control" placeholder="nosaukums" style="width: 100%;"></td>
+            <td scope="col"><input type="text" name="url" class="form-control" placeholder="resursu adrese" style="width: 100%;"></td>
+            <td scope="col"><input type="text" name="username" class="form-control" placeholder="lietotāj vārds" style="width: 100%;"></td>
+            <td scope="col"><input type="password" name="password" class="form-control" placeholder="parole" style="width: 100%;"></td>
             <td scope="col"><input type="button" id="createButton" class="btn" value="Izveidot" style="width: 100%; background-color: #20bd08; color: white;"></td>
         </tr>
     </tfoot>

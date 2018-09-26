@@ -1,22 +1,22 @@
-﻿<input type="button" class="btn btn-primary mb-2" value="Profiles" onclick="window.open('/Profile/Index', '_self')" />
+﻿<input type="button" class="btn btn-primary mb-2" value="Profili" onclick="window.open('/Profile', '_self')" />
 <br>
 <table id="processTable" class="table table-hover">
     <thead style="background: #dedede;">
         <tr>
             <td style='display: none;' scope="col"><p>Id</p></td>
-            <td scope="col"><p>Start time</p></td>
-            <td scope="col"><p>Version</p></td>
-            <td scope="col"><p>Release</p></td>
+            <td scope="col"><p>Sākuma laiks</p></td>
+            <td scope="col"><p>Versija</p></td>
+            <td scope="col"><p>Laidiens</p></td>
             <td scope="col"><p>Progress</p></td>
-            <td scope="col"><p>Status text</p></td>
+            <td scope="col"><p>Statusa teksts</p></td>
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
-<input type="text" class="form-control" id="versionId" placeholder="version">
-<input type="button" class="btn btn-primary mb-2" onclick="add()" value="Add">
-<input type="text" class="form-control" id="nrOfRows" value="10" onchange="refreshTable()" style="float: right;" />
+<input type="text" class="form-control" id="versionId" placeholder="versija">
+<input type="button" class="btn btn-primary mb-2" onclick="add()" value="Pievienot">
+<input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
 
 <script>
     //Starts refresh method with selected time period
@@ -32,9 +32,16 @@
 
     //refreshes table
     function refreshTable() {
+        var path;
+        if ($("#nrOfRows").val() == "" || isNaN($("#nrOfRows").val())) {
+            path = '/Metadata/GetProcessList';
+        }
+        else {
+            path = '/Metadata/GetProcessList?noOfProcesses=' + $("#nrOfRows").val();
+        }
         $.ajax({
             type: "GET",
-            url: '/Metadata/GetProcessList?noOfProcesses=' + $("#nrOfRows").val(),
+            url: path,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

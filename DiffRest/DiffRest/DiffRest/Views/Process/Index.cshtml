@@ -34,10 +34,10 @@
     function refreshTable() {
         var path;
         if ($("#nrOfRows").val() == "" || isNaN($("#nrOfRows").val())) {
-            path = '/Metadata/GetProcessList';
+            path = '/List/GetProcessList';
         }
         else {
-            path = '/Metadata/GetProcessList?noOfProcesses=' + $("#nrOfRows").val();
+            path = '/List/GetProcessList?noOfProcesses=' + $("#nrOfRows").val();
         }
         $.ajax({
             type: "GET",
@@ -72,7 +72,7 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                $("#versionId").val("");
+                $("#profileId").val("");
                 refreshTable();
             }
         });

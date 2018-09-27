@@ -47,12 +47,6 @@
                         row.find('[name=username]').val("")
                         row.find('[name=password]').val("")
                     }
-                    else {
-                        alert('error')
-                    }
-                },
-                error: function () {
-                    alert('fail');
                 }
             });
         });
@@ -62,7 +56,7 @@
     function refreshTable() {
         $.ajax({
             type: "GET",
-            url: '/Metadata/GetProfiles',
+            url: '/List/GetProfiles',
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

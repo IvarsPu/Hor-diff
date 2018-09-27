@@ -68,11 +68,6 @@ namespace DiffRest.Controllers
                 {
                     Logger.LogInfo("Have found previous service load state");
                     this.LogState(savedState);
-                    //savedState = this.AskForUsingLoadState(savedState);
-                }
-
-                if (savedState != null)
-                {
                     loadState = savedState;
                 }
 

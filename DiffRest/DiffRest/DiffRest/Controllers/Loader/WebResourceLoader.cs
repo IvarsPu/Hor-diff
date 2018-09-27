@@ -115,6 +115,7 @@ namespace DiffRest.Controllers
                 process.Done = true;
                 Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
                 Logger.LogError(ex.StackTrace);
+                process.Token.ThrowIfCancellationRequested();//
             }
 
             return services;

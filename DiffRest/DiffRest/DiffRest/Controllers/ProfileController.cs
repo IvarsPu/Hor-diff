@@ -9,7 +9,6 @@ namespace DiffRest.Controllers
     public class ProfileController : Controller
     {
         public static string path;
-        public static string profileId = "profileId";
 
         public ActionResult Index()
         {
@@ -24,7 +23,7 @@ namespace DiffRest.Controllers
             if (System.IO.File.Exists(path))
             {
                 doc.Load(path);
-                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null || doc.SelectSingleNode("//Profiles/Profile[@Username='" + username + "']") != null)
+                if (doc.SelectSingleNode("//Profiles/Profile[@Url='" + url + "']") != null)
                 {
                     return 0;
                 }
@@ -98,10 +97,8 @@ namespace DiffRest.Controllers
             XmlNode node = doc.SelectSingleNode("//Profiles/Profile[@ID='" + id + "']");
             if (node != null)
             {
-                if (((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 2) ||
-                    (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 1)) &&
-                    ((node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Profiles/Profile[@Username='" + username + "']").Count < 2) ||
-                    (!node.Attributes["Username"].Value.Equals(username) && doc.SelectNodes("//Profiles/Profile[@Username='" + username + "']").Count < 1)))
+                if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 2) ||
+                    (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//Profiles/Profile[@Url='" + url + "']").Count < 1))
                 {
                     node.Attributes["Name"].Value = name;
                     node.Attributes["Url"].Value = url;

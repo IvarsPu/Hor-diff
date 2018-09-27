@@ -80,9 +80,18 @@ namespace DiffRest.Controllers
         public string DiffColor(string firstFile, string secondFile)
         {
             StringBuilder sb = new StringBuilder();
+            
+            string oldText = "";
+            if (File.Exists(MetadataRootFolder + firstFile))
+            {
+                oldText = File.ReadAllText(MetadataRootFolder + firstFile);
+            }
 
-            string oldText = File.ReadAllText(MetadataRootFolder + firstFile);
-            string newText = File.ReadAllText(MetadataRootFolder + secondFile);
+            string newText = "";
+            if (File.Exists(MetadataRootFolder + secondFile))
+            {
+                newText = File.ReadAllText(MetadataRootFolder + secondFile);
+            }
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
@@ -374,6 +383,7 @@ namespace DiffRest.Controllers
                     }
                 }
             }
+
             //Remove unmodified attachments
             foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))
             {
@@ -390,11 +400,13 @@ namespace DiffRest.Controllers
             {
                 node.ParentNode.RemoveChild(node);
             }
+
             //Remove unmodified service parent groups
             foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
             {
                 node.ParentNode.RemoveChild(node);
             }
+
             return firstXml;
         }
 

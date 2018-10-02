@@ -364,25 +364,25 @@ namespace DiffRest.Controllers
 
 
             //The same for attachments
-            foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
-            {
-                string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
-                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
-                if (child != null)
-                {
-                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
-                        || child.Attributes["hashCode"].Value.Equals("-1")
-                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
-                    {
-                        //not changed
-                        node.ParentNode.RemoveChild(node);
-                    }
-                    else
-                    {
-                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
-                    }
-                }
-            }
+            //foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
+            //{
+            //    string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
+            //    XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+            //    if (child != null)
+            //    {
+            //        if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+            //            || child.Attributes["hashCode"].Value.Equals("-1")
+            //            || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+            //        {
+            //            //not changed
+            //            node.ParentNode.RemoveChild(node);
+            //        }
+            //        else
+            //        {
+            //            AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
+            //        }
+            //    }
+            //}
 
             //Remove unmodified attachments
             foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))

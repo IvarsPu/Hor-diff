@@ -1,5 +1,8 @@
-﻿<input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process', '_self')" />
-<input type="button" class="btn btn-primary mb-2" value="Atsvaidzināt tabulu" onclick="refreshTable()" style="float: right;" />
+﻿<div id="page" style="text-align: center;">
+    <input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process', '_self')" style="float: left;" />
+    <input type="button" class="btn btn-primary mb-2" value="Atsvaidzināt tabulu" onclick="refreshTable()" style="float: right;" />
+    <p id="message" style="color: red;"></p>
+</div>
 
 <table id="profileTable" class="table table-hover">
     <thead style="background: #dedede;">
@@ -47,6 +50,12 @@
                         row.find('[name=username]').val("")
                         row.find('[name=password]').val("")
                     }
+                    else {
+                        $("#message").text("Rest URL jau eksistē");
+                    }
+                },
+                error: function () {
+                    $("#message").text("Kļūda Veidojot profilu");
                 }
             });
         });
@@ -74,7 +83,7 @@
                 $("#profileTable tbody").html(htmlText)
             },
             error: function () {
-                alert('fail');
+                $("#message").text("Kļūda iegūstot profilus");
             }
         });
     }
@@ -85,10 +94,11 @@
             $.ajax({
                 type: "GET",
                 url: '/Profile/DeleteProfile?id=' + $(btn).closest("tr").find('[name=id]').text(),
-                success: function (data) {
-                    if (data == "True") {
-                        refreshTable();
-                    }
+                success: function () {
+                    refreshTable();
+                },
+                error: function () {
+                    $("#message").text("Kļūda dzēšot profilu");
                 }
             });
         }
@@ -105,10 +115,11 @@
                     '&url=' + row.find('[name=url]').val() +
                     '&username=' + row.find('[name=username]').val() +
                     '&password=' + row.find('[name=password]').val(),
-                success: function (data) {
-                    if (data == "True") {
-                        refreshTable();
-                    }
+                success: function () {
+                    refreshTable();
+                },
+                error: function () {
+                    $("#message").text("Kļūda atjaunojot profilu");
                 }
             });
         }

@@ -22,56 +22,36 @@ namespace DiffRest.Controllers
             return View();
         }
         
-        [HttpGet]
         [Route("StartMetadataLoad")]
-        public int StartMetadataLoad(int profileId)
+        public void StartMetadataLoad(int profileId)
         {
-            try
+            if (ProfileController.GetProfile(profileId) != null)
             {
-                if (ProfileController.GetProfile(profileId) != null)
+
+                int processId = 1;
+                if (Processes.Count > 0)
                 {
-
-                    int processId = 1;
-                    if (Processes.Count > 0)
+                    foreach (Process processValue in Processes.Values)
                     {
-                        foreach (Process processValue in Processes.Values)
+                        if (processValue.ProfileId == profileId && !processValue.Done)
                         {
-                            if (processValue.ProfileId == profileId && !processValue.Done)
-                            {
-                                return 0;
-                            }
+                            throw new Exception();
                         }
-                        processId = Processes.Last().Key + 1;
                     }
-
-                    Process process = new Process(processId, profileId, DateTime.Now);
-                    Processes.Add(processId, process);
-
-                    System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
-
-                    return processId;
+                    processId = Processes.Last().Key + 1;
                 }
-                return 0;
-            }
-            catch
-            {
-                return 0;
+
+                Process process = new Process(processId, profileId, DateTime.Now);
+                Processes.Add(processId, process);
+
+                System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
             }
         }
         
-        [HttpGet]
         [Route("StopProcess")]
-        public string StopProcess(int processId)
+        public void StopProcess(int processId)
         {
-            try
-            {
-                Processes[processId].TokenSource.Cancel();
-                return "";
-            }
-            catch
-            {
-                return "Element doesnt exist";
-            }
+            Processes[processId].TokenSource.Cancel();
             //if (processes.Remove(processId)) do we need to clean dictionary?
         }
     }

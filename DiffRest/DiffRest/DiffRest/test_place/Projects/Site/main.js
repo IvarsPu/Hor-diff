@@ -68,7 +68,7 @@ $(document).ready(function() {
 		}});
 		
 	$("input[name=search]").keyup(function(){
-		var n = $("#tree").fancytree("getTree").applyFilter($(this).val());
+		var n = $("#tree").fancytree("getTree").filterBranches($(this).val());
 	}).focus();
 	
 	$("#next").click(function() {

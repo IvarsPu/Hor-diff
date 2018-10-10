@@ -90,7 +90,7 @@ $(document).ready(function () {
     });
 
     $("input[name=search]").keyup(function () {
-        $("#tree").fancytree("getTree").applyFilter($(this).val());
+        $("#tree").fancytree("getTree").filterBranches($(this).val());
     }).focus();
 
     $("#next").click(function () {
@@ -158,7 +158,7 @@ function showLoad() {
 function loadVersionsAjax() {
     showLoad();
     $.ajax({
-        url: '/Home/GetVersions',
+        url: '/Home/GetVersions/',
         dataType: 'xml',
         error: function () {
             showPage();

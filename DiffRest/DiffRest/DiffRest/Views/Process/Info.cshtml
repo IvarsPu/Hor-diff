@@ -101,21 +101,21 @@
 </div>
 
 <script>
+    //rest servisi
+    //savākt metadatus poga un nolikt lapas augšā
+    //kluda savacot
+    //jautat vai pārlādēt (skatoties versions.xml)
+
     //Stops Metadata Load
     function stop(id) {
         $.ajax({
             type: "GET",
             url: '/Process/StopProcess?processId=' + id,
-            success: function (data) {
-                if (data == "") {
-                    window.open('/Process', '_self');
-                }
-                else {
-                    alert(data);
-                }
+            success: function () {
+                window.open('/Process', '_self');
             },
             error: function () {
-                alert('fail');
+                alert("Kļūda apturot procesu");
             }
         });
     }

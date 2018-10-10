@@ -31,9 +31,11 @@ namespace DiffRest
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css",
+                      "~/Content/Site.css",
                       "~/Content/bootstrap-theme.min.css",
                       "~/Content/skin-win8/ui.fancytree.css"));
+
+            BundleTable.EnableOptimizations = false;
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿<input type="button" class="btn btn-primary mb-2" value="Profili" onclick="window.open('/Profile', '_self')" />
+﻿<div id="page" style="text-align: center;">
+    <input type="button" class="btn btn-primary mb-2" value="Profili" onclick="window.open('/Profile', '_self')" style="float: left;"/> 
+    <p id="message" style="color: red;"></p>
+</div>
+
 <br>
 <table id="processTable" class="table table-hover">
     <thead style="background: #dedede;">
@@ -60,6 +64,9 @@
                         "</tr> ";
                 }
                 $("#processTable tbody").html(htmlText)
+            },
+            error: function () {
+                $("#message").text("Kļūda iegūstot procesus");
             }
         });
     }
@@ -74,6 +81,9 @@
             success: function () {
                 $("#profileId").val("");
                 refreshTable();
+            },
+            error: function() {
+                $("#message").text("Kļūda pievinojot procesu");
             }
         });
     }

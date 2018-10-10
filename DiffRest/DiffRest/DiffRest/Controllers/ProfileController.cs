@@ -71,7 +71,7 @@ namespace DiffRest.Controllers
 
         [HttpGet]
         [Route("DeleteProfile")]
-        public bool DeleteProfile(int id)
+        public void DeleteProfile(int id)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
@@ -80,17 +80,12 @@ namespace DiffRest.Controllers
             {
                 node.ParentNode.RemoveChild(node);
                 doc.Save(path);
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
         
         [HttpGet]
         [Route("UpdateProfile")]
-        public bool UpdateProfile(int id, string name, string url, string username, string password)
+        public void UpdateProfile(int id, string name, string url, string username, string password)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
@@ -105,16 +100,7 @@ namespace DiffRest.Controllers
                     node.Attributes["Username"].Value = username;
                     node.Attributes["Password"].Value = password;
                     doc.Save(path);
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
             }
         }
         

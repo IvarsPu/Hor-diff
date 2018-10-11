@@ -211,7 +211,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ChangeController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Loader\Logger.cs" />
     <Compile Include="Controllers\ListController.cs" />
     <Compile Include="Controllers\Loader\Program.cs" />

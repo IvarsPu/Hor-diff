@@ -33,7 +33,7 @@ namespace DiffRest.Controllers
             request.Credentials = new NetworkCredential(appContext.Username, appContext.Password);
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             WebResponse response = await request.GetResponseAsync();
-
+             
             return response;
         }
 

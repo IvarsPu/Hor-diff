@@ -4,19 +4,21 @@
     <thead style="background: #dedede;">
         <tr>
             <td scope="col"><p>Versija</p></td>
-            <td scope="col"><p>Laidiens</p></td>
+            <td scope="col"><p>Laidieni</p></td>
         </tr>
     </thead>
     <tbody>
         @foreach (DiffRest.Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
         {
-            foreach (DiffRest.Models.HorizonRelease release in version.ReleaseList)
-            {
-                <tr>
-                    <td scope="col"><p>@version.Version</p></td>
-                    <td scope="col"><p>@release.Release</p></td>
-                </tr>
-            }
+        <tr>
+            <td scope="col"><p>@version.Version</p></td>
+            <td scope="col">
+                <p>
+                    @{string releases = string.Join(", ", version.ReleaseList.Select(c => c.Release));}
+                    @releases
+                </p>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
@@ -108,15 +110,12 @@
             success: function () {
                 $("#metadataServiceId").val("");
                 refreshTable();
-            },
-            error: function () {
-                $("#message").text("Kļūda pievinojot procesu");
             }
         });
     }
 
     //table row clicked
-    $("#RESTMetadata tbody").delegate('tr', 'click', function () {
+    $("#RESTMetadataTable tbody").delegate('tr', 'click', function () {
         window.open('/RESTMetadata/Info?processID=' + $(this).find('td:first').text(), '_self');
     });
 </script>

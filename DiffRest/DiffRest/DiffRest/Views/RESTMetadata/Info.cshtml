@@ -1,4 +1,4 @@
-﻿@model DiffRest.Models.Procetadata
+﻿@model DiffRest.Models.Process
 
 <div>
     <h3>REST Metadata</h3>
@@ -101,9 +101,9 @@
     function stop(id) {
         $.ajax({
             type: "GET",
-            url: '/Process/StopProcess?processId=' + id,
+            url: '/RESTMetadata/StopProcess?processId=' + id,
             success: function () {
-                window.open('/Process', '_self');
+                window.open('/RESTMetadata', '_self');
             },
             error: function () {
                 alert("Kļūda apturot procesu");

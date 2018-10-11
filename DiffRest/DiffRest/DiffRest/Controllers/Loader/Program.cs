@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 using DiffRest.Models;
 using static DiffRest.Models.RestService;
 
@@ -40,10 +41,7 @@ namespace DiffRest.Controllers
 
                 this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
             }
-            catch
-            {
-
-            }
+            catch{}
         }
 
         private ServiceLoadState LoadRestServiceLoadState(int processId)
@@ -68,7 +66,7 @@ namespace DiffRest.Controllers
                 {
                     Logger.LogInfo("Have found previous service load state");
                     this.LogState(savedState);
-                    savedState = this.AskForUsingLoadState(savedState);
+                    //savedState = this.AskForUsingLoadState(savedState);
                 }
 
                 if (savedState != null)
@@ -117,20 +115,6 @@ namespace DiffRest.Controllers
             Logger.LogInfo("Loaded with errors: " + loadState.LoadedWithErrors);
             Logger.LogInfo("Failed: " + loadState.Failed);
             Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
-        }
-        
-        private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
-        {
-            ServiceLoadState result = loadState;
-            Console.WriteLine("Press y to continue load or any other key to start new load:");
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
-
-            if (keyInfo.KeyChar != 'y')
-            {
-                result = null;
-            }
-
-            return null;
         }
 
         private List<RestService> GetPendingServices(List<RestService> services)

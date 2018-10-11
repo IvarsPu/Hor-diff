@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Xml;
 using DiffRest.Models;
 
 namespace DiffRest.Controllers
@@ -21,7 +22,6 @@ namespace DiffRest.Controllers
         {
             if (MetadataServiceController.GetMetadataService(metadataServiceId) != null)
             {
-
                 int processId = 1;
                 if (Processes.Count > 0)
                 {
@@ -37,7 +37,7 @@ namespace DiffRest.Controllers
 
                 Process process = new Process(processId, metadataServiceId, DateTime.Now);
                 Processes.Add(processId, process);
-
+                
                 System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
             }
             else
@@ -46,6 +46,27 @@ namespace DiffRest.Controllers
             }
         }
 
+        public bool AlreadyExists(int processId)
+        {
+            MetadataService profile = MetadataServiceController.GetMetadataService(Processes[processId].MetadataServiceId);
+            Models.AppContext appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, HomeController.MetadataRootFolder);
+            Logger.LogPath = appContext.RootLocalPath;
+            XmlMetadata xmlMetadata = new XmlMetadata(appContext);
+            WebResourceLoader webResourceLoader = new WebResourceLoader(appContext, xmlMetadata, processId);
+            xmlMetadata.InitServiceMetadata(webResourceLoader);
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(HomeController.MetadataRootFolder + "Versions.xml");
+            XmlNode node = doc.SelectSingleNode("//version[@name='" + appContext.Version + "']/release[@name='" + appContext.Release + "']");
+            if (node != null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         public ActionResult Info(int processId)
         {

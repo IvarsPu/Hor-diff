@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Xml.Linq;
 
-namespace DiffRest.Models
+namespace Models
 {
-    internal class XmlFile
+    public class XmlFile
     {
         public XmlFile(string serviceName, string url, string localPath, string filename, bool attachment = false)
         {
@@ -40,7 +40,7 @@ namespace DiffRest.Models
             }
         }
 
-        internal void LoadLocalFile()
+        public void LoadLocalFile()
         {
             this.XDocument = XDocument.Load(this.LocalPath + this.Filename, LoadOptions.None);
             this.HttpResponse = this.XDocument.ToString();

@@ -211,28 +211,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ChangeController.cs" />
-    <Compile Include="Controllers\Loader\Logger.cs" />
     <Compile Include="Controllers\ListController.cs" />
-    <Compile Include="Controllers\Loader\Program.cs" />
-    <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
-    <Compile Include="Controllers\Loader\XmlIO.cs" />
-    <Compile Include="Controllers\Loader\XmlMetadata.cs" />
     <Compile Include="Controllers\RESTMetadataController.cs" />
     <Compile Include="Controllers\MetadataServiceController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\HorizonREST\HorizonRelease.cs" />
-    <Compile Include="Models\HorizonREST\HorizonVersion.cs" />
-    <Compile Include="Models\DiffJson\JsonClasses.cs" />
-    <Compile Include="Models\DiffObjects\Resource.cs" />
-    <Compile Include="Models\DiffObjects\Service.cs" />
-    <Compile Include="Models\MetadataLoad\Loader\AppContext.cs" />
-    <Compile Include="Models\MetadataLoad\Loader\RestService.cs" />
-    <Compile Include="Models\MetadataLoad\Loader\ServiceLoadState.cs" />
-    <Compile Include="Models\MetadataLoad\Loader\XmlFile.cs" />
-    <Compile Include="Models\MetadataLoad\Process.cs" />
-    <Compile Include="Models\MetadataLoad\MetadataService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -357,6 +341,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -368,6 +353,16 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj">
+      <Project>{9ebc1e47-052f-4d68-b9f3-1f74a7cc35e4}</Project>
+      <Name>BusinessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Models\Models.csproj">
+      <Project>{2ace06d6-54c5-4317-a27c-aa096b7f9dd4}</Project>
+      <Name>Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

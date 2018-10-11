@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Web.Mvc;
 using System.Xml;
-using DiffRest.Models;
+using Models;
 
 namespace DiffRest.Controllers
 {
     [RoutePrefix("MetadataService")]
     public class MetadataServiceController : Controller
     {
-        public static string path;
-
         public ActionResult Index()
         {
             return View(new ListController().GetMetadataServices());
@@ -25,9 +23,9 @@ namespace DiffRest.Controllers
         public ActionResult Create([Bind(Include= "Name,Url,Username,Password")] MetadataService service)
         {
             XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(path))
+            if (System.IO.File.Exists(AppInfo.path))
             {
-                doc.Load(path);
+                doc.Load(AppInfo.path);
                 if (doc.SelectSingleNode("//MetadataServices/MetadataService[@Url='" + service.Url + "']") != null)
                 {
                     return View();
@@ -70,7 +68,7 @@ namespace DiffRest.Controllers
             metadataServiceNodes.AppendChild(metadataServiceNode);
             #endregion
 
-            doc.Save(path);
+            doc.Save(AppInfo.path);
             return RedirectToAction("Index", "MetadataService", new { });
         }
         #endregion
@@ -79,12 +77,12 @@ namespace DiffRest.Controllers
         public ActionResult Delete(int id)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(path);
+            doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
             if (node != null)
             {
                 node.ParentNode.RemoveChild(node);
-                doc.Save(path);
+                doc.Save(AppInfo.path);
             }
             return RedirectToAction("Index", "MetadataService", new { });
         }
@@ -101,7 +99,7 @@ namespace DiffRest.Controllers
         {
 
             XmlDocument doc = new XmlDocument();
-            doc.Load(path);
+            doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + service.Id + "']");
             if (node != null)
             {
@@ -112,7 +110,7 @@ namespace DiffRest.Controllers
                     node.Attributes["Url"].Value = service.Url;
                     node.Attributes["Username"].Value = service.Username;
                     node.Attributes["Password"].Value = service.Password;
-                    doc.Save(path);
+                    doc.Save(AppInfo.path);
                     return RedirectToAction("Index", "MetadataService", new { });
                 }
             }
@@ -123,7 +121,7 @@ namespace DiffRest.Controllers
         internal static MetadataService GetMetadataService(int id)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(path);
+            doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
             if (node != null)
             {

@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using static DiffRest.Models.RestService;
+using static Models.RestService;
 
-namespace DiffRest.Models
+namespace Models
 {
     [Serializable]
-    internal class ServiceLoadState
+    public class ServiceLoadState
     {
-        internal List<RestService> Services { get; set; }
+        public List<RestService> Services { get; set; }
 
-        internal int NotLoaded { get; set; } = 0;
+        public int NotLoaded { get; set; } = 0;
 
-        internal int Loaded { get; set; } = 0;
+        public int Loaded { get; set; } = 0;
 
-        internal int LoadedWithErrors { get; set; } = 0;
+        public int LoadedWithErrors { get; set; } = 0;
 
-        internal int Failed { get; set; } = 0;
+        public int Failed { get; set; } = 0;
 
-        internal int PendingLoadServices
+        public int PendingLoadServices
         {
 
             get
@@ -26,7 +26,7 @@ namespace DiffRest.Models
             }
         }
 
-        internal void CalcStatistics()
+        public void CalcStatistics()
         {
             this.NotLoaded = 0;
             this.Loaded = 0;

@@ -1,4 +1,4 @@
 <MetadataServices>
   <MetadataService ID="1" Name="525 versija" Url="http://intensweb003:85/rest/" Username="demo" Password="demo" />
-  <MetadataService ID="2" Name="ert" Url="werk" Username="qwre" Password="dsfg" />
+  <MetadataService ID="2" Name="ert" Url="werk." Username="qwre" Password="dsfg" />
 </MetadataServices>

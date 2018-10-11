@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace DiffRest.Models
+namespace Models
 {
     [Serializable]
     [DataContract(Name = "HorizonVersion")]
@@ -20,5 +20,18 @@ namespace DiffRest.Models
 
         [DataMember(Name = "ReleaseList")]
         public List<HorizonRelease> ReleaseList { get; set; } = new List<HorizonRelease>();
+    }
+
+    [Serializable]
+    [DataContract(Name = "HorizonRelease")]
+    public class HorizonRelease
+    {
+        public HorizonRelease(string release)
+        {
+            Release = release;
+        }
+
+        [DataMember(Name = "Release")]
+        public string Release { get; set; } = string.Empty;
     }
 }

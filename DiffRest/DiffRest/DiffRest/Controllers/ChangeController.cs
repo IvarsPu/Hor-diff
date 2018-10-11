@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
-using DiffRest.Models;
+using Models;
 using System.Web.Http;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -30,8 +30,6 @@ namespace DiffRest.Controllers
     [RoutePrefix("Home")]
     public class HomeController : ApiController
     {
-        public static string FolderLocation, MetadataRootFolder;
-        private static readonly string JsonTreeFileName = "tree_data.js", HtmlRootFolder = "REST_DIFF";
         private string Result, First, Second;
 
         [Route("GetVersions")]
@@ -39,7 +37,7 @@ namespace DiffRest.Controllers
         public IList<HorizonVersion> GetVersions()
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(MetadataRootFolder + "Versions.xml");
+            xml.Load(AppInfo.MetadataRootFolder + "Versions.xml");
 
             IList<HorizonVersion> versions = new List<HorizonVersion>();
 
@@ -64,7 +62,7 @@ namespace DiffRest.Controllers
             Second = second;
             Result = (first + "_" + second).Replace('/', '.');
 
-            string path = FolderLocation + Result + ".zip";
+            string path = AppInfo.FolderLocation + Result + ".zip";
             if (!File.Exists(path))
             {
                 GenerateReport(first, second);
@@ -90,15 +88,15 @@ namespace DiffRest.Controllers
             StringBuilder sb = new StringBuilder();
 
             string oldText = "";
-            if (File.Exists(MetadataRootFolder + firstFile))
+            if (File.Exists(AppInfo.MetadataRootFolder + firstFile))
             {
-                oldText = File.ReadAllText(MetadataRootFolder + firstFile);
+                oldText = File.ReadAllText(AppInfo.MetadataRootFolder + firstFile);
             }
 
             string newText = "";
-            if (File.Exists(MetadataRootFolder + secondFile))
+            if (File.Exists(AppInfo.MetadataRootFolder + secondFile))
             {
-                newText = File.ReadAllText(MetadataRootFolder + secondFile);
+                newText = File.ReadAllText(AppInfo.MetadataRootFolder + secondFile);
             }
 
             var d = new Differ();
@@ -142,9 +140,9 @@ namespace DiffRest.Controllers
         {
             try
             {
-                if (File.Exists(MetadataRootFolder + filePath))
+                if (File.Exists(AppInfo.MetadataRootFolder + filePath))
                 {
-                    return File.ReadAllText(MetadataRootFolder + filePath);
+                    return File.ReadAllText(AppInfo.MetadataRootFolder + filePath);
                 }
                 return null;
             }
@@ -157,19 +155,19 @@ namespace DiffRest.Controllers
         #region Make zip
         private void MakeLocalZip(string first, string second)
         {
-            Copy(FolderLocation + "Site", FolderLocation + Result);
+            Copy(AppInfo.FolderLocation + "Site", AppInfo.FolderLocation + Result);
 
-            string[] arrLine = File.ReadAllLines(FolderLocation + Result + "/main.js");
+            string[] arrLine = File.ReadAllLines(AppInfo.FolderLocation + Result + "/main.js");
             arrLine[5 - 1] = "var firstVersion = '" + first + "';";
             arrLine[6 - 1] = "var secondVersion = '" + second + "';";
-            File.WriteAllLines(FolderLocation + Result + "/main.js", arrLine);
+            File.WriteAllLines(AppInfo.FolderLocation + Result + "/main.js", arrLine);
 
-            string zip = FolderLocation + Result + ".zip";
-            foreach (string file in Directory.GetFiles(FolderLocation, "*.zip"))
+            string zip = AppInfo.FolderLocation + Result + ".zip";
+            foreach (string file in Directory.GetFiles(AppInfo.FolderLocation, "*.zip"))
             {
                 File.Delete(file);
             }
-            ZipFile.CreateFromDirectory(FolderLocation + Result, zip);
+            ZipFile.CreateFromDirectory(AppInfo.FolderLocation + Result, zip);
 
             Delete();
         }
@@ -187,7 +185,7 @@ namespace DiffRest.Controllers
 
         private void Delete()
         {
-            string[] directoryPaths = Directory.GetDirectories(FolderLocation);
+            string[] directoryPaths = Directory.GetDirectories(AppInfo.FolderLocation);
             foreach (string directoryPath in directoryPaths)
             {
                 var name = new DirectoryInfo(directoryPath).Name;
@@ -254,14 +252,14 @@ namespace DiffRest.Controllers
                 fileNode = fileNode.ParentNode;
             } while (!fileNode.Name.Equals("rest_api_metadata"));
 
-            string exportFolder = FolderLocation + Result + "/" + HtmlRootFolder + "/" + filePath;
+            string exportFolder = AppInfo.FolderLocation + Result + "/" + AppInfo.HtmlRootFolder + "/" + filePath;
             if (!Directory.Exists(exportFolder))
             {
                 Directory.CreateDirectory(exportFolder);
             }
 
-            string firstFilePath = MetadataRootFolder + First + "/" + filePath + "/" + fileName;
-            string secondFilePath = MetadataRootFolder + Second + "/" + filePath + "/" + fileName;
+            string firstFilePath = AppInfo.MetadataRootFolder + First + "/" + filePath + "/" + fileName;
+            string secondFilePath = AppInfo.MetadataRootFolder + Second + "/" + filePath + "/" + fileName;
 
             string htmlFileName = fileName.Replace('.', '_') + ".html";
             string htmlFilePath = exportFolder + "/" + htmlFileName;
@@ -327,16 +325,16 @@ namespace DiffRest.Controllers
         private void GenerateReport(string first, string second)
         {
             XmlDocument firstXml = new XmlDocument();
-            firstXml.Load(MetadataRootFolder + first + "/metadata.xml");
+            firstXml.Load(AppInfo.MetadataRootFolder + first + "/metadata.xml");
 
             XmlDocument secondXml = new XmlDocument();
-            secondXml.Load(MetadataRootFolder + second + "/metadata.xml");
+            secondXml.Load(AppInfo.MetadataRootFolder + second + "/metadata.xml");
 
             secondXml = Compare(firstXml, secondXml);
             secondXml.RemoveChild(secondXml.FirstChild);
 
             string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
-            File.WriteAllText(FolderLocation + Result + "/" + JsonTreeFileName, json);
+            File.WriteAllText(AppInfo.FolderLocation + Result + "/" + AppInfo.JsonTreeFileName, json);
         }
 
         private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
@@ -372,25 +370,25 @@ namespace DiffRest.Controllers
 
 
             //The same for attachments
-            //foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
-            //{
-            //    string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
-            //    XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
-            //    if (child != null)
-            //    {
-            //        if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
-            //            || child.Attributes["hashCode"].Value.Equals("-1")
-            //            || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
-            //        {
-            //            //not changed
-            //            node.ParentNode.RemoveChild(node);
-            //        }
-            //        else
-            //        {
-            //            AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
-            //        }
-            //    }
-            //}
+            foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
+            {
+                string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                if (child != null)
+                {
+                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
+                        || child.Attributes["hashCode"].Value.Equals("-1")
+                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+                    {
+                        //not changed
+                        node.ParentNode.RemoveChild(node);
+                    }
+                    else
+                    {
+                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
+                    }
+                }
+            }
 
             //Remove unmodified attachments
             foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))

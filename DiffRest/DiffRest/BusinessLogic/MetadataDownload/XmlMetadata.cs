@@ -6,10 +6,10 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
-using DiffRest.Models;
-using AppContext = DiffRest.Models.AppContext;
+using Models;
+using AppContext = Models.AppContext;
 
-namespace DiffRest.Controllers
+namespace BusinessLogic
 {
     internal class XmlMetadata
     {

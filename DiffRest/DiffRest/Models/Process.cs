@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 
-namespace DiffRest.Models
+namespace Models
 {
     [Serializable]
     [DataContract(Name = "REST Metadata")]
@@ -14,7 +15,7 @@ namespace DiffRest.Models
             Id = metadataId;
             MetadataServiceId = metadataServiceId;
             StartTime = startTime;
-            
+
             Token = TokenSource.Token;
         }
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
-using DiffRest.Models;
-using static DiffRest.Models.RestService;
+using Models;
+using static Models.RestService;
 
-namespace DiffRest.Controllers
+namespace BusinessLogic
 {
-    internal class Program
+    public class Program
     {
         private Models.AppContext appContext;
         private WebResourceLoader webResourceLoader;
@@ -15,8 +16,8 @@ namespace DiffRest.Controllers
         {
             try
             {
-                MetadataService profile = MetadataServiceController.GetMetadataService(RESTMetadataController.Processes[processId].MetadataServiceId);
-                this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, HomeController.MetadataRootFolder);
+                MetadataService profile = GetMetadataService(AppInfo.Processes[processId].MetadataServiceId);
+                this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known
                 Logger.LogPath = this.appContext.RootLocalPath;
@@ -29,7 +30,7 @@ namespace DiffRest.Controllers
                 int remainingServiceCount = 0;
                 Logger.LogPath = this.appContext.ReleaseLocalPath;
 
-                RESTMetadataController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
+                AppInfo.Processes[processId].Status.Total = serviceState.PendingLoadServices;
 
                 while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
                 {
@@ -41,7 +42,13 @@ namespace DiffRest.Controllers
 
                 this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
             }
-            catch{}
+            catch
+            {
+                Process process = AppInfo.Processes[processId];
+                process.EndTime = DateTime.Now;
+                process.Status.Text = "Stopped";
+                process.Done = true;
+            }
         }
 
         private ServiceLoadState LoadRestServiceLoadState(int processId)
@@ -55,8 +62,8 @@ namespace DiffRest.Controllers
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
                 this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
-                RESTMetadataController.Processes[processId].Version = appContext.Version;
-                RESTMetadataController.Processes[processId].Release = appContext.Release;
+                AppInfo.Processes[processId].Version = appContext.Version;
+                AppInfo.Processes[processId].Release = appContext.Release;
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
                 
@@ -66,12 +73,7 @@ namespace DiffRest.Controllers
                 {
                     Logger.LogInfo("Have found previous service load state");
                     this.LogState(savedState);
-                    //savedState = this.AskForUsingLoadState(savedState);
-                }
-
-                if (savedState != null)
-                {
-                    loadState = savedState;
+                    loadState = savedState;// this.AskForUsingLoadState(savedState);
                 }
 
                 loadState.CalcStatistics();
@@ -85,6 +87,20 @@ namespace DiffRest.Controllers
             return loadState;
         }
 
+        //private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
+        //{
+        //    ServiceLoadState result = loadState;
+        //    Console.WriteLine("Press y to continue load or any other key to start new load:");
+        //    ConsoleKeyInfo keyInfo = Console.ReadKey();
+
+        //    if (keyInfo.KeyChar != 'y')
+        //    {
+        //        result = null;
+        //    }
+
+        //    return result;
+        //}
+        
         private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
         {
             List<RestService> services = loadState.Services;
@@ -130,6 +146,28 @@ namespace DiffRest.Controllers
             }
 
             return result;
+        }
+
+        private static MetadataService GetMetadataService(int id)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(AppInfo.path);
+            XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
+            if (node != null)
+            {
+
+                MetadataService metadataService = new MetadataService();
+                metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
+                metadataService.Name = node.Attributes["Name"].Value;
+                metadataService.Url = node.Attributes["Url"].Value;
+                metadataService.Username = node.Attributes["Username"].Value;
+                metadataService.Password = node.Attributes["Password"].Value;
+                return metadataService;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

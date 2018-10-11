@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace DiffRest.Models
+namespace Models
 {
     [Serializable]
-    internal class RestService
+    public class RestService
     {
         [Serializable]
-        internal enum ServiceLoadStatus
+        public enum ServiceLoadStatus
         {
             NotLoaded,
             Loaded,

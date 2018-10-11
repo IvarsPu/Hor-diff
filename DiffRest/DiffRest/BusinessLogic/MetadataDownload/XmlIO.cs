@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Linq;
-using DiffRest.Models;
+using Models;
 
-namespace DiffRest.Controllers
+namespace BusinessLogic
 {
     internal class XmlIO
     {

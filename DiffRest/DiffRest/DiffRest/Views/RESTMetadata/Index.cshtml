@@ -1,4 +1,11 @@
-﻿<div>
+﻿<div style="text-align: center; overflow: auto;">
+    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
+    <p id="message" style="color: red;"></p>
+</div>
+
+<br>
+
+<div>
 <h3>Saraksts ar esošajām versijām un laidieniem</h3>
 <table class="table table-hover" style="width: 25%; border:solid;">
     <thead style="background: #dedede;">
@@ -8,7 +15,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (DiffRest.Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
+        @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
         {
         <tr>
             <td scope="col"><p>@version.Version</p></td>
@@ -22,11 +29,6 @@
         }
     </tbody>
 </table>
-</div>
-
-<div style="text-align: center; overflow: auto;">
-    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
-    <p id="message" style="color: red;"></p>
 </div>
 
 <br>

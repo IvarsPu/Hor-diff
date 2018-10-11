@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Xml;
-using DiffRest.Models;
+using Models;
 
 namespace DiffRest.Controllers
 {
@@ -15,7 +15,7 @@ namespace DiffRest.Controllers
         public List<Process> GetRESTMetadataList(int noOfProcesses = 10)
         {
             List<Process> processList = new List<Process>();
-            foreach (KeyValuePair<int, Process> pair in RESTMetadataController.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
+            foreach (KeyValuePair<int, Process> pair in AppInfo.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
             {
                 processList.Add(pair.Value);
             }
@@ -27,9 +27,9 @@ namespace DiffRest.Controllers
         public List<MetadataService> GetMetadataServices()
         {
             XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(MetadataServiceController.path))
+            if (System.IO.File.Exists(AppInfo.path))
             {
-                doc.Load(MetadataServiceController.path);
+                doc.Load(AppInfo.path);
                 List<MetadataService> metadataServices = new List<MetadataService>();
                 foreach (XmlNode node in doc.SelectNodes("//MetadataService"))
                 {
@@ -55,10 +55,10 @@ namespace DiffRest.Controllers
         public List<Service> CompareFiles(string oldRelease, string newRelease, bool noChange = false, bool added = true, bool ignoreNamespaceChanges = false)
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(HomeController.MetadataRootFolder + oldRelease + "/metadata.xml");//old file
+            xml.Load(AppInfo.MetadataRootFolder + oldRelease + "/metadata.xml");//old file
             Dictionary<string, Service> services = GetServices(xml);
 
-            xml.Load(HomeController.MetadataRootFolder + newRelease + "/metadata.xml");//new file
+            xml.Load(AppInfo.MetadataRootFolder + newRelease + "/metadata.xml");//new file
             return CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 

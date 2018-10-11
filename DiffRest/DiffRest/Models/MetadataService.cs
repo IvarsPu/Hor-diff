@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace DiffRest.Models
+namespace Models
 {
     [Serializable]
     [DataContract(Name = "MetadataService")]

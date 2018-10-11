@@ -8,10 +8,10 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using DiffRest.Models;
-using static DiffRest.Models.RestService;
+using Models;
+using static Models.RestService;
 
-namespace DiffRest.Controllers
+namespace BusinessLogic
 {
     internal class WebResourceLoader
     {
@@ -55,7 +55,7 @@ namespace DiffRest.Controllers
                 "TdmDimObjBL"
             };
 
-            Process process = RESTMetadataController.Processes[processId];
+            Process process = AppInfo.Processes[processId];
             try
             {
                 process.Status.Text = "Running";
@@ -110,12 +110,9 @@ namespace DiffRest.Controllers
             }
             catch (Exception ex)
             {
-                process.EndTime = DateTime.Now;
-                process.Status.Text = "Stopped";
-                process.Done = true;
                 Logger.LogError("LoadServiceMetadata failed with error: " + ex.Message);
                 Logger.LogError(ex.StackTrace);
-                process.Token.ThrowIfCancellationRequested();//
+                process.Token.ThrowIfCancellationRequested();
             }
 
             return services;
@@ -232,7 +229,7 @@ namespace DiffRest.Controllers
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
 
-            Status status = RESTMetadataController.Processes[processId].Status;
+            Status status = AppInfo.Processes[processId].Status;
 
             try
             {
@@ -412,7 +409,6 @@ namespace DiffRest.Controllers
         private List<HttpClient> GetHttpClients(int count)
         {
             List<HttpClient> httpClients = new List<HttpClient>();
-            MetadataService profile = MetadataServiceController.GetMetadataService(RESTMetadataController.Processes[processId].MetadataServiceId);
             var credentials = new NetworkCredential(appContext.Username, appContext.Password);
             var handler = new HttpClientHandler { Credentials = credentials };
             for (int i = 0; i < count; i++)

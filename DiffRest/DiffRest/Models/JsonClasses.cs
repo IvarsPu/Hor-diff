@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace DiffRest.Models
+namespace Models
 {
     public interface IElement { }
 

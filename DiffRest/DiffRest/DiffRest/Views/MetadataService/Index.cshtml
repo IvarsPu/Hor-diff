@@ -4,7 +4,7 @@
     <p id="message" style="color: red;"></p>
 </div>
 
-<table id="profileTable" class="table table-hover">
+<table id="MetadataServiceTable" class="table table-hover">
     <thead style="background: #dedede;">
         <tr>
             <td scope="col"><p>Id</p></td>
@@ -33,10 +33,10 @@
         refreshTable();
 
         $("#createButton").click(function () {
-            var row = $("#profileTable tfoot tr:last");
+            var row = $("#MetadataServiceTable tfoot tr:last");
             $.ajax({
                 type: "GET",
-                url: '/Profile/CreateProfile?name=' + row.find('[name=name]').val() +
+                url: '/MetadataService/CreateMetadataService?name=' + row.find('[name=name]').val() +
                     '&url=' + row.find('[name=url]').val() +
                     '&username=' + row.find('[name=username]').val() +
                     '&password=' + row.find('[name=password]').val(),
@@ -55,7 +55,7 @@
                     }
                 },
                 error: function () {
-                    $("#message").text("Kļūda Veidojot profilu");
+                    $("#message").text("Kļūda Veidojot servisu");
                 }
             });
         });
@@ -65,7 +65,7 @@
     function refreshTable() {
         $.ajax({
             type: "GET",
-            url: '/List/GetProfiles',
+            url: '/List/GetMetadataServices',
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -80,25 +80,25 @@
                         "<td scope='col'><input type='button' class='btn' value='Saglabāt' onclick='saveRow(this);' style='width: 50%; background-color: #20bd08; color: white;'/><input type='button' class='btn' value='Dzēst' onclick='deleteRow(this);' style='width: 50%; background-color: #b21010; color: white;'/></td>" +
                         "</tr> ";
                 }
-                $("#profileTable tbody").html(htmlText)
+                $("#MetadataServiceTable tbody").html(htmlText)
             },
             error: function () {
-                $("#message").text("Kļūda iegūstot profilus");
+                $("#message").text("Kļūda iegūstot servisus");
             }
         });
     }
 
-    //deletes profile
+    //deletes metadata service
     function deleteRow(btn) {
         if (typeof (btn) == "object") {
             $.ajax({
                 type: "GET",
-                url: '/Profile/DeleteProfile?id=' + $(btn).closest("tr").find('[name=id]').text(),
+                url: '/MetadataService/DeleteMetadataService?id=' + $(btn).closest("tr").find('[name=id]').text(),
                 success: function () {
                     refreshTable();
                 },
                 error: function () {
-                    $("#message").text("Kļūda dzēšot profilu");
+                    $("#message").text("Kļūda dzēšot servisu");
                 }
             });
         }
@@ -110,7 +110,7 @@
             var row = $(btn).closest("tr");
             $.ajax({
                 type: "GET",
-                url: '/Profile/UpdateProfile?id=' + row.find('[name=id]').text() +
+                url: '/MetadataService/UpdateMetadataService?id=' + row.find('[name=id]').text() +
                     '&name=' + row.find('[name = name]').val() +
                     '&url=' + row.find('[name=url]').val() +
                     '&username=' + row.find('[name=username]').val() +
@@ -119,7 +119,7 @@
                     refreshTable();
                 },
                 error: function () {
-                    $("#message").text("Kļūda atjaunojot profilu");
+                    $("#message").text("Kļūda atjaunojot servisu");
                 }
             });
         }

@@ -219,7 +219,7 @@
     <Compile Include="Controllers\Loader\XmlIO.cs" />
     <Compile Include="Controllers\Loader\XmlMetadata.cs" />
     <Compile Include="Controllers\ProcessController.cs" />
-    <Compile Include="Controllers\ProfileController.cs" />
+    <Compile Include="Controllers\MetadataServiceController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -233,7 +233,7 @@
     <Compile Include="Models\MetadataLoad\Loader\ServiceLoadState.cs" />
     <Compile Include="Models\MetadataLoad\Loader\XmlFile.cs" />
     <Compile Include="Models\MetadataLoad\Process.cs" />
-    <Compile Include="Models\MetadataLoad\Profile.cs" />
+    <Compile Include="Models\MetadataLoad\MetadataService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -352,7 +352,7 @@
     <Content Include="Views\Change\Index.cshtml" />
     <Content Include="Views\Process\Index.cshtml" />
     <Content Include="Views\Process\Info.cshtml" />
-    <Content Include="Views\Profile\Index.cshtml" />
+    <Content Include="Views\MetadataService\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

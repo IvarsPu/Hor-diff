@@ -412,7 +412,7 @@ namespace DiffRest.Controllers
         private List<HttpClient> GetHttpClients(int count)
         {
             List<HttpClient> httpClients = new List<HttpClient>();
-            Profile profile = ProfileController.GetProfile(ProcessController.Processes[processId].ProfileId);
+            MetadataService profile = MetadataServiceController.GetMetadataService(ProcessController.Processes[processId].MetadataServiceId);
             var credentials = new NetworkCredential(appContext.Username, appContext.Password);
             var handler = new HttpClientHandler { Credentials = credentials };
             for (int i = 0; i < count; i++)

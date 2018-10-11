@@ -23,9 +23,9 @@ namespace DiffRest.Controllers
         }
         
         [Route("StartMetadataLoad")]
-        public void StartMetadataLoad(int profileId)
+        public void StartMetadataLoad(int metadataServiceId)
         {
-            if (ProfileController.GetProfile(profileId) != null)
+            if (MetadataServiceController.GetMetadataService(metadataServiceId) != null)
             {
 
                 int processId = 1;
@@ -33,7 +33,7 @@ namespace DiffRest.Controllers
                 {
                     foreach (Process processValue in Processes.Values)
                     {
-                        if (processValue.ProfileId == profileId && !processValue.Done)
+                        if (processValue.MetadataServiceId == metadataServiceId && !processValue.Done)
                         {
                             throw new Exception();
                         }
@@ -41,10 +41,14 @@ namespace DiffRest.Controllers
                     processId = Processes.Last().Key + 1;
                 }
 
-                Process process = new Process(processId, profileId, DateTime.Now);
+                Process process = new Process(processId, metadataServiceId, DateTime.Now);
                 Processes.Add(processId, process);
 
                 System.Threading.Tasks.Task.Run(() => new Program().DoTheJob(processId));
+            }
+            else
+            {
+                throw new Exception();
             }
         }
         

@@ -9,10 +9,10 @@ namespace DiffRest.Models
     [DataContract(Name = "Process")]
     public class Process
     {
-        public Process(int processId, int profileId, DateTime startTime)
+        public Process(int processId, int metadataServiceId, DateTime startTime)
         {
             Id = processId;
-            ProfileId = profileId;
+            MetadataServiceId = metadataServiceId;
             StartTime = startTime;
             
             Token = TokenSource.Token;
@@ -25,7 +25,7 @@ namespace DiffRest.Models
 
         [DataMember(Name = "ProfileId")]
         [DisplayName("Profila id")]
-        public int ProfileId { get; set; } = 0;
+        public int MetadataServiceId { get; set; } = 0;
 
         [DataMember(Name = "Version")]
         [DisplayName("Versija")]

@@ -23,29 +23,29 @@ namespace DiffRest.Controllers
         }
 
         [HttpGet]
-        [Route("GetProfiles")]
-        public List<Profile> GetProfiles()
+        [Route("GetMetadataServices")]
+        public List<MetadataService> GetMetadataServices()
         {
             XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(ProfileController.path))
+            if (System.IO.File.Exists(MetadataServiceController.path))
             {
-                doc.Load(ProfileController.path);
-                List<Profile> profiles = new List<Profile>();
-                foreach (XmlNode node in doc.SelectNodes("//Profile"))
+                doc.Load(MetadataServiceController.path);
+                List<MetadataService> metadataServices = new List<MetadataService>();
+                foreach (XmlNode node in doc.SelectNodes("//MetadataService"))
                 {
                     try
                     {
-                        Profile profile = new Profile();
-                        profile.Id = Int32.Parse(node.Attributes["ID"].Value);
-                        profile.Name = node.Attributes["Name"].Value;
-                        profile.Url = node.Attributes["Url"].Value;
-                        profile.Username = node.Attributes["Username"].Value;
-                        profile.Password = node.Attributes["Password"].Value;
-                        profiles.Add(profile);
+                        MetadataService metadataService = new MetadataService();
+                        metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
+                        metadataService.Name = node.Attributes["Name"].Value;
+                        metadataService.Url = node.Attributes["Url"].Value;
+                        metadataService.Username = node.Attributes["Username"].Value;
+                        metadataService.Password = node.Attributes["Password"].Value;
+                        metadataServices.Add(metadataService);
                     }
                     catch { }
                 }
-                return profiles;
+                return metadataServices;
             }
             return null;
         }

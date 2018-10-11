@@ -4,8 +4,8 @@ using System.Runtime.Serialization;
 namespace DiffRest.Models
 {
     [Serializable]
-    [DataContract(Name = "Profile")]
-    public class Profile
+    [DataContract(Name = "MetadataService")]
+    public class MetadataService
     {
         [DataMember(Name = "Id")]
         public int Id { get; set; }

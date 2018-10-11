@@ -14,7 +14,7 @@ namespace DiffRest.Controllers
         {
             try
             {
-                Profile profile = ProfileController.GetProfile(ProcessController.Processes[processId].ProfileId);
+                MetadataService profile = MetadataServiceController.GetMetadataService(ProcessController.Processes[processId].MetadataServiceId);
                 this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, HomeController.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known

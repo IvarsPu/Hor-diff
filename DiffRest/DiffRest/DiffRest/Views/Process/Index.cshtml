@@ -1,9 +1,16 @@
-﻿<div id="page" style="text-align: center;">
-    <input type="button" class="btn btn-primary mb-2" value="Profili" onclick="window.open('/Profile', '_self')" style="float: left;"/> 
+﻿<div style="text-align: center; overflow: auto;">
+    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
     <p id="message" style="color: red;"></p>
 </div>
 
 <br>
+
+<div>
+    <input type="text" class="form-control" id="metadataServiceId" placeholder="servisa ID">
+    <input type="button" class="btn btn-primary mb-2" onclick="add()" value="Savākt metadatus">
+    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
+</div>
+
 <table id="processTable" class="table table-hover">
     <thead style="background: #dedede;">
         <tr>
@@ -17,10 +24,6 @@
     </thead>
     <tbody></tbody>
 </table>
-
-<input type="text" class="form-control" id="profileId" placeholder="profila ID">
-<input type="button" class="btn btn-primary mb-2" onclick="add()" value="Pievienot">
-<input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
 
 <script>
     //Starts refresh method with selected time period
@@ -75,19 +78,19 @@
     function add() {
         $.ajax({
             type: "GET",
-            url: '/Process/StartMetadataLoad?profileId=' + $("#profileId").val(),
+            url: '/Process/StartMetadataLoad?metadataServiceId=' + $("#metadataServiceId").val(),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                $("#profileId").val("");
+                $("#metadataServiceId").val("");
                 refreshTable();
             },
-            error: function() {
+            error: function () {
                 $("#message").text("Kļūda pievinojot procesu");
             }
         });
     }
-    
+
     //table row clicked
     $("#processTable tbody").delegate('tr', 'click', function () {
         window.open('/Process/Info?processID=' + $(this).find('td:first').text(), '_self');

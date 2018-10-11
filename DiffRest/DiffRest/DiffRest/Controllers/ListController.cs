@@ -11,11 +11,11 @@ namespace DiffRest.Controllers
     public class ListController : ApiController
     {
         [HttpGet]
-        [Route("GetProcessList")]
-        public List<Process> GetProcessList(int noOfProcesses = 10)
+        [Route("GetRESTMetadataList")]
+        public List<Process> GetRESTMetadataList(int noOfProcesses = 10)
         {
             List<Process> processList = new List<Process>();
-            foreach (KeyValuePair<int, Process> pair in ProcessController.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
+            foreach (KeyValuePair<int, Process> pair in RESTMetadataController.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
             {
                 processList.Add(pair.Value);
             }

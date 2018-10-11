@@ -14,7 +14,7 @@ namespace DiffRest.Controllers
         {
             try
             {
-                MetadataService profile = MetadataServiceController.GetMetadataService(ProcessController.Processes[processId].MetadataServiceId);
+                MetadataService profile = MetadataServiceController.GetMetadataService(RESTMetadataController.Processes[processId].MetadataServiceId);
                 this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, HomeController.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known
@@ -28,7 +28,7 @@ namespace DiffRest.Controllers
                 int remainingServiceCount = 0;
                 Logger.LogPath = this.appContext.ReleaseLocalPath;
 
-                ProcessController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
+                RESTMetadataController.Processes[processId].Status.Total = serviceState.PendingLoadServices;
 
                 while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
                 {
@@ -57,8 +57,8 @@ namespace DiffRest.Controllers
                 XmlMetadata xmlMetadata = new XmlMetadata(this.appContext);
                 this.webResourceLoader = new WebResourceLoader(this.appContext, xmlMetadata, processId);
                 services = xmlMetadata.InitServiceMetadata(this.webResourceLoader);
-                ProcessController.Processes[processId].Version = appContext.Version;
-                ProcessController.Processes[processId].Release = appContext.Release;
+                RESTMetadataController.Processes[processId].Version = appContext.Version;
+                RESTMetadataController.Processes[processId].Release = appContext.Release;
                 loadState = new ServiceLoadState();
                 loadState.Services = services;
                 
@@ -68,6 +68,11 @@ namespace DiffRest.Controllers
                 {
                     Logger.LogInfo("Have found previous service load state");
                     this.LogState(savedState);
+                    savedState = this.AskForUsingLoadState(savedState);
+                }
+
+                if (savedState != null)
+                {
                     loadState = savedState;
                 }
 
@@ -113,20 +118,20 @@ namespace DiffRest.Controllers
             Logger.LogInfo("Failed: " + loadState.Failed);
             Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
         }
+        
+        private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
+        {
+            ServiceLoadState result = loadState;
+            Console.WriteLine("Press y to continue load or any other key to start new load:");
+            ConsoleKeyInfo keyInfo = Console.ReadKey();
 
-        //private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
-        //{
-            //ServiceLoadState result = loadState;
-            //Console.WriteLine("Press y to continue load or any other key to start new load:");
-            //ConsoleKeyInfo keyInfo = Console.ReadKey();
+            if (keyInfo.KeyChar != 'y')
+            {
+                result = null;
+            }
 
-            //if (keyInfo.KeyChar != 'y')
-            //{
-            //    result = null;
-            //}
-
-        //    return null;
-        //}
+            return null;
+        }
 
         private List<RestService> GetPendingServices(List<RestService> services)
         {

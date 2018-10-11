@@ -55,7 +55,7 @@ namespace DiffRest.Controllers
                 "TdmDimObjBL"
             };
 
-            Process process = ProcessController.Processes[processId];
+            Process process = RESTMetadataController.Processes[processId];
             try
             {
                 process.Status.Text = "Running";
@@ -232,7 +232,7 @@ namespace DiffRest.Controllers
 
             service.LoadStatus = ServiceLoadStatus.NotLoaded;
 
-            Status status = ProcessController.Processes[processId].Status;
+            Status status = RESTMetadataController.Processes[processId].Status;
 
             try
             {
@@ -412,7 +412,7 @@ namespace DiffRest.Controllers
         private List<HttpClient> GetHttpClients(int count)
         {
             List<HttpClient> httpClients = new List<HttpClient>();
-            MetadataService profile = MetadataServiceController.GetMetadataService(ProcessController.Processes[processId].MetadataServiceId);
+            MetadataService profile = MetadataServiceController.GetMetadataService(RESTMetadataController.Processes[processId].MetadataServiceId);
             var credentials = new NetworkCredential(appContext.Username, appContext.Password);
             var handler = new HttpClientHandler { Credentials = credentials };
             for (int i = 0; i < count; i++)

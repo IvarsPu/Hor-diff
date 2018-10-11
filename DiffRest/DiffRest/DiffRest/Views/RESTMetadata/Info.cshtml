@@ -1,18 +1,14 @@
-﻿@model DiffRest.Models.Process
-
-@{
-    DiffRest.Models.Process process = ViewBag.Process;
-}
+﻿@model DiffRest.Models.Procetadata
 
 <div>
-    <h3>Process</h3>
+    <h3>REST Metadata</h3>
     <dl class="dl-horizontal">
         <dt>
             @Html.DisplayNameFor(model => model.StartTime)
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.StartTime)
+            @Html.DisplayFor(modelItem => Model.StartTime)
         </dd>
 
         <dt>
@@ -20,7 +16,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.EndTime)
+            @Html.DisplayFor(modelItem => Model.EndTime)
         </dd>
 
         <dt>
@@ -28,7 +24,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Version)
+            @Html.DisplayFor(modelItem => Model.Version)
         </dd>
 
         <dt>
@@ -36,7 +32,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Release)
+            @Html.DisplayFor(modelItem => Model.Release)
         </dd>
 
         <dt>
@@ -44,7 +40,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Progress)
+            @Html.DisplayFor(modelItem => Model.Progress)
         </dd>
 
         <dt>
@@ -52,7 +48,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Done)
+            @Html.DisplayFor(modelItem => Model.Done)
         </dd>
 
         <dt>
@@ -60,7 +56,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Status.Text)
+            @Html.DisplayFor(modelItem => Model.Status.Text)
         </dd>
 
         <dt>
@@ -68,7 +64,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Status.Total)
+            @Html.DisplayFor(modelItem => Model.Status.Total)
         </dd>
 
         <dt>
@@ -76,7 +72,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Status.Loaded)
+            @Html.DisplayFor(modelItem => Model.Status.Loaded)
         </dd>
 
         <dt>
@@ -84,17 +80,17 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(modelItem => process.Status.Failed)
+            @Html.DisplayFor(modelItem => Model.Status.Failed)
         </dd>
 
-        @if (process != null && !process.Done)
+        @if (Model != null && !Model.Done)
         {
             <dt>
                 Procesa darbība
             </dt>
 
             <dd>
-                <input type="button" class="btn btn-primary mb-2" value="Apturēt" onclick="stop(@process.Id)">
+                <input type="button" class="btn btn-primary mb-2" value="Apturēt" onclick="stop(@Model.Id)">
             </dd>
         }
     </dl>

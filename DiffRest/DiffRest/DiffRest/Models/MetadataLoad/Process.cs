@@ -6,12 +6,12 @@ using System.Threading;
 namespace DiffRest.Models
 {
     [Serializable]
-    [DataContract(Name = "Process")]
+    [DataContract(Name = "REST Metadata")]
     public class Process
     {
-        public Process(int processId, int metadataServiceId, DateTime startTime)
+        public Process(int metadataId, int metadataServiceId, DateTime startTime)
         {
-            Id = processId;
+            Id = metadataId;
             MetadataServiceId = metadataServiceId;
             StartTime = startTime;
             

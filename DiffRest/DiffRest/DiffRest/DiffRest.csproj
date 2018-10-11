@@ -218,7 +218,7 @@
     <Compile Include="Controllers\Loader\WebResourceLoader.cs" />
     <Compile Include="Controllers\Loader\XmlIO.cs" />
     <Compile Include="Controllers\Loader\XmlMetadata.cs" />
-    <Compile Include="Controllers\ProcessController.cs" />
+    <Compile Include="Controllers\RESTMetadataController.cs" />
     <Compile Include="Controllers\MetadataServiceController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -350,8 +350,8 @@
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Change\Index.cshtml" />
-    <Content Include="Views\Process\Index.cshtml" />
-    <Content Include="Views\Process\Info.cshtml" />
+    <Content Include="Views\RESTMetadata\Index.cshtml" />
+    <Content Include="Views\RESTMetadata\Info.cshtml" />
     <Content Include="Views\MetadataService\Index.cshtml" />
     <Content Include="Views\MetadataService\Create.cshtml" />
     <Content Include="Views\MetadataService\Edit.cshtml" />

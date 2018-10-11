@@ -1,4 +1,28 @@
-﻿<div style="text-align: center; overflow: auto;">
+﻿<div>
+<h3>Saraksts ar esošajām versijām un laidieniem</h3>
+<table class="table table-hover" style="width: 25%; border:solid;">
+    <thead style="background: #dedede;">
+        <tr>
+            <td scope="col"><p>Versija</p></td>
+            <td scope="col"><p>Laidiens</p></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DiffRest.Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
+        {
+            foreach (DiffRest.Models.HorizonRelease release in version.ReleaseList)
+            {
+                <tr>
+                    <td scope="col"><p>@version.Version</p></td>
+                    <td scope="col"><p>@release.Release</p></td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+</div>
+
+<div style="text-align: center; overflow: auto;">
     <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
     <p id="message" style="color: red;"></p>
 </div>
@@ -11,7 +35,7 @@
     <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
 </div>
 
-<table id="processTable" class="table table-hover">
+<table id="RESTMetadataTable" class="table table-hover">
     <thead style="background: #dedede;">
         <tr>
             <td style='display: none;' scope="col"><p>Id</p></td>
@@ -41,10 +65,10 @@
     function refreshTable() {
         var path;
         if ($("#nrOfRows").val() == "" || isNaN($("#nrOfRows").val())) {
-            path = '/List/GetProcessList';
+            path = '/List/GetRESTMetadataList';
         }
         else {
-            path = '/List/GetProcessList?noOfProcesses=' + $("#nrOfRows").val();
+            path = '/List/GetRESTMetadataList?noOfProcesses=' + $("#nrOfRows").val();
         }
         $.ajax({
             type: "GET",
@@ -66,7 +90,7 @@
                         "<td>" + data[i].Status.Text + "</td>" +
                         "</tr> ";
                 }
-                $("#processTable tbody").html(htmlText)
+                $("#RESTMetadataTable tbody").html(htmlText)
             },
             error: function () {
                 $("#message").text("Kļūda iegūstot procesus");
@@ -78,7 +102,7 @@
     function add() {
         $.ajax({
             type: "GET",
-            url: '/Process/StartMetadataLoad?metadataServiceId=' + $("#metadataServiceId").val(),
+            url: '/RESTMetadata/StartMetadataLoad?metadataServiceId=' + $("#metadataServiceId").val(),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
@@ -92,7 +116,7 @@
     }
 
     //table row clicked
-    $("#processTable tbody").delegate('tr', 'click', function () {
-        window.open('/Process/Info?processID=' + $(this).find('td:first').text(), '_self');
+    $("#RESTMetadata tbody").delegate('tr', 'click', function () {
+        window.open('/RESTMetadata/Info?processID=' + $(this).find('td:first').text(), '_self');
     });
 </script>

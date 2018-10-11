@@ -6,8 +6,8 @@ using DiffRest.Models;
 
 namespace DiffRest.Controllers
 {
-    [RoutePrefix("Process")]
-    public class ProcessController : Controller
+    [RoutePrefix("RESTMetadata")]
+    public class RESTMetadataController : Controller
     {
         public static SortedDictionary<int, Process> Processes { get; set; } = new SortedDictionary<int, Process>();
 
@@ -16,12 +16,6 @@ namespace DiffRest.Controllers
             return View();
         }
 
-        public ActionResult Info(int processID)
-        {
-            ViewBag.Process = Processes.TryGetValue(processID, out Process value) ? value : null;
-            return View();
-        }
-        
         [Route("StartMetadataLoad")]
         public void StartMetadataLoad(int metadataServiceId)
         {
@@ -51,12 +45,18 @@ namespace DiffRest.Controllers
                 throw new Exception();
             }
         }
+
+
+        public ActionResult Info(int processId)
+        {
+            Process metadata = Processes.TryGetValue(processId, out Process value) ? value : null;
+            return View(metadata);
+        }
         
         [Route("StopProcess")]
         public void StopProcess(int processId)
         {
             Processes[processId].TokenSource.Cancel();
-            //if (processes.Remove(processId)) do we need to clean dictionary?
         }
     }
 }

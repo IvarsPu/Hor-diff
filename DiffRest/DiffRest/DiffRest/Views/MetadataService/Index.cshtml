@@ -1,127 +1,55 @@
-﻿<div id="page" style="text-align: center;">
-    <input type="button" class="btn btn-primary mb-2" value="Procesi" onclick="window.open('/Process', '_self')" style="float: left;" />
-    <input type="button" class="btn btn-primary mb-2" value="Atsvaidzināt tabulu" onclick="refreshTable()" style="float: right;" />
-    <p id="message" style="color: red;"></p>
-</div>
+﻿@model IEnumerable<DiffRest.Models.MetadataService>
 
-<table id="MetadataServiceTable" class="table table-hover">
-    <thead style="background: #dedede;">
-        <tr>
-            <td scope="col"><p>Id</p></td>
-            <td scope="col"><p>Nosaukums</p></td>
-            <td scope="col"><p>Rest URL</p></td>
-            <td scope="col"><p>Lietotāj vārds</p></td>
-            <td scope="col"><p>Parole</p></td>
-            <td scope="col"><p>Darbība</p></td>
-        </tr>
-    </thead>
-    <tbody></tbody>
-    <tfoot>
-        <tr>
-            <td scope="col"></td>
-            <td scope="col"><input type="text" name="name" class="form-control" placeholder="nosaukums" style="width: 100%;"></td>
-            <td scope="col"><input type="text" name="url" class="form-control" placeholder="resursu adrese" style="width: 100%;"></td>
-            <td scope="col"><input type="text" name="username" class="form-control" placeholder="lietotāj vārds" style="width: 100%;"></td>
-            <td scope="col"><input type="password" name="password" class="form-control" placeholder="parole" style="width: 100%;"></td>
-            <td scope="col"><input type="button" id="createButton" class="btn" value="Izveidot" style="width: 100%; background-color: #20bd08; color: white;"></td>
-        </tr>
-    </tfoot>
+@{
+    ViewBag.Title = "Index";
+}
+
+<p>
+    @Html.ActionLink("Izveidot", "Create")
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Url)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Username)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Password)
+        </th>
+        <th>
+            Darbības
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Url)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Username)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Password)
+        </td>
+        <td>
+            @Html.ActionLink("Mainīt", "Edit", new { id = item.Id }) |
+            @Html.ActionLink("Dzēst", "Delete", new { id = item.Id })
+        </td>
+    </tr>
+}
+
 </table>
 
-<script>
-    $(document).ready(function () {
-        refreshTable();
-
-        $("#createButton").click(function () {
-            var row = $("#MetadataServiceTable tfoot tr:last");
-            $.ajax({
-                type: "GET",
-                url: '/MetadataService/CreateMetadataService?name=' + row.find('[name=name]').val() +
-                    '&url=' + row.find('[name=url]').val() +
-                    '&username=' + row.find('[name=username]').val() +
-                    '&password=' + row.find('[name=password]').val(),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    if (data != 0) {
-                        refreshTable();
-                        row.find('[name=name]').val("")
-                        row.find('[name=url]').val("")
-                        row.find('[name=username]').val("")
-                        row.find('[name=password]').val("")
-                    }
-                    else {
-                        $("#message").text("Rest URL jau eksistē");
-                    }
-                },
-                error: function () {
-                    $("#message").text("Kļūda Veidojot servisu");
-                }
-            });
-        });
-    });
-
-    //refreshes table
-    function refreshTable() {
-        $.ajax({
-            type: "GET",
-            url: '/List/GetMetadataServices',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                var htmlText = "";
-                for (var i = 0; i < data.length; i++) {
-                    htmlText += "<tr>" +
-                        "<td scope='col'><p name='id'>" + data[i].Id + "</p></td>" +
-                        "<td scope='col'><input type='text' name='name' class='form-control' value='" + data[i].Name + "' style='width: 100%;'/></td>" +
-                        "<td scope='col'><input type='text' name='url' class='form-control' value='" + data[i].Url + "' style='width: 100%;'/></td>" +
-                        "<td scope='col'><input type='text' name='username' class='form-control' value='" + data[i].Username + "' style='width: 100%;'/></td>" +
-                        "<td scope='col'><input type='password' name='password' class='form-control' value='" + data[i].Password + "' style='width: 100%;'/></td>" +
-                        "<td scope='col'><input type='button' class='btn' value='Saglabāt' onclick='saveRow(this);' style='width: 50%; background-color: #20bd08; color: white;'/><input type='button' class='btn' value='Dzēst' onclick='deleteRow(this);' style='width: 50%; background-color: #b21010; color: white;'/></td>" +
-                        "</tr> ";
-                }
-                $("#MetadataServiceTable tbody").html(htmlText)
-            },
-            error: function () {
-                $("#message").text("Kļūda iegūstot servisus");
-            }
-        });
-    }
-
-    //deletes metadata service
-    function deleteRow(btn) {
-        if (typeof (btn) == "object") {
-            $.ajax({
-                type: "GET",
-                url: '/MetadataService/DeleteMetadataService?id=' + $(btn).closest("tr").find('[name=id]').text(),
-                success: function () {
-                    refreshTable();
-                },
-                error: function () {
-                    $("#message").text("Kļūda dzēšot servisu");
-                }
-            });
-        }
-    }
-
-    //saves changes
-    function saveRow(btn) {
-        if (typeof (btn) == "object") {
-            var row = $(btn).closest("tr");
-            $.ajax({
-                type: "GET",
-                url: '/MetadataService/UpdateMetadataService?id=' + row.find('[name=id]').text() +
-                    '&name=' + row.find('[name = name]').val() +
-                    '&url=' + row.find('[name=url]').val() +
-                    '&username=' + row.find('[name=username]').val() +
-                    '&password=' + row.find('[name=password]').val(),
-                success: function () {
-                    refreshTable();
-                },
-                error: function () {
-                    $("#message").text("Kļūda atjaunojot servisu");
-                }
-            });
-        }
-    }
-</script>
+<div>
+    @Html.ActionLink("Atpakaļ", "Index", "Process")
+</div>

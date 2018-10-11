@@ -12,19 +12,25 @@ namespace DiffRest.Controllers
 
         public ActionResult Index()
         {
+            return View(new ListController().GetMetadataServices());
+        }
+
+        #region Create
+        public ActionResult Create()
+        {
             return View();
         }
-        
-        [Route("CreateMetadataService")]
-        public int CreateMetadataService(string name, string url, string username, string password)
+
+        [HttpPost]
+        public ActionResult Create([Bind(Include= "Name,Url,Username,Password")] MetadataService service)
         {
             XmlDocument doc = new XmlDocument();
             if (System.IO.File.Exists(path))
             {
                 doc.Load(path);
-                if (doc.SelectSingleNode("//MetadataServices/MetadataService[@Url='" + url + "']") != null)
+                if (doc.SelectSingleNode("//MetadataServices/MetadataService[@Url='" + service.Url + "']") != null)
                 {
-                    return 0;
+                    return View();
                 }
             }
             else
@@ -46,30 +52,31 @@ namespace DiffRest.Controllers
             metadataServiceNode.Attributes.SetNamedItem(ID);
 
             XmlAttribute Name = doc.CreateAttribute("Name");
-            Name.Value = name;
+            Name.Value = service.Name;
             metadataServiceNode.Attributes.SetNamedItem(Name);
 
             XmlAttribute Url = doc.CreateAttribute("Url");
-            Url.Value = url;
+            Url.Value = service.Url;
             metadataServiceNode.Attributes.SetNamedItem(Url);
 
             XmlAttribute Username = doc.CreateAttribute("Username");
-            Username.Value = username;
+            Username.Value = service.Username;
             metadataServiceNode.Attributes.SetNamedItem(Username);
 
             XmlAttribute Password = doc.CreateAttribute("Password");
-            Password.Value = password;
+            Password.Value = service.Password;
             metadataServiceNode.Attributes.SetNamedItem(Password);
 
             metadataServiceNodes.AppendChild(metadataServiceNode);
             #endregion
 
             doc.Save(path);
-            return id;
+            return RedirectToAction("Index", "MetadataService", new { });
         }
-        
-        [Route("DeleteMetadataService")]
-        public void DeleteMetadataService(int id)
+        #endregion
+
+        #region Delete
+        public ActionResult Delete(int id)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
@@ -79,27 +86,39 @@ namespace DiffRest.Controllers
                 node.ParentNode.RemoveChild(node);
                 doc.Save(path);
             }
+            return RedirectToAction("Index", "MetadataService", new { });
         }
-        
-        [Route("UpdateMetadataService")]
-        public void UpdateMetadataService(int id, string name, string url, string username, string password)
+        #endregion
+
+        #region Edit
+        public ActionResult Edit(int id)
         {
+            return View(GetMetadataService(id));
+        }
+
+        [HttpPost]
+        public ActionResult Edit([Bind(Include = "Id,Name,Url,Username,Password")] MetadataService service)
+        {
+
             XmlDocument doc = new XmlDocument();
             doc.Load(path);
-            XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
+            XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + service.Id + "']");
             if (node != null)
             {
-                if ((node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//MetadataServices/MetadataService[@Url='" + url + "']").Count < 2) ||
-                    (!node.Attributes["Url"].Value.Equals(url) && doc.SelectNodes("//MetadataServices/MetadataService[@Url='" + url + "']").Count < 1))
+                if ((node.Attributes["Url"].Value.Equals(service.Url) && doc.SelectNodes("//MetadataServices/MetadataService[@Url='" + service.Url + "']").Count < 2) ||
+                    (!node.Attributes["Url"].Value.Equals(service.Url) && doc.SelectNodes("//MetadataServices/MetadataService[@Url='" + service.Url + "']").Count < 1))
                 {
-                    node.Attributes["Name"].Value = name;
-                    node.Attributes["Url"].Value = url;
-                    node.Attributes["Username"].Value = username;
-                    node.Attributes["Password"].Value = password;
+                    node.Attributes["Name"].Value = service.Name;
+                    node.Attributes["Url"].Value = service.Url;
+                    node.Attributes["Username"].Value = service.Username;
+                    node.Attributes["Password"].Value = service.Password;
                     doc.Save(path);
+                    return RedirectToAction("Index", "MetadataService", new { });
                 }
             }
+            return View();
         }
+        #endregion
         
         internal static MetadataService GetMetadataService(int id)
         {

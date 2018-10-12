@@ -14,7 +14,7 @@ namespace BusinessLogic
 
         public bool AlreadyExists(int id)
         {
-            MetadataService profile = new ServerConn().GetServerConn(id);
+            RestConnection profile = new Connection().GetServerConn(id);
             Models.AppContext appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
             Logger.LogPath = appContext.RootLocalPath;
             XmlMetadata xmlMetadata = new XmlMetadata(appContext);
@@ -37,7 +37,7 @@ namespace BusinessLogic
 
         public bool DoTask(int metadataServiceId)
         {
-            if (new ServerConn().GetServerConn(metadataServiceId) != null)
+            if (new Connection().GetServerConn(metadataServiceId) != null)
             {
                 int processId = 1;
                 if (AppInfo.Processes.Count > 0)
@@ -76,7 +76,7 @@ namespace BusinessLogic
         {
             try
             {
-                MetadataService profile = new ServerConn().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
+                RestConnection profile = new Connection().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
                 this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known

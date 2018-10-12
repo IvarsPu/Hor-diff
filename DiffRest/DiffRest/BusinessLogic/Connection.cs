@@ -5,9 +5,9 @@ using Models;
 
 namespace BusinessLogic
 {
-    public class ServerConn
+    public class Connection
     {
-        public MetadataService GetServerConn(int id)
+        public RestConnection GetServerConn(int id)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(AppInfo.path);
@@ -15,7 +15,7 @@ namespace BusinessLogic
             if (node != null)
             {
 
-                MetadataService metadataService = new MetadataService();
+                RestConnection metadataService = new RestConnection();
                 metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
                 metadataService.Name = node.Attributes["Name"].Value;
                 metadataService.Url = node.Attributes["Url"].Value;
@@ -29,7 +29,7 @@ namespace BusinessLogic
             }
         }
 
-        public bool CreateServerConn(MetadataService service)
+        public bool CreateServerConn(RestConnection service)
         {
             XmlDocument doc = new XmlDocument();
             if (System.IO.File.Exists(AppInfo.path))
@@ -93,7 +93,7 @@ namespace BusinessLogic
             }
         }
 
-        public bool EditServerConn(MetadataService service)
+        public bool EditServerConn(RestConnection service)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(AppInfo.path);
@@ -114,18 +114,18 @@ namespace BusinessLogic
             return false;
         }
 
-        public List<MetadataService> GetMetadataServices()
+        public List<RestConnection> GetConnections()
         {
             XmlDocument doc = new XmlDocument();
             if (System.IO.File.Exists(AppInfo.path))
             {
                 doc.Load(AppInfo.path);
-                List<MetadataService> metadataServices = new List<MetadataService>();
+                List<RestConnection> metadataServices = new List<RestConnection>();
                 foreach (XmlNode node in doc.SelectNodes("//MetadataService"))
                 {
                     try
                     {
-                        MetadataService metadataService = new MetadataService();
+                        RestConnection metadataService = new RestConnection();
                         metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
                         metadataService.Name = node.Attributes["Name"].Value;
                         metadataService.Url = node.Attributes["Url"].Value;

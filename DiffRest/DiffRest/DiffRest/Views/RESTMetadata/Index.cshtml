@@ -1,5 +1,5 @@
 ﻿<div style="text-align: center; overflow: auto;">
-    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
+    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/Connection', '_self')" style="float: left;" />
     <p id="message" style="color: red;"></p>
 </div>
 
@@ -21,8 +21,7 @@
             <td scope="col"><p>@version.Version</p></td>
             <td scope="col">
                 <p>
-                    @{string releases = string.Join(", ", version.ReleaseList.Select(c => c.Release));}
-                    @releases
+                    @string.Join(", ", version.ReleaseList.Select(c => c.Release))
                 </p>
             </td>
         </tr>
@@ -55,7 +54,7 @@
 
 <script>
     //Starts refresh method with selected time period
-    refresh(5000);
+    refresh(10000);
 
     //refresh table
     function refresh(time) {

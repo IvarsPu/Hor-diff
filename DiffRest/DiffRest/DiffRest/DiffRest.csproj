@@ -48,9 +48,6 @@
     <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffPlex, Version=1.4.1.0, Culture=neutral, PublicKeyToken=1d35e91d1bd7bc0f, processorArchitecture=MSIL">
-      <HintPath>..\packages\DiffPlex.1.4.1\lib\netstandard1.0\DiffPlex.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AI.DependencyCollector, Version=2.7.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.7.2\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
     </Reference>
@@ -213,7 +210,7 @@
     <Compile Include="Controllers\ChangeController.cs" />
     <Compile Include="Controllers\ListController.cs" />
     <Compile Include="Controllers\RESTMetadataController.cs" />
-    <Compile Include="Controllers\MetadataServiceController.cs" />
+    <Compile Include="Controllers\ConnectionController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -334,9 +331,9 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Change\Index.cshtml" />
     <Content Include="Views\RESTMetadata\Index.cshtml" />
-    <Content Include="Views\MetadataService\Index.cshtml" />
-    <Content Include="Views\MetadataService\Create.cshtml" />
-    <Content Include="Views\MetadataService\Edit.cshtml" />
+    <Content Include="Views\Connection\Index.cshtml" />
+    <Content Include="Views\Connection\Create.cshtml" />
+    <Content Include="Views\Connection\Edit.cshtml" />
     <Content Include="Views\RESTMetadata\Exists.cshtml" />
     <Content Include="Views\RESTMetadata\Info.cshtml" />
   </ItemGroup>

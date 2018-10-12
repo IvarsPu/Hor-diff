@@ -4,9 +4,8 @@ using System.Runtime.Serialization;
 
 namespace Models
 {
-    [Serializable]
     [DataContract(Name = "MetadataService")]
-    public class MetadataService
+    public class RestConnection
     {
         [DataMember(Name = "Id")]
         [DisplayName("Id")]

@@ -90,24 +90,8 @@
             </dt>
 
             <dd>
-                <input type="button" class="btn btn-primary mb-2" value="Apturēt" onclick="stop(@Model.Id)">
+                <input type="button" class="btn btn-primary mb-2" value="Apturēt" onclick="window.open('/RESTMetadata/StopProcess?processId=@Model.Id', '_self');">
             </dd>
         }
     </dl>
 </div>
-
-<script>
-    //Stops Metadata Load
-    function stop(id) {
-        $.ajax({
-            type: "GET",
-            url: '/RESTMetadata/StopProcess?processId=' + id,
-            success: function () {
-                window.open('/RESTMetadata', '_self');
-            },
-            error: function () {
-                alert("Kļūda apturot procesu");
-            }
-        });
-    }
-</script>

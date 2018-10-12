@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using System.Xml;
+﻿using System.Web.Mvc;
 using BusinessLogic;
 using Models;
 
@@ -16,7 +12,7 @@ namespace DiffRest.Controllers
             return View();
         }
         
-        public ActionResult StartMetadataLoad(int metadataServiceId)
+        public ActionResult StartMetadataLoad(int metadataServiceId = 0)
         {
             if (new DownloadMetadata().DoTask(metadataServiceId))
             {//started
@@ -28,7 +24,7 @@ namespace DiffRest.Controllers
             }
         }
 
-        public ActionResult Exists(int id)
+        public ActionResult Exists(int id=0)
         {
             try
             {
@@ -47,15 +43,22 @@ namespace DiffRest.Controllers
             }
         }
 
-        public ActionResult Info(int processId)
+        public ActionResult Info(int processId = 0)
         {
             return View(AppInfo.Processes.TryGetValue(processId, out Process value) ? value : null);
         }
         
-        [Route("StopProcess")]
-        public void StopProcess(int processId)
+        public ActionResult StopProcess(int processId = 0)
         {
-            AppInfo.Processes[processId].TokenSource.Cancel();
+            try
+            {
+                AppInfo.Processes[processId].TokenSource.Cancel();
+                return RedirectToAction("Index", "RESTMetadata");
+            }
+            catch
+            {
+                return RedirectToAction("Info", "RESTMetadata", new { processId });
+            }
         }
     }
 }

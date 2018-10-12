@@ -22,10 +22,10 @@ namespace BusinessLogic
         {
             this.appContext = appContext;
         }
-
-        public List<RestService> InitServiceMetadata(WebResourceLoader webResourceLoader)
+         
+        public List<Models.RestService> InitServiceMetadata(WebResourceLoader webResourceLoader)
         {
-            List<RestService> services = new List<RestService>();
+            List<Models.RestService> services = new List<Models.RestService>();
             WebResponse myResponse = webResourceLoader.GetResponseFromSite(appContext.RootUrl + "global/agentVersion").Result;
             Stream myStream = myResponse.GetResponseStream();
             XmlReader xmlReader = XmlReader.Create(myStream);
@@ -91,7 +91,7 @@ namespace BusinessLogic
                         }
                         else if (xmlReader.Name == "link")
                         {
-                            RestService service = new RestService();
+                            Models.RestService service = new Models.RestService();
                             while (xmlReader.NodeType != XmlNodeType.Text)
                             {
                                 xmlReader.Read();

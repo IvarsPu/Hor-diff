@@ -334,10 +334,11 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Change\Index.cshtml" />
     <Content Include="Views\RESTMetadata\Index.cshtml" />
-    <Content Include="Views\RESTMetadata\Info.cshtml" />
     <Content Include="Views\MetadataService\Index.cshtml" />
     <Content Include="Views\MetadataService\Create.cshtml" />
     <Content Include="Views\MetadataService\Edit.cshtml" />
+    <Content Include="Views\RESTMetadata\Exists.cshtml" />
+    <Content Include="Views\RESTMetadata\Info.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

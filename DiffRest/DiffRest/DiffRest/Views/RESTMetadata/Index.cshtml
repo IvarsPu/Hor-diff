@@ -35,7 +35,7 @@
 
 <div>
     <input type="text" class="form-control" id="metadataServiceId" placeholder="servisa ID">
-    <input type="button" class="btn btn-primary mb-2" onclick="add()" value="Savākt metadatus">
+    <input type="button" class="btn btn-primary mb-2" onclick="window.open('/RESTMetadata/Exists?id=' + $('#metadataServiceId').val(), '_self')" value="Savākt metadatus">
     <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
 </div>
 
@@ -98,20 +98,6 @@
             },
             error: function () {
                 $("#message").text("Kļūda iegūstot procesus");
-            }
-        });
-    }
-
-    //add new process
-    function add() {
-        $.ajax({
-            type: "GET",
-            url: '/RESTMetadata/StartMetadataLoad?metadataServiceId=' + $("#metadataServiceId").val(),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                $("#metadataServiceId").val("");
-                refreshTable();
             }
         });
     }

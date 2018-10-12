@@ -7,16 +7,76 @@ using static Models.RestService;
 
 namespace BusinessLogic
 {
-    public class Program
+    public class DownloadMetadata
     {
         private Models.AppContext appContext;
         private WebResourceLoader webResourceLoader;
 
-        public void DoTheJob(int processId)
+        public bool AlreadyExists(int id)
+        {
+            MetadataService profile = new ServerConn().GetServerConn(id);
+            Models.AppContext appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
+            Logger.LogPath = appContext.RootLocalPath;
+            XmlMetadata xmlMetadata = new XmlMetadata(appContext);
+            WebResourceLoader webResourceLoader = new WebResourceLoader(appContext, xmlMetadata, 0);
+            System.Threading.Tasks.Task t = System.Threading.Tasks.Task.Run(() => xmlMetadata.InitServiceMetadata(webResourceLoader));
+            
+            XmlDocument doc = new XmlDocument();
+            doc.Load(AppInfo.MetadataRootFolder + "Versions.xml");
+            t.Wait();
+            XmlNode node = doc.SelectSingleNode("//version[@name='" + appContext.Version + "']/release[@name='" + appContext.Release + "']");
+            if (node == null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool DoTask(int metadataServiceId)
+        {
+            if (new ServerConn().GetServerConn(metadataServiceId) != null)
+            {
+                int processId = 1;
+                if (AppInfo.Processes.Count > 0)
+                {
+                    foreach (Process processValue in AppInfo.Processes.Values)
+                    {
+                        if (processValue.MetadataServiceId == metadataServiceId && !processValue.Done)
+                        {
+                            return false;
+                        }
+                    }
+                    processId = AppInfo.Processes.Last().Key + 1;
+                }
+
+                Process process = new Process(processId, metadataServiceId, DateTime.Now);
+                AppInfo.Processes.Add(processId, process);
+
+                System.Threading.Tasks.Task.Run(() => new DownloadMetadata().DoTheJob(processId));
+                return true;
+            }
+            return false;
+        }
+
+        public List<Process> GetRESTMetadataList(int noOfProcesses)
+        {
+            List<Process> processList = new List<Process>();
+            foreach (KeyValuePair<int, Process> pair in AppInfo.Processes.OrderByDescending(x => x.Key).Take(noOfProcesses))
+            {
+                processList.Add(pair.Value);
+            }
+            return processList;
+        }
+
+        #region Load service
+        private void DoTheJob(int processId)
         {
             try
             {
-                MetadataService profile = GetMetadataService(AppInfo.Processes[processId].MetadataServiceId);
+                MetadataService profile = new ServerConn().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
                 this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known
@@ -50,11 +110,11 @@ namespace BusinessLogic
                 process.Done = true;
             }
         }
-
+        
         private ServiceLoadState LoadRestServiceLoadState(int processId)
         {
             ServiceLoadState loadState = null;
-            List<RestService> services = null;
+            List<Models.RestService> services = null;
             try
             {
                 Logger.LogInfo("Getting REST service structure");
@@ -86,24 +146,10 @@ namespace BusinessLogic
 
             return loadState;
         }
-
-        //private ServiceLoadState AskForUsingLoadState(ServiceLoadState loadState)
-        //{
-        //    ServiceLoadState result = loadState;
-        //    Console.WriteLine("Press y to continue load or any other key to start new load:");
-        //    ConsoleKeyInfo keyInfo = Console.ReadKey();
-
-        //    if (keyInfo.KeyChar != 'y')
-        //    {
-        //        result = null;
-        //    }
-
-        //    return result;
-        //}
         
         private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
         {
-            List<RestService> services = loadState.Services;
+            List<Models.RestService> services = loadState.Services;
             try
             {
                 Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
@@ -133,11 +179,11 @@ namespace BusinessLogic
             Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
         }
 
-        private List<RestService> GetPendingServices(List<RestService> services)
+        private List<Models.RestService> GetPendingServices(List<Models.RestService> services)
         {
-            List<RestService> result = new List<RestService>();
+            List<Models.RestService> result = new List<Models.RestService>();
 
-            foreach (RestService service in services)
+            foreach (Models.RestService service in services)
             {
                 if (service.LoadStatus != ServiceLoadStatus.Loaded)
                 {
@@ -147,27 +193,6 @@ namespace BusinessLogic
 
             return result;
         }
-
-        private static MetadataService GetMetadataService(int id)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(AppInfo.path);
-            XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
-            if (node != null)
-            {
-
-                MetadataService metadataService = new MetadataService();
-                metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
-                metadataService.Name = node.Attributes["Name"].Value;
-                metadataService.Url = node.Attributes["Url"].Value;
-                metadataService.Username = node.Attributes["Username"].Value;
-                metadataService.Password = node.Attributes["Password"].Value;
-                return metadataService;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        #endregion
     }
 }

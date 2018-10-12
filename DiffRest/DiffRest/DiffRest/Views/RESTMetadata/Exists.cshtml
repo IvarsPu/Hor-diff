@@ -1,0 +1,11 @@
+﻿@model int
+@{
+    ViewBag.Title = "Exists";
+}
+
+<h2>Faili jau ir iegūti. Vai vēlies atkārtoti ielādēt?</h2>
+
+<div>
+    @Html.ActionLink(linkText: "Jā, vēlos turpināt", actionName: "StartMetadataLoad", controllerName: "RESTMetadata", routeValues: new { metadataServiceId = Model }, htmlAttributes: null)
+    @Html.ActionLink("Nē, doties atpakaļ", "Index", "RESTMetadata")
+</div>

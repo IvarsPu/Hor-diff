@@ -135,10 +135,10 @@ namespace BusinessLogic
         {
             Copy(AppInfo.FolderLocation + "Site", AppInfo.FolderLocation + Result);
 
-            string[] arrLine = File.ReadAllLines(AppInfo.FolderLocation + Result + "/main.js");
+            string[] arrLine = File.ReadAllLines(AppInfo.FolderLocation + Result + "/js/main.js");
             arrLine[5 - 1] = "var firstVersion = '" + first + "';";
             arrLine[6 - 1] = "var secondVersion = '" + second + "';";
-            File.WriteAllLines(AppInfo.FolderLocation + Result + "/main.js", arrLine);
+            File.WriteAllLines(AppInfo.FolderLocation + Result + "/js/main.js", arrLine);
 
             string zip = AppInfo.FolderLocation + Result + ".zip";
             foreach (string file in Directory.GetFiles(AppInfo.FolderLocation, "*.zip"))

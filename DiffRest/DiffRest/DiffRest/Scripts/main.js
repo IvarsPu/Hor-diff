@@ -63,6 +63,7 @@ $(document).ready(function () {
                 console.log(data.node);
                 return false;
             }
+            var path = data.node.data.restPath + "/" + data.node.title;
             if (data.node.extraClasses == TreeExtraClasses.DocumentError) {
                 var fragment = document.createDocumentFragment();
 
@@ -78,14 +79,13 @@ $(document).ready(function () {
                 });
 
             } else {
-                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.restPath + "/" + data.node.title;
-                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.restPath + "/" + data.node.title;
+                var path1 = $("#Version1 option:selected").val() + "/" + path;
+                var path2 = $("#Version2 option:selected").val() + "/" + path;
                 GetChanges(path1, path2);
                 selectedId = 0;
             }
-
-            var restUrl = data.node.data.diffHtmlFile;
-            $("#restPath").append(restUrl);
+            
+            $("#restPath").append(path);
         }
     });
 

@@ -9,7 +9,7 @@ namespace DiffRest.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return View(new ListController().GetConnections());
         }
         
         public ActionResult StartMetadataLoad(int metadataServiceId = 0)

@@ -62,7 +62,7 @@ namespace BusinessLogic
                 int servicesCount = services.Count;
                 int currentRestService = -1;
 
-                foreach (Models.RestService service in services)
+                foreach (RestService service in services)
                 {
                     process.Token.ThrowIfCancellationRequested();
 

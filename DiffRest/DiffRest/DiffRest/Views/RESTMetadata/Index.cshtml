@@ -1,57 +1,70 @@
-﻿<div style="text-align: center; overflow: auto;">
-    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/Connection', '_self')" style="float: left;" />
+﻿@model List<Models.RestConnection>
+
+<div style="text-align: center; overflow: auto;">
     <p id="message" style="color: red;"></p>
 </div>
 
-<br>
+<div class="row">
+    <div class="col-sm-3">
+        <h3>Saglabātie versiju laidieni</h3>
+        <div>
+            @Html.ActionLink("Versiju salīdzināšana", "Index", "Change")
+        </div>
+        <table class="table table-hover" style="border:solid;">
+            <thead style="background: #dedede;">
+                <tr>
+                    <td scope="col"><p>Versija</p></td>
+                    <td scope="col"><p>Laidieni</p></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
+                {
+                    <tr>
+                        <td scope="col"><p>@version.Version</p></td>
+                        <td scope="col">
+                            <p>
+                                @string.Join(", ", version.ReleaseList.Select(c => c.Release))
+                            </p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
-<div>
-<h3>Saraksts ar esošajām versijām un laidieniem</h3>
-<table class="table table-hover" style="width: 25%; border:solid;">
-    <thead style="background: #dedede;">
-        <tr>
-            <td scope="col"><p>Versija</p></td>
-            <td scope="col"><p>Laidieni</p></td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
-        {
-        <tr>
-            <td scope="col"><p>@version.Version</p></td>
-            <td scope="col">
-                <p>
-                    @string.Join(", ", version.ReleaseList.Select(c => c.Release))
-                </p>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+    <div class="col-sm-9">
+        <h3>REST metadatu iegūšana</h3>
+        <div style="text-align: center;">
+            <div style="float: left;">
+                <b>REST servisu profilu vārdi:</b><select class="form-control" id="Conection" >
+                <option>--Select--</option>
+                @foreach(Models.RestConnection con in Model)
+                {
+                    <option value="@con.Id">@con.Name</option>
+                }
+                </select>
+                <input type="button" class="btn btn-primary mb-2" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
+            </div>
+            <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
+            <input type="button" class="btn btn-primary mb-2" value="REST servisi" onclick="window.open('/Connection', '_self')" />
+        </div>
+
+        <table id="RESTMetadataTable" class="table table-hover">
+            <thead style="background: #dedede;">
+                <tr>
+                    <td style='display: none;' scope="col"><p>Id</p></td>
+                    <td scope="col"><p>Sākuma laiks</p></td>
+                    <td scope="col"><p>Versija</p></td>
+                    <td scope="col"><p>Laidiens</p></td>
+                    <td scope="col"><p>Progress</p></td>
+                    <td scope="col"><p>Statusa teksts</p></td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
-
-<br>
-
-<div>
-    <input type="text" class="form-control" id="metadataServiceId" placeholder="servisa ID">
-    <input type="button" class="btn btn-primary mb-2" onclick="window.open('/RESTMetadata/Exists?id=' + $('#metadataServiceId').val(), '_self')" value="Savākt metadatus">
-    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
-</div>
-
-<table id="RESTMetadataTable" class="table table-hover">
-    <thead style="background: #dedede;">
-        <tr>
-            <td style='display: none;' scope="col"><p>Id</p></td>
-            <td scope="col"><p>Sākuma laiks</p></td>
-            <td scope="col"><p>Versija</p></td>
-            <td scope="col"><p>Laidiens</p></td>
-            <td scope="col"><p>Progress</p></td>
-            <td scope="col"><p>Statusa teksts</p></td>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
 <script>
     //Starts refresh method with selected time period
     refresh(10000);
@@ -94,6 +107,7 @@
                         "</tr> ";
                 }
                 $("#RESTMetadataTable tbody").html(htmlText)
+                $("#message").text();
             },
             error: function () {
                 $("#message").text("Kļūda iegūstot procesus");

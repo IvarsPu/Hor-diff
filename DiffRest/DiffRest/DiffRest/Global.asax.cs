@@ -1,5 +1,4 @@
 ﻿using System.Web;
-using System.Web.Configuration;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -19,9 +18,9 @@ namespace DiffRest
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            AppInfo.path = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["profileInfo"].ToString());
-            AppInfo.MetadataRootFolder = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["MetadataLocalFolder"].ToString());
-            AppInfo.FolderLocation = HttpContext.Current.Server.MapPath(WebConfigurationManager.AppSettings["location"].ToString() + WebConfigurationManager.AppSettings["result"].ToString());
+            AppInfo.path = HttpContext.Current.Server.MapPath("~/test_place/HorizonRestMetadataService.xml");
+            AppInfo.MetadataRootFolder = HttpContext.Current.Server.MapPath("~/test_place/MetadataLocalFolder/");
+            AppInfo.FolderLocation = HttpContext.Current.Server.MapPath("~/test_place/Projects/");
         }
     }
 }

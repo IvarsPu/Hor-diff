@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Models;
@@ -10,11 +11,21 @@ namespace BusinessLogic
         public List<Service> Compare(string oldRelease, string newRelease, bool noChange, bool added, bool ignoreNamespaceChanges)
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(AppInfo.MetadataRootFolder + oldRelease + "/metadata.xml");//old file
+            string path = AppInfo.MetadataRootFolder + oldRelease + "/metadata.xml";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            xml.Load(path);//old file
             CompareFiles changeDetection = new CompareFiles();
             Dictionary<string, Service> services = changeDetection.GetServices(xml);
 
-            xml.Load(AppInfo.MetadataRootFolder + newRelease + "/metadata.xml");//new file
+            path = AppInfo.MetadataRootFolder + newRelease + "/metadata.xml";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            xml.Load(path);//new file
             return changeDetection.CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 

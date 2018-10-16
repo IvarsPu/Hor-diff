@@ -22,45 +22,59 @@ namespace BusinessLogic
 
         public List<HorizonVersion> GetHorizonVersions()
         {
-            XmlDocument xml = new XmlDocument();
-            xml.Load(AppInfo.MetadataRootFolder + "Versions.xml");
-
-            List<HorizonVersion> versions = new List<HorizonVersion>();
-
-            foreach (XmlNode node in xml.SelectNodes("//version"))
+            try
             {
-                HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value);
-                foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
-                {
-                    version.ReleaseList.Add(new HorizonRelease(leaf.Attributes["name"].Value));
-                }
-                versions.Add(version);
-            }
+                XmlDocument xml = new XmlDocument();
+                xml.Load(AppInfo.MetadataRootFolder + "Versions.xml");
 
-            return versions;
+                List<HorizonVersion> versions = new List<HorizonVersion>();
+
+                foreach (XmlNode node in xml.SelectNodes("//version"))
+                {
+                    HorizonVersion version = new HorizonVersion(node.Attributes["name"].Value);
+                    foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
+                    {
+                        version.ReleaseList.Add(new HorizonRelease(leaf.Attributes["name"].Value));
+                    }
+                    versions.Add(version);
+                }
+
+                return versions;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public HttpResponseMessage LoadFile(string first, string second)
         {
-            First = first;
-            Second = second;
-            Result = (first + "_" + second).Replace('/', '.');
-
-            string path = AppInfo.FolderLocation + Result + ".zip";
-            if (!File.Exists(path))
+            try
             {
-                GenerateReport(first, second);
+                First = first;
+                Second = second;
+                Result = (first + "_" + second).Replace('/', '.');
+
+                string path = AppInfo.FolderLocation + Result + ".zip";
+                if (!File.Exists(path))
+                {
+                    GenerateReport(first, second);
+                }
+
+                HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+                FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = Result + ".zip"
+                };
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+                return result;
             }
-
-            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            catch
             {
-                FileName = Result + ".zip"
-            };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
-            return result;
+                return null;
+            }
         }
 
         public string DiffColor(string firstFile, string secondFile)
@@ -116,18 +130,11 @@ namespace BusinessLogic
 
         public string GetFile(string filePath)
         {
-            try
+            if (File.Exists(AppInfo.MetadataRootFolder + filePath))
             {
-                if (File.Exists(AppInfo.MetadataRootFolder + filePath))
-                {
-                    return File.ReadAllText(AppInfo.MetadataRootFolder + filePath);
-                }
-                return null;
+                return File.ReadAllText(AppInfo.MetadataRootFolder + filePath);
             }
-            catch
-            {
-                return null;
-            }
+            return null;
         }
 
         #region Make zip

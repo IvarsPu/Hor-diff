@@ -9,64 +9,66 @@
         <div class="panel panel-default" style="height: 100%; display: block; overflow: auto;">
             <div class="panel-heading">Saglabātie versiju laidieni<div style="float: right">@Html.ActionLink("Versiju salīdzināšana", "Index", "Change")</div></div>
 
-            <div id="Releases" class="panel-body" style="padding-left: 20px;">
-                <table class="table table-hover" style="border:solid;">
-                    <thead style="background: #dedede;">
-                        <tr>
-                            <td scope="col"><p>Versija</p></td>
-                            <td scope="col"><p>Laidieni</p></td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
-                        {
+            <div id="Releases" class="panel-body">
+                <div class="panel panel-default">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #f9f9f9;">
                             <tr>
-                                <td scope="col"><p>@version.Version</p></td>
-                                <td scope="col">
-                                    <p>
-                                        @string.Join(", ", version.ReleaseList.Select(c => c.Release))
-                                    </p>
-                                </td>
+                                <td scope="col"><p>Versija</p></td>
+                                <td scope="col"><p>Laidieni</p></td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
+                            {
+                                <tr>
+                                    <td scope="col"><p>@version.Version</p></td>
+                                    <td scope="col">
+                                        <p>
+                                            @string.Join(", ", version.ReleaseList.Select(c => c.Release))
+                                        </p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+         </div>
     </div>
 
     <div class="col-sm-9">
         <div class="panel panel-default" style="overflow: auto;">
             <div class="panel-heading">REST metadatu iegūšana<div style="float: right">@Html.ActionLink("REST servisi", "Index", "Connection")</div></div>
 
-            <div id="Services" class="panel-body" style="padding-left: 20px;">
-                <div style="text-align: center;">
-                    <div style="float: left;">
-                        <b>REST servisu vārdi:</b><select class="form-control" id="Conection">
-                            <option>--Select--</option>
-                            @foreach (Models.RestConnection con in Model)
-                            {
-                                <option value="@con.Id">@con.Name</option>
-                            }
-                        </select>
-                        <input type="button" class="btn btn-primary mb-2" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
-                    </div>
+            <div id="Services" class="panel-body">
+                <div class="panel-body">
+                    <b>REST servisu vārdi:</b><select class="form-control" id="Conection">
+                        <option>--Select--</option>
+                        @foreach (Models.RestConnection con in Model)
+                        {
+                            <option value="@con.Id">@con.Name</option>
+                        }
+                    </select>
+                    <input type="button" class="btn btn-default" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
                     <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
                 </div>
 
-                <table id="RESTMetadataTable" class="table table-hover">
-                    <thead style="background: #dedede;">
-                        <tr>
-                            <td style='display: none;' scope="col"><p>Id</p></td>
-                            <td scope="col"><p>Sākuma laiks</p></td>
-                            <td scope="col"><p>Versija</p></td>
-                            <td scope="col"><p>Laidiens</p></td>
-                            <td scope="col"><p>Progress</p></td>
-                            <td scope="col"><p>Statusa teksts</p></td>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="panel panel-default">
+                    <table id="RESTMetadataTable" class="table table-bordered">
+                        <thead style="background: #f9f9f9;">
+                            <tr>
+                                <td style='display: none;' scope="col"><p>Id</p></td>
+                                <td scope="col"><p>Sākuma laiks</p></td>
+                                <td scope="col"><p>Versija</p></td>
+                                <td scope="col"><p>Laidiens</p></td>
+                                <td scope="col"><p>Progress</p></td>
+                                <td scope="col"><p>Statusa teksts</p></td>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

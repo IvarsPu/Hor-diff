@@ -53,8 +53,8 @@
                                 @Html.DisplayFor(modelItem => item.Password)
                             </td>
                             <td>
-                                @Html.ActionLink("Mainīt", "Edit", new { id = item.Id }) |
-                                @Html.ActionLink("Dzēst", "Delete", new { id = item.Id })
+                                @Html.ActionLink("Mainīt", "Edit", new { item.Id }) |
+                                @Html.ActionLink("Dzēst", "Delete", new { item.Id })
                             </td>
                         </tr>
                     }

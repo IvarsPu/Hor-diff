@@ -18,7 +18,7 @@ namespace BusinessLogic
             }
             xml.Load(path);//old file
             CompareFiles changeDetection = new CompareFiles();
-            Dictionary<string, Service> services = changeDetection.GetServices(xml);
+            List<Service> services = changeDetection.GetServices(xml);
 
             path = AppInfo.MetadataRootFolder + newRelease + "/metadata.xml";
             if (!File.Exists(path))
@@ -29,15 +29,15 @@ namespace BusinessLogic
             return changeDetection.CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
         }
 
-        #region Comapre
-        private Dictionary<string, Service> GetServices(XmlDocument xml)
+        #region Compare
+        private List<Service> GetServices(XmlDocument xml)
         {
-            Dictionary<string, Service> services = new Dictionary<string, Service>();
+            List<Service> services = new List<Service>();
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
                 try
                 {
-                    services.Add(node.Attributes["name"].Value, AddService(node));
+                    services.Add(AddService(node));
                 }
                 catch
                 {
@@ -47,11 +47,11 @@ namespace BusinessLogic
             return services;
         }
 
-        private List<Service> CompareServices(Dictionary<string, Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
+        private List<Service> CompareServices(List<Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
         {
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
-                Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
+                Service service = services.Find(r => r.Name.Equals(node.Attributes["name"].Value));
                 if (service == null)//new service
                 {
                     if (added)
@@ -62,7 +62,7 @@ namespace BusinessLogic
                         {
                             resource.Status = "added";
                         }
-                        services.Add(node.Attributes["name"].Value, service);
+                        services.Add(service);
                     }
                 }
                 else//existing
@@ -70,16 +70,12 @@ namespace BusinessLogic
                     service = GetService(CompareResources(node, service, ignoreNamespaceChanges), noChange, added);
                     if (service == null)
                     {
-                        services.Remove(node.Attributes["name"].Value);
-                    }
-                    else
-                    {
-                        services[node.Attributes["name"].Value] = service;
+                        services.Remove(services.Find(r => r.Name.Equals(node.Attributes["name"].Value)));
                     }
                 }
             }
 
-            return services.Values.ToList();
+            return services;
         }
 
         private Service AddService(XmlNode node)

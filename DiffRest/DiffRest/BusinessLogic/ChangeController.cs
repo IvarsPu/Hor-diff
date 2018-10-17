@@ -307,7 +307,7 @@ namespace BusinessLogic
         #endregion
 
         #region compare
-        public void GenerateReport(string first, string second)
+        private void GenerateReport(string first, string second)
         {
             XmlDocument firstXml = new XmlDocument();
             firstXml.Load(AppInfo.MetadataRootFolder + first + "/metadata.xml");
@@ -326,7 +326,7 @@ namespace BusinessLogic
 
         private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
         {
-            foreach (XmlNode node in firstXml.SelectNodes("//service/*[count(child::*) = 0]"))
+            foreach (XmlNode node in firstXml.SelectNodes("//service/*[not(*)]"))
             {
                 string serviceName = node.ParentNode.Attributes["name"].Value;
                 XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
@@ -344,61 +344,18 @@ namespace BusinessLogic
                         AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
                     }
                 }
-                /*          else
-                          {
-                              //removed
-                              XmlNode t = Get(node, secondXml);
-                              child = secondXml.SelectSingleNode("//" + t.ParentNode.Name + "[@name='" + t.ParentNode.Attributes["name"].Value + "']");
-
-                              XmlNode newBook = secondXml.ImportNode(t, true);
-                              child.AppendChild(newBook);
-                          } */
             }
 
-
-            //The same for attachments
-            foreach (XmlNode node in firstXml.SelectNodes("//service/resource/*[count(child::*) = 0]"))
+            #region remove
+            //Remove unmodified attachments
+            foreach (string t in new string[] { "resource", "service", "service_group" })
             {
-                string serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
-                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/resource/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
-                if (child != null)
+                foreach (XmlNode node in firstXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
                 {
-                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
-                        || child.Attributes["hashCode"].Value.Equals("-1")
-                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
-                    {
-                        //not changed
-                        node.ParentNode.RemoveChild(node);
-                    }
-                    else
-                    {
-                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
-                    }
+                    node.ParentNode.RemoveChild(node);
                 }
             }
-
-            //Remove unmodified attachments
-            foreach (XmlNode node in firstXml.SelectNodes("//resource[count(child::*) = 0]"))
-            {
-                node.ParentNode.RemoveChild(node);
-            }
-            //Remove unmodified services
-            foreach (XmlNode node in firstXml.SelectNodes("//service[count(child::*) = 0]"))
-            {
-                node.ParentNode.RemoveChild(node);
-            }
-
-            //Remove unmodified service groups
-            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
-            {
-                node.ParentNode.RemoveChild(node);
-            }
-
-            //Remove unmodified service parent groups
-            foreach (XmlNode node in firstXml.SelectNodes("//service_group[count(child::*) = 0]"))
-            {
-                node.ParentNode.RemoveChild(node);
-            }
+            #endregion
 
             return firstXml;
         }

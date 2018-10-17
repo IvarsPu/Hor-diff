@@ -4,7 +4,6 @@ using Models;
 
 namespace DiffRest.Controllers
 {
-    [RoutePrefix("ConnectionController")]
     public class ConnectionController : Controller
     {
         #region Main page
@@ -21,7 +20,7 @@ namespace DiffRest.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create([Bind(Include= "Name,Url,Username,Password")] RestConnection service)
+        public ActionResult Create([Bind(Include = "Name,Url,Username,Password")] RestConnection service)
         {
             if (new Connection().CreateServerConn(service))
             {
@@ -37,7 +36,7 @@ namespace DiffRest.Controllers
         #region Delete
         public ActionResult Delete(int id)
         {
-            new BusinessLogic.Connection().DeleteServerConn(id);
+            new Connection().DeleteServerConn(id);
             return RedirectToAction("Index", "Connection", new { });
         }
         #endregion
@@ -48,7 +47,7 @@ namespace DiffRest.Controllers
             return View(new BusinessLogic.Connection().GetServerConn(id));
         }
 
-        [HttpPost]
+        [HttpPut]
         public ActionResult Edit([Bind(Include = "Id,Name,Url,Username,Password")] RestConnection service)
         {
             if(new BusinessLogic.Connection().EditServerConn(service))

@@ -95,7 +95,7 @@ $(document).ready(function () {
 
     $("#next").click(function () {
         var iframe = document.getElementById("diff_frame");
-        var elmnts = iframe.contentWindow.document.getElementsByTagName("span");
+        var elmnts = iframe.contentWindow.document.getElementsByTagName("a");
 
         if (selectedId < elmnts.length - 2) {
             var pass = true;

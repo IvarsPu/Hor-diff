@@ -73,7 +73,7 @@ namespace BusinessLogic
             }
             catch
             {
-                return null;
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }
 
@@ -326,7 +326,7 @@ namespace BusinessLogic
 
         private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
         {
-            foreach (XmlNode node in firstXml.SelectNodes("//service/*[not(*)]"))
+            foreach (XmlNode node in firstXml.SelectNodes("//service//*[not(*)]"))
             {
                 string serviceName = node.ParentNode.Attributes["name"].Value;
                 XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");

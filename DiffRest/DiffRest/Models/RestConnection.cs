@@ -17,7 +17,7 @@ namespace Models
 
         [DataMember(Name = "Url")]
         [DisplayName("Url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
 
         [DataMember(Name = "Username")]
         [DisplayName("Lietotāja vārds")]

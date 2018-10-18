@@ -34,10 +34,10 @@ namespace DiffRest.Controllers
         #endregion
 
         #region Delete
-        public ActionResult Delete(int id)
+        [HttpPost]
+        public void Delete(int id)
         {
             new Connection().DeleteServerConn(id);
-            return RedirectToAction("Index", "Connection", new { });
         }
         #endregion
 
@@ -47,10 +47,10 @@ namespace DiffRest.Controllers
             return View(new BusinessLogic.Connection().GetServerConn(id));
         }
 
-        [HttpPut]
+        [HttpPost]
         public ActionResult Edit([Bind(Include = "Id,Name,Url,Username,Password")] RestConnection service)
         {
-            if(new BusinessLogic.Connection().EditServerConn(service))
+            if(new Connection().EditServerConn(service))
             {
                 return RedirectToAction("Index", "Connection", new { });
             }

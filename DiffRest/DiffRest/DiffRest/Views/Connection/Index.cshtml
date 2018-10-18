@@ -54,18 +54,17 @@
                             </td>
                             <td>
                                 @Html.ActionLink("Mainīt", "Edit", new { item.Id }) |
-                                @Html.ActionLink("Dzēst", "Delete", new { item.Id })
+                                @Ajax.ActionLink("Dzēst", "Delete", new { id = item.Id }, new AjaxOptions { HttpMethod = "POST", OnSuccess = "window.location.reload()" })
                             </td>
                         </tr>
                     }
-
-                        <tfoot>
-                            <tr>
-                                <td colspan="6">
-                                    <div style="text-align: center">@Html.ActionLink("Izveidot", "Create")</div>
-                                </td>
-                            </tr>
-                        </tfoot>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <div style="text-align: center">@Html.ActionLink("Izveidot", "Create")</div>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

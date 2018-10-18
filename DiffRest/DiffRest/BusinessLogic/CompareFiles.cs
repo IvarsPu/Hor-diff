@@ -37,23 +37,18 @@ namespace BusinessLogic
         }
 
         #region Compare
+        //Services with resources created from xml
         private List<Service> GetServices(XmlDocument xml)
         {
             List<Service> services = new List<Service>();
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
-                try
-                {
-                    services.Add(AddService(node));
-                }
-                catch
-                {
-                    //element with this key already exists
-                }
+                services.Add(CreateService(node));
             }
             return services;
         }
 
+        //Compares services
         private List<Service> CompareServices(List<Service> services, XmlDocument xml)
         {
             foreach (XmlNode node in xml.SelectNodes("//service"))
@@ -63,7 +58,7 @@ namespace BusinessLogic
                 {
                     if (added)
                     {
-                        service = AddService(node);
+                        service = CreateService(node);
                         service.Status = addedStatus;
                         foreach (Resource resource in service.ResourceList)
                         {
@@ -74,18 +69,19 @@ namespace BusinessLogic
                 }
                 else//existing
                 {
-                    service = GetService(CompareResources(node, service));
+                    Service tempService = CompareResources(node, service);
+                    service = CheckService(tempService);
                     if (service == null)
                     {
-                        services.Remove(services.Find(r => r.Name.Equals(node.Attributes["name"].Value)));
+                        services.Remove(tempService);
                     }
                 }
             }
             return services;
         }
 
-        //creates service from info in xml node
-        private Service AddService(XmlNode node)
+        //Creates service from info in xml node
+        private Service CreateService(XmlNode node)
         {
             Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, removeStatus);
             foreach (XmlNode leaf in node.SelectNodes(".//*[not(child::*)]"))
@@ -95,6 +91,7 @@ namespace BusinessLogic
             return service;
         }
 
+        //Compares resources of services
         private Service CompareResources(XmlNode node, Service service)
         {
             foreach (XmlNode leaf in node.SelectNodes(".//*[not(child::*)]"))
@@ -120,35 +117,28 @@ namespace BusinessLogic
             return service;
         }
 
-        private Service GetService(Service service)
+        //Sets status of service based on resource status
+        private Service CheckService(Service service)
         {
             List<Resource> list = service.ResourceList;
             if (list.All(o => o.Status.Equals(list[0].Status)))
             {
-                if (list.Count > 0)
+                if(list.Count == 0)
                 {
-                    service.Status = list[0].Status;
-                    if ((!noChange && service.Status.Equals(noChangeStatus)) ||
-                        (!added && service.Status.Equals(addedStatus)))
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return service;
-                    }
+                    service.Status = noChangeStatus;
                 }
                 else
                 {
-                    if (!noChange)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        service.Status = noChangeStatus;
-                        return service;
-                    }
+                    service.Status = list[0].Status;
+                }
+                if ((!noChange && service.Status.Equals(noChangeStatus)) ||
+                    (!added && service.Status.Equals(addedStatus)))
+                {
+                    return null;
+                }
+                else
+                {
+                    return service;
                 }
             }
             else

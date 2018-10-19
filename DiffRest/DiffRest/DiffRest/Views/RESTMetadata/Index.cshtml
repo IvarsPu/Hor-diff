@@ -85,7 +85,7 @@
     });
 
     function setDivSize() {
-        var newHeight = $(window).height() - 100;
+        var newHeight = $(window).height() - 120;
 
         $('#Releases').height(newHeight);
         $('#Services').height(newHeight);
@@ -129,7 +129,7 @@
                         "</tr> ";
                 }
                 $("#RESTMetadataTable tbody").html(htmlText)
-                $("#message").text();
+                $("#message").text("");
             },
             error: function () {
                 $("#message").text("Kļūda iegūstot procesus");

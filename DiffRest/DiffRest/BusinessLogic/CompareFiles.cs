@@ -120,32 +120,19 @@ namespace BusinessLogic
         //Sets status of service based on resource status
         private Service CheckService(Service service)
         {
-            List<Resource> list = service.ResourceList;
-            if (list.All(o => o.Status.Equals(list[0].Status)))
+            List<Resource> list = service.ResourceList.Where(r => r.Status.Equals(editStatus) || (noChange && (r.Status.Equals(noChangeStatus) || r.Status.Equals(removeStatus))) || (added && r.Status.Equals(addedStatus))).ToList();
+            if (list.Count == 0)
             {
-                if(list.Count == 0)
-                {
-                    service.Status = noChangeStatus;
-                }
-                else
-                {
-                    service.Status = list[0].Status;
-                }
-                if ((!noChange && service.Status.Equals(noChangeStatus)) ||
-                    (!added && service.Status.Equals(addedStatus)))
-                {
-                    return null;
-                }
-                else
-                {
-                    return service;
-                }
+                return null;
             }
-            else
+            string statusText = list[0].Status;
+            if (!list.All(o => o.Status.Equals(statusText)))
             {
-                service.Status = editStatus;
-                return service;
+                statusText = editStatus;
             }
+            service.Status = statusText;
+            service.ResourceList = list;
+            return service;
         }
         #endregion
     }

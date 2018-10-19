@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using BusinessLogic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Models;
@@ -45,15 +47,15 @@ namespace TestProject
         [TestMethod]
         public void LoadFileWrongPath()
         {
-            AppInfo.MetadataRootFolder = "../test_place/MetadataLocalFolder/"; //file folder
-            AppInfo.FolderLocation = "../test_place/Projects/"; //folder where result should be saved
-            Assert.IsNull(changeController.LoadFile("515/13", "515/21"));
+            AppInfo.MetadataRootFolder = "test_place/MetadataLocalFolder/"; //file folder
+            AppInfo.FolderLocation = "test_place/Projects/"; //folder where result should be saved
+            Assert.AreEqual(new HttpResponseMessage(HttpStatusCode.InternalServerError).StatusCode, changeController.LoadFile("515/13", "515/21").StatusCode);
         }
 
         [TestMethod]
         public void LoadFileWrongVersionOrRelease()
         {
-            Assert.IsNull(changeController.LoadFile("515/13", "515/2"));
+            Assert.AreEqual(new HttpResponseMessage(HttpStatusCode.InternalServerError).StatusCode, changeController.LoadFile("515/13", "515/2").StatusCode);
         }
         #endregion
 

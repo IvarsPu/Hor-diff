@@ -345,17 +345,12 @@ namespace BusinessLogic
                     }
                 }
             }
-
-            #region remove
-            //Remove unmodified attachments
-            foreach (string t in new string[] { "resource", "service", "service_group" })
+            
+            //Remove all elements, who are not supposed to be end nodes, but are
+            foreach (XmlNode node in firstXml.SelectNodes("//*[not(child::*)][not(self::data_schema)][not(self::service_schema)][not(self::query_schema)]"))
             {
-                foreach (XmlNode node in firstXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
-                {
-                    node.ParentNode.RemoveChild(node);
-                }
+                node.ParentNode.RemoveChild(node);
             }
-            #endregion
 
             return firstXml;
         }

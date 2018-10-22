@@ -187,8 +187,17 @@ namespace BusinessLogic
         {
             StringBuilder sb = new StringBuilder();
 
-            string oldText = File.ReadAllText(firstFile);
-            string newText = File.ReadAllText(secondFile);
+            string oldText = "";
+            if (File.Exists(firstFile))
+            {
+                oldText = File.ReadAllText(firstFile);
+            }
+
+            string newText = "";
+            if (File.Exists(secondFile))
+            {
+                newText = File.ReadAllText(secondFile);
+            }
 
             var d = new Differ();
             var builder = new InlineDiffBuilder(d);
@@ -243,8 +252,8 @@ namespace BusinessLogic
                 Directory.CreateDirectory(exportFolder);
             }
 
-            string firstFilePath = AppInfo.MetadataRootFolder + First + "/" + filePath + "/" + fileName;
-            string secondFilePath = AppInfo.MetadataRootFolder + Second + "/" + filePath + "/" + fileName;
+            string firstFilePath = AppInfo.MetadataRootFolder + First + "/" + filePath + fileName;
+            string secondFilePath = AppInfo.MetadataRootFolder + Second + "/" + filePath + fileName;
 
             string htmlFileName = fileName.Replace('.', '_') + ".html";
             string htmlFilePath = exportFolder + "/" + htmlFileName;
@@ -315,7 +324,7 @@ namespace BusinessLogic
             XmlDocument secondXml = new XmlDocument();
             secondXml.Load(AppInfo.MetadataRootFolder + second + "/metadata.xml");
 
-            secondXml = Compare(firstXml, secondXml);
+            secondXml = Compare(secondXml, firstXml);
             secondXml.RemoveChild(secondXml.FirstChild);
 
             string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
@@ -329,7 +338,11 @@ namespace BusinessLogic
             foreach (XmlNode node in firstXml.SelectNodes("//service//*[not(*)]"))
             {
                 string serviceName = node.ParentNode.Attributes["name"].Value;
-                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']/" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                if (serviceName.Equals("attachments"))
+                {
+                    serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
+                }
+                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']//" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
                 if (child != null)
                 {
                     if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
@@ -345,11 +358,14 @@ namespace BusinessLogic
                     }
                 }
             }
-            
+
             //Remove all elements, who are not supposed to be end nodes, but are
-            foreach (XmlNode node in firstXml.SelectNodes("//*[not(child::*)][not(self::data_schema)][not(self::service_schema)][not(self::query_schema)]"))
+            foreach (string t in new string[] { "resource", "service", "service_group", "service_group" })
             {
-                node.ParentNode.RemoveChild(node);
+                foreach (XmlNode node in firstXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
+                {
+                    node.ParentNode.RemoveChild(node);
+                }
             }
 
             return firstXml;

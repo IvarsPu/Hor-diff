@@ -426,13 +426,7 @@ function IsFile(treeNode) {
     var isFile = false;
 
     if (treeNode) {
-        if (treeNode.extraClasses == TreeExtraClasses.DocumentType
-            || treeNode.extraClasses == TreeExtraClasses.DocumentChanged
-            || treeNode.extraClasses == TreeExtraClasses.DocumentDeleted
-            || treeNode.extraClasses == TreeExtraClasses.DocumentNew
-            || treeNode.extraClasses == TreeExtraClasses.DocumentError) {
             isFile = true;
-        }
     }
     return isFile;
 

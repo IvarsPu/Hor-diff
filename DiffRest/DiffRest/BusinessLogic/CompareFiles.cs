@@ -77,6 +77,8 @@ namespace BusinessLogic
                     }
                 }
             }
+            List<Service> list = services.Where(r => r.ResourceList.Count == 0).ToList();
+            services = services.Except(list).ToList();
             return services;
         }
 

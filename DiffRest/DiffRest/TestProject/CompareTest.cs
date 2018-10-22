@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BusinessLogic;
 using Models;
+using System.Linq;
 
 namespace TestProject
 {
     [TestClass]
     public class CompareTest
     {
+        private static readonly string noChangeStatus = "not changed", addedStatus = "added", editStatus = "eddited", removeStatus = "removed";
         private static CompareFiles compareFiles;
 
         [TestInitialize]
@@ -61,19 +63,19 @@ namespace TestProject
         [TestMethod]
         public void CompareSameFilesFalseTo_Added_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals("not changed") && r.ResourceList.Exists(s =>  !s.Status.Equals("not changed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals(noChangeStatus) && r.ResourceList.Exists(s =>  !s.Status.Equals(noChangeStatus))));
         }
 
         [TestMethod]
         public void CompareSameFilesFalseTo_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals("not changed") && r.ResourceList.Exists(s => !s.Status.Equals("not changed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals(noChangeStatus) && r.ResourceList.Exists(s => !s.Status.Equals(noChangeStatus))));
         }
 
         [TestMethod]
         public void CompareSameFilesFalseTo_Added()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals("not changed") && r.ResourceList.Exists(s => !s.Status.Equals("not changed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/13", true, false, false).Find(r => !r.Status.Equals(noChangeStatus) && r.ResourceList.Exists(s => !s.Status.Equals(noChangeStatus))));
         }
         #endregion Same Files
 
@@ -81,44 +83,52 @@ namespace TestProject
         [TestMethod]
         public void CompareDifferentFilesFalseTo_NoChange_Added_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, false, false).Find(r => !r.Status.Equals("eddited") && r.ResourceList.Exists(s => !s.Status.Equals("eddited"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, false, false).Find(r => !r.Status.Equals(editStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_NoChange_Added()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, false, true).Find(r => !r.Status.Equals("eddited") && r.ResourceList.Exists(s => !s.Status.Equals("eddited"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, false, true).Find(r => !r.Status.Equals(editStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_NoChange_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, true, false).Find(r => !r.Status.Equals("eddited") && !r.Status.Equals("added") && r.ResourceList.Exists(s => !s.Status.Equals("eddited") && !s.Status.Equals("added"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, true, false).Find(r => !r.Status.Equals(editStatus) && !r.Status.Equals(addedStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus) && !s.Status.Equals(addedStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_NoChange()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, true, true).Find(r => !r.Status.Equals("eddited") && !r.Status.Equals("added") && r.ResourceList.Exists(s => !s.Status.Equals("eddited") && !s.Status.Equals("added"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", false, true, true).Find(r => !r.Status.Equals(editStatus) && !r.Status.Equals(addedStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus) && !s.Status.Equals(addedStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_Added_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, false, false).Find(r => !r.Status.Equals("eddited") && !r.Status.Equals("not changed") && !r.Status.Equals("removed") && r.ResourceList.Exists(s => !s.Status.Equals("eddited") && !s.Status.Equals("not changed") && !s.Status.Equals("removed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, false, false).Find(r => !r.Status.Equals(editStatus) && !r.Status.Equals(noChangeStatus) && !r.Status.Equals(removeStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus) && !s.Status.Equals(noChangeStatus) && !s.Status.Equals(removeStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_IgnorNamespace()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, true, false).Find(r => !r.Status.Equals("eddited") && !r.Status.Equals("not changed") && !r.Status.Equals("added") && !r.Status.Equals("removed") && r.ResourceList.Exists(s => !s.Status.Equals("eddited") && !s.Status.Equals("not changed") && !s.Status.Equals("added") && !s.Status.Equals("removed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, true, false).Find(r => !r.Status.Equals(editStatus) && !r.Status.Equals(noChangeStatus) && !r.Status.Equals(addedStatus) && !r.Status.Equals(removeStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus) && !s.Status.Equals(noChangeStatus) && !s.Status.Equals(addedStatus) && !s.Status.Equals(removeStatus))));
         }
 
         [TestMethod]
         public void CompareDifferentFilesFalseTo_Added()
         {
-            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, false, true).Find(r => !r.Status.Equals("eddited") && !r.Status.Equals("not changed") && !r.Status.Equals("removed") && r.ResourceList.Exists(s => !s.Status.Equals("eddited") && !s.Status.Equals("not changed") && !s.Status.Equals("removed"))));
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, false, true).Find(r => !r.Status.Equals(editStatus) && !r.Status.Equals(noChangeStatus) && !r.Status.Equals(removeStatus) && r.ResourceList.Exists(s => !s.Status.Equals(editStatus) && !s.Status.Equals(noChangeStatus) && !s.Status.Equals(removeStatus))));
         }
         #endregion
+
+        [TestMethod]
+        public void CheckStatusText()
+        {
+            Assert.IsNull(compareFiles.Compare("515/13", "515/21", true, true, true).Find(x =>
+            !x.ResourceList.All(o => o.Status.Equals(x.ResourceList[0].Status)) && !x.Status.Equals(editStatus) ||
+            x.ResourceList.All(o => o.Status.Equals(x.ResourceList[0].Status)) && !x.Status.Equals(x.ResourceList[0].Status)));
+        }
     }
 }

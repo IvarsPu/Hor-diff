@@ -301,12 +301,8 @@ namespace BusinessLogic
                     schema.HashCode = Int32.Parse(child.Attributes["hashCode"].Value);
                     schema.NoNamspaceHashCode = Int32.Parse(child.Attributes["noNamspaceHashCode"].Value);
                     schema.Type = child.Name;
-                    try
-                    {
-                        schema.DiffHtmlFile = child.Attributes["diffHtmlFile"].Value;
-                    }
-                    catch (Exception)
-                    { }
+                    schema.ExtraClasses = child.Attributes["serviceStatus"].Value;
+                    schema.DiffHtmlFile = child.Attributes["diffHtmlFile"].Value;
 
                     elements.Add(schema);
                 }
@@ -333,16 +329,16 @@ namespace BusinessLogic
             MakeLocalZip(first, second);
         }
 
-        private XmlDocument Compare(XmlDocument firstXml, XmlDocument secondXml)
+        private XmlDocument Compare(XmlDocument secondXml, XmlDocument firstXml)
         {
-            foreach (XmlNode node in firstXml.SelectNodes("//service//*[not(*)]"))
+            foreach (XmlNode node in secondXml.SelectNodes("//service//*[not(*)]"))
             {
                 string serviceName = node.ParentNode.Attributes["name"].Value;
                 if (serviceName.Equals("attachments"))
                 {
                     serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
                 }
-                XmlNode child = secondXml.SelectSingleNode("//service[@name='" + serviceName + "']//" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
+                XmlNode child = firstXml.SelectSingleNode("//service[@name='" + serviceName + "']//" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
                 if (child != null)
                 {
                     if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
@@ -354,21 +350,29 @@ namespace BusinessLogic
                     }
                     else
                     {
+                        //eddited
                         AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
+                        AddXmlAttribute(node, "serviceStatus", "doc_changed");
                     }
+                }
+                else
+                {
+                    //added
+                    AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
+                    AddXmlAttribute(node, "serviceStatus", "doc_new");
                 }
             }
 
             //Remove all elements, who are not supposed to be end nodes, but are
             foreach (string t in new string[] { "resource", "service", "service_group", "service_group" })
             {
-                foreach (XmlNode node in firstXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
+                foreach (XmlNode node in secondXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
                 {
                     node.ParentNode.RemoveChild(node);
                 }
             }
 
-            return firstXml;
+            return secondXml;
         }
 
         private void AddXmlAttribute(XmlNode node, String attrName, String attrValue)

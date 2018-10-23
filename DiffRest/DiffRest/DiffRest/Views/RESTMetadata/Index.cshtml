@@ -43,7 +43,7 @@
 
             <div id="Services" class="panel-body">
                 <div class="panel-body">
-                    <b>REST servisu vārdi:</b><select class="form-control" id="Conection">
+                    <b>REST servisu vārdi:</b><select class="form-control" style="display: inline; width: auto;" id="Conection">
                         <option>--Select--</option>
                         @foreach (Models.RestConnection con in Model)
                         {
@@ -51,7 +51,7 @@
                         }
                     </select>
                     <input type="button" class="btn btn-default" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
-                    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
+                    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="display: inline; width: auto; float: right;" />
                 </div>
 
                 <div class="panel panel-default">

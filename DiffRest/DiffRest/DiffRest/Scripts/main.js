@@ -268,11 +268,10 @@ function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {
     for (var i = 0; i < jsonVer1Array.length; i++) {
         MarkServiceDifferences(jsonVer1Array[i], jsonVer2Array, "", rootContainer);
     }
-    CheckForNewTreeItems(jsonVer1Array, jsonVer2Array);
+    CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, "");
 }
 
 function FindItemByTitle(JsonArray, title) {
-
     for (var i = 0; i < JsonArray.length; ++i) {
         if (JsonArray[i].title == title) {
             return JsonArray[i];
@@ -284,11 +283,8 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     var isDifferent = false;
     ver1Service.restPath = "";
     ver1Service.isError = false;
-
-    if (parentRestPath != "") {
-        ver1Service.restPath = parentRestPath + "/";
-    }
-    ver1Service.restPath += ver1Service.title;
+    
+    ver1Service.restPath += parentRestPath;
 
     if (ver1Service.children && ver1Service.title) {
         var ver2Service = FindItemByTitle(jsonVer2Array, ver1Service.title);
@@ -301,14 +297,14 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
                 var ver1ServiceChild = ver1Service.children[f];
 
                 if (ver1ServiceChild.extraClasses === TreeExtraClasses.DocumentType) {
-                    isDifferent = MarkDocumentDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath, ver1Service.title, ver1Service) || isDifferent;
+                    isDifferent = MarkDocumentDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title, ver1Service.title, ver1Service) || isDifferent;
                 } else {
-                    isDifferent = MarkServiceDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath, ver1Service) || isDifferent;
+                    isDifferent = MarkServiceDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title, ver1Service) || isDifferent;
                 }
             }
 
             // Check the new ones
-            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children) || isDifferent;
+            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath) || isDifferent;
 
             if (isDifferent) {
                 ver1Service.extraClasses = TreeExtraClasses.ServiceChanged;
@@ -322,21 +318,17 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     return isDifferent;
 }
 
-function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array) {
-    var isDifferent = false;
-
+function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, parantPath) {
     for (var f = 0; f < jsonVer2Array.length; f++) {
         var ver2ServiceChild = jsonVer2Array[f];
 
         var ver1ServiceChild = FindItemByTitle(jsonVer1Array, ver2ServiceChild.title);
 
         if (!ver1ServiceChild) {
-            markTreeAsNew(ver2ServiceChild);
+            markTreeAsNew(ver2ServiceChild, parantPath);
             jsonVer1Array.push(ver2ServiceChild);
-            isDifferent = true;
         }
     }
-    return isDifferent;
 }
 
 function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, parentWebPath, statusContainer) {
@@ -389,16 +381,17 @@ function getErrorDiff(jsonVer1Doc, jsonVer2Doc) {
     return !jsonVer1Doc.hasOwnProperty('errorMessage') && jsonVer2Doc.hasOwnProperty('errorMessage');
 }
 
-function markTreeAsNew(root) {
+//Check here for new
+function markTreeAsNew(root, parantPath) {
+    root.restPath = parantPath;
     if (root.extraClasses === TreeExtraClasses.DocumentType) {
-        root.extraClasses = TreeExtraClasses.doc_new;
+        root.extraClasses = TreeExtraClasses.DocumentNew;
     } else {
-        root.extraClasses = TreeExtraClasses.service_new;
+        root.extraClasses = TreeExtraClasses.ServiceNew;
 
         if (root.children) {
-
             for (var f = 0; f < root.children.length; f++) {
-                markTreeAsNew(root.children[f]);
+                markTreeAsNew(root.children[f], root.restPath + "/" + root.title);
             }
         }
     }

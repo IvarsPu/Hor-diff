@@ -304,7 +304,7 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
             }
 
             // Check the new ones
-            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath) || isDifferent;
+            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title) || isDifferent;
 
             if (isDifferent) {
                 ver1Service.extraClasses = TreeExtraClasses.ServiceChanged;

@@ -23,7 +23,7 @@ span.fancytree-node.service_changed span.fancytree-icon {
 
 span.fancytree-node.service_new span.fancytree-icon {
     background-position: 0 0;
-    background-image: url("skin-custom/new.png");
+    background-image: url("skin-custom/customFolder1.gif");
 }
 
 span.fancytree-node.service_deleted span.fancytree-icon {

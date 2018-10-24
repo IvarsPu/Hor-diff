@@ -79,53 +79,7 @@ namespace BusinessLogic
 
         public string DiffColor(string firstFile, string secondFile)
         {
-            StringBuilder sb = new StringBuilder();
-
-            string oldText = "";
-            if (File.Exists(AppInfo.MetadataRootFolder + firstFile))
-            {
-                oldText = File.ReadAllText(AppInfo.MetadataRootFolder + firstFile);
-            }
-
-            string newText = "";
-            if (File.Exists(AppInfo.MetadataRootFolder + secondFile))
-            {
-                newText = File.ReadAllText(AppInfo.MetadataRootFolder + secondFile);
-            }
-
-            var d = new Differ();
-            var builder = new InlineDiffBuilder(d);
-            var result = builder.BuildDiffModel(oldText, newText);
-            sb.Append("<html>\n" +
-                "<head>\n" +
-                "<meta charset='UTF-8'>\n" +
-                "<style>\n" +
-                "span { color: gray;  white-space: pre; }\n" +
-                ".deleted { color:black; background-color:red; } \n" +
-                ".new { color:black; background-color:yellow; }\n " +
-                "</style>\n" +
-                "</head>\n" +
-                "<body>\n");
-            foreach (var line in result.Lines)
-            {
-                if (line.Type == ChangeType.Inserted)
-                {
-                    sb.Append("<span class='new'>");
-                }
-                else if (line.Type == ChangeType.Deleted)
-                {
-                    sb.Append("<span class='deleted'>");
-                }
-                else if (line.Type == ChangeType.Unchanged)
-                {
-                    sb.Append("<span>");
-                }
-                sb.Append(HttpUtility.HtmlEncode(line.Text) + "</span><br/>\n");
-            }
-            sb.Append("</body>\n" +
-                "</html>");
-
-            return sb.ToString();
+            return GenerateDiffHtmlFile(AppInfo.MetadataRootFolder + firstFile, AppInfo.MetadataRootFolder + secondFile);
         }
 
         public string GetFile(string filePath)
@@ -183,7 +137,7 @@ namespace BusinessLogic
         #endregion
 
         #region Text Color Generator
-        private void GenerateDiffHtmlFile(string firstFile, string secondFile, string resultFilePath)
+        private string GenerateDiffHtmlFile(string firstFile, string secondFile)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -230,15 +184,14 @@ namespace BusinessLogic
             }
             sb.Append("</body>\n" +
                 "</html>");
-            File.WriteAllText(resultFilePath, sb.ToString(), Encoding.UTF8);
+            return sb.ToString();
         }
 
         private string GenerateHtmlDiff(XmlNode node)
         {
             String fileName = node.Attributes["name"].Value;
             String filePath = "";
-
-            //Get file path
+            
             XmlNode fileNode = node.ParentNode;
             do
             {
@@ -260,7 +213,7 @@ namespace BusinessLogic
 
             try
             {
-                GenerateDiffHtmlFile(firstFilePath, secondFilePath, htmlFilePath);
+                File.WriteAllText(htmlFilePath, GenerateDiffHtmlFile(firstFilePath, secondFilePath), Encoding.UTF8);
             }
             catch (Exception)
             { }
@@ -310,6 +263,8 @@ namespace BusinessLogic
             return elements;
         }
         #endregion
+
+        //Convert to object and do work than??
 
         #region compare
         private void GenerateReport(string first, string second)

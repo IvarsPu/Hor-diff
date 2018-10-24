@@ -41,7 +41,13 @@ namespace TestProject
         [TestMethod]
         public void LoadFileSuccess()
         {
-            Assert.IsNotNull(changeController.LoadFile("515/13", "515/21"));
+            Assert.AreNotEqual(new HttpResponseMessage(HttpStatusCode.InternalServerError).StatusCode, changeController.LoadFile("515/13", "515/21").StatusCode);
+        }
+
+        [TestMethod]
+        public void LoadFileCompareSame()
+        {
+            Assert.AreEqual(new HttpResponseMessage(HttpStatusCode.InternalServerError).StatusCode, changeController.LoadFile("515/13", "515/13").StatusCode);
         }
 
         [TestMethod]

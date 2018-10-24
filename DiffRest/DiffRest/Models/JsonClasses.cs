@@ -4,12 +4,10 @@ using System.Runtime.Serialization;
 
 namespace Models
 {
-    public interface IElement { }
-
     [Serializable]
     [KnownType(typeof(Schema))]
     [DataContract(Name = "Schema")]
-    public class Schema : IElement
+    public class Schema
     {
         [DataMember(Name = "title")]
         public string Title { get; set; }
@@ -39,7 +37,7 @@ namespace Models
     [Serializable]
     [KnownType(typeof(Folder))]
     [DataContract(Name = "Folder")]
-    public class Folder : IElement
+    public class Folder
     {
         [DataMember(Name = "title")]
         public string Title { get; set; }
@@ -51,6 +49,6 @@ namespace Models
         public string Type { get; set; }
 
         [DataMember(Name = "children")]
-        public IList<IElement> Children { get; set; }
+        public List<object> Children { get; set; }
     }
 }

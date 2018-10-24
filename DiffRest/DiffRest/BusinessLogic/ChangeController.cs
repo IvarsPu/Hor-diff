@@ -187,17 +187,10 @@ namespace BusinessLogic
             return sb.ToString();
         }
 
-        private string GenerateHtmlDiff(XmlNode node)
+        private string GenerateHtmlDiff(Schema schema, string path)
         {
-            String fileName = node.Attributes["name"].Value;
-            String filePath = "";
-            
-            XmlNode fileNode = node.ParentNode;
-            do
-            {
-                filePath = fileNode.Attributes["name"].Value + "/" + filePath;
-                fileNode = fileNode.ParentNode;
-            } while (!fileNode.Name.Equals("rest_api_metadata"));
+            String fileName = schema.Title;
+            String filePath = path;
 
             string exportFolder = AppInfo.FolderLocation + Result + "/" + AppInfo.HtmlRootFolder + "/" + filePath;
             if (!Directory.Exists(exportFolder))
@@ -234,9 +227,9 @@ namespace BusinessLogic
             return folder;
         }
 
-        private IList<IElement> GetChildren(XmlNode node)
+        private List<object> GetChildren(XmlNode node)
         {
-            IList<IElement> elements = new List<IElement>();
+            List<object> elements = new List<object>();
             foreach (XmlNode child in node.ChildNodes)
             {
                 if (child.Name.Equals("service") || child.Name.Equals("service_group") || child.Name.Equals("resource"))
@@ -245,6 +238,7 @@ namespace BusinessLogic
                     folder.Title = child.Attributes["name"].Value;
                     folder.Type = child.Name;
                     folder.Children = GetChildren(child);
+                    folder.ExtraClasses = "service_changed";
                     elements.Add(folder);
                 }
                 else
@@ -254,17 +248,13 @@ namespace BusinessLogic
                     schema.HashCode = Int32.Parse(child.Attributes["hashCode"].Value);
                     schema.NoNamspaceHashCode = Int32.Parse(child.Attributes["noNamspaceHashCode"].Value);
                     schema.Type = child.Name;
-                    schema.ExtraClasses = child.Attributes["serviceStatus"].Value;
-                    schema.DiffHtmlFile = child.Attributes["diffHtmlFile"].Value;
-
+                    schema.ExtraClasses = "doc_changed";
                     elements.Add(schema);
                 }
             }
             return elements;
         }
         #endregion
-
-        //Convert to object and do work than??
 
         #region compare
         private void GenerateReport(string first, string second)
@@ -275,67 +265,98 @@ namespace BusinessLogic
             XmlDocument secondXml = new XmlDocument();
             secondXml.Load(AppInfo.MetadataRootFolder + second + "/metadata.xml");
 
-            secondXml = Compare(secondXml, firstXml);
-            secondXml.RemoveChild(secondXml.FirstChild);
-
-            string json = "var JsonTree = " + JsonConvert.SerializeObject(AddClass(secondXml));
+            Folder firstObjects = AddClass(firstXml);
+            Folder secondObjects = AddClass(secondXml);
+            Test(firstObjects, secondObjects, "");
+            
+            string json = "var JsonTree = " + JsonConvert.SerializeObject(secondObjects);
             File.WriteAllText(AppInfo.FolderLocation + Result + "/" + AppInfo.JsonTreeFileName, json);
 
             MakeLocalZip(first, second);
         }
-
-        private XmlDocument Compare(XmlDocument secondXml, XmlDocument firstXml)
+        
+        private void Test(Folder first, Folder second, string path)
         {
-            foreach (XmlNode node in secondXml.SelectNodes("//service//*[not(*)]"))
+            List<object> remove = new List<object>();
+            foreach (object element2 in second.Children)
             {
-                string serviceName = node.ParentNode.Attributes["name"].Value;
-                if (serviceName.Equals("attachments"))
+                bool found = false;
+                foreach (object element1 in first.Children)
                 {
-                    serviceName = node.ParentNode.ParentNode.Attributes["name"].Value;
-                }
-                XmlNode child = firstXml.SelectSingleNode("//service[@name='" + serviceName + "']//" + node.Name + "[@name='" + node.Attributes["name"].Value + "']");
-                if (child != null)
-                {
-                    if (child.Attributes["hashCode"].Value.Equals(node.Attributes["hashCode"].Value)
-                        || child.Attributes["hashCode"].Value.Equals("-1")
-                        || node.Attributes["hashCode"].Value.Equals("-1")) //Do not export errors
+                    if (element1.GetType() == typeof(Folder) && element2.GetType() == typeof(Folder))
                     {
-                        //not changed
-                        node.ParentNode.RemoveChild(node);
+                        Folder folder1 = (Folder)element1;
+                        Folder folder2 = (Folder)element2;
+                        if (folder1.Title.Equals(folder2.Title))
+                        {
+                            //exists
+                            found = true;
+                            Test(folder1, folder2, path + folder2.Title + "/");
+                            if (folder2.Children.Count == 0)
+                            {
+                                remove.Add(folder2);
+                            }
+                        }
                     }
-                    else
+                    else if (element1.GetType() == typeof(Schema) && element2.GetType() == typeof(Schema))
                     {
-                        //eddited
-                        AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
-                        AddXmlAttribute(node, "serviceStatus", "doc_changed");
+                        Schema schema1 = (Schema)element1;
+                        Schema schema2 = (Schema)element2;
+                        if (schema1.Title.Equals(schema2.Title))
+                        {
+                            //exists
+                            found = true;
+                            if (schema1.HashCode == schema2.HashCode || schema1.HashCode == -1 || schema2.HashCode == -1)
+                            {
+                                //no change
+                                remove.Add(schema2);
+                            }
+                            else
+                            {
+                                //change
+                                schema2.DiffHtmlFile = GenerateHtmlDiff(schema2, path);
+                            }
+                        }
                     }
                 }
-                else
+                if (!found)
                 {
                     //added
-                    AddXmlAttribute(node, "diffHtmlFile", GenerateHtmlDiff(node));
-                    AddXmlAttribute(node, "serviceStatus", "doc_new");
+                    if (element2.GetType() == typeof(Folder))
+                    {
+                        Folder folder2 = (Folder)element2;
+                        folder2.ExtraClasses = "service_new";
+                        MarkElements(folder2, path + folder2.Title + "/");
+                    }
+                    else if (element2.GetType() == typeof(Schema))
+                    {
+                        Schema schema2 = (Schema)element2;
+                        schema2.DiffHtmlFile = GenerateHtmlDiff(schema2, path);
+                        schema2.ExtraClasses = "doc_new";
+                    }
                 }
             }
 
-            //Remove all elements, who are not supposed to be end nodes, but are
-            foreach (string t in new string[] { "resource", "service", "service_group", "service_group" })
-            {
-                foreach (XmlNode node in secondXml.SelectNodes("//" + t + "[count(child::*) = 0]"))
-                {
-                    node.ParentNode.RemoveChild(node);
-                }
-            }
-
-            return secondXml;
+            foreach (object obj in remove) second.Children.Remove(obj);
         }
 
-        private void AddXmlAttribute(XmlNode node, String attrName, String attrValue)
+        private void MarkElements(Folder folder, string path)
         {
-            XmlDocument doc = node.OwnerDocument;
-            XmlAttribute attr = doc.CreateAttribute(attrName);
-            attr.Value = attrValue;
-            node.Attributes.SetNamedItem(attr);
+            foreach(object element in folder.Children)
+            {
+                if (element.GetType() == typeof(Folder))
+                {
+                    Folder childFolder = (Folder)element;
+                    childFolder.ExtraClasses = "service_new";
+                    MarkElements(childFolder, path + childFolder.Title + "/");
+                }
+                else if (element.GetType() == typeof(Schema))
+                {
+                    Schema schema = (Schema)element;
+                    schema.DiffHtmlFile = GenerateHtmlDiff(schema, path);
+                    schema.ExtraClasses = "doc_new";
+                }
+            }
         }
         #endregion
     }

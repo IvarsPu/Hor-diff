@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Models.RestConnection>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                REST servisi
+                <div style="float: right">@Html.ActionLink("Atpakaļ", "Index", "RESTMetadata")</div>
+            </div>
+            <div id="treeControl" style="overflow: auto;">
+                <table class="table">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Url)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Username)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Password)
+                        </th>
+                        <th>
+                            Darbības
+                        </th>
+                    </tr>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Url)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Username)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Password)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Mainīt", "Edit", new { item.Id }) |
+                                @Ajax.ActionLink("Dzēst", "Delete", new { id = item.Id }, new AjaxOptions { HttpMethod = "POST", OnSuccess = "window.location.reload()" })
+                            </td>
+                        </tr>
+                    }
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <div style="text-align: center">@Html.ActionLink("Izveidot", "Create")</div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -266,5 +266,7 @@ rest
 /RestLog/RestLogService/RestLogService/Web.config
 MetadataApp/XmlDownloaderTest/Metadataload/Web.config
 /DiffRest/DiffRest/DiffRest/test_place/MetadataLocalFolder
+/DiffRest/DiffRest/TestProject/test_place
 DiffRest/DiffRest/DiffRest/Web.config
-DiffRest/DiffRest/DiffRest/Web.config
+
+/DiffRest/DiffRest/TestProject/test_place

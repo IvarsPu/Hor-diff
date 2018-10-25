@@ -6,6 +6,6 @@
 <h2>Faili jau ir iegūti. Vai vēlies atkārtoti ielādēt?</h2>
 
 <div>
-    @Html.ActionLink(linkText: "Jā, vēlos turpināt", actionName: "StartMetadataLoad", controllerName: "RESTMetadata", routeValues: new { metadataServiceId = Model }, htmlAttributes: null)
-    @Html.ActionLink("Nē, doties atpakaļ", "Index", "RESTMetadata")
+    <input type="button" class="btn btn-default" value="Jā, vēlos turpināt" onclick="window.open('/RESTMetadata/StartMetadataLoad?metadataServiceId=@Model', '_self')">
+    <input type="button" class="btn btn-default" value="Nē, doties atpakaļ" onclick="window.open('/RESTMetadata', '_self')">
 </div>

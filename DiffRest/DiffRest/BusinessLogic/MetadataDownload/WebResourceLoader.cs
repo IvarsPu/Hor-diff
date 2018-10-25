@@ -37,13 +37,13 @@ namespace BusinessLogic
             return response;
         }
 
-        internal async Task<List<Models.RestService>> LoadServiceMetadata(List<Models.RestService> services)
+        internal async Task<List<RestService>> LoadServiceMetadata(List<RestService> services)
         {
             List<XmlFile> xmlFileList = new List<XmlFile>();
             int currentService, serviceCount = 10;
             List<HttpClient> httpClients = this.GetHttpClients(serviceCount);
             List<XmlIO> xmlIOs = this.GetXmlIOs(serviceCount);
-            List<Task<Models.RestService>> taskList = new List<Task<Models.RestService>>();
+            List<Task<RestService>> taskList = new List<Task<RestService>>();
 
             HashSet<string> noSchemaServices = new HashSet<string>
             {
@@ -62,7 +62,7 @@ namespace BusinessLogic
                 int servicesCount = services.Count;
                 int currentRestService = -1;
 
-                foreach (Models.RestService service in services)
+                foreach (RestService service in services)
                 {
                     process.Token.ThrowIfCancellationRequested();
 
@@ -118,7 +118,7 @@ namespace BusinessLogic
             return services;
         }
 
-        internal void StoreLoadState(List<Models.RestService> services)
+        internal void StoreLoadState(List<RestService> services)
         {
             ServiceLoadState state = new ServiceLoadState();
             state.Services = services;
@@ -168,7 +168,7 @@ namespace BusinessLogic
             return this.appContext.ReleaseLocalPath + "LoadState.bin";
         }
 
-        internal List<XmlFile> GetAttachmentLoadTasks(Models.RestService service, XmlFile wadlXmlFile)
+        internal List<XmlFile> GetAttachmentLoadTasks(RestService service, XmlFile wadlXmlFile)
         {
             List<XmlFile> loadTasks = new List<XmlFile>();
 
@@ -202,7 +202,7 @@ namespace BusinessLogic
             return loadTasks;
         }
 
-        internal List<XmlFile> GetQueryLoadTask(Models.RestService service, XmlFile wadlXmFile)
+        internal List<XmlFile> GetQueryLoadTask(RestService service, XmlFile wadlXmFile)
         {
             List<XElement> queries = new List<XElement>();
             List<XmlFile> loadTasks = new List<XmlFile>();
@@ -222,7 +222,7 @@ namespace BusinessLogic
             return loadTasks;
         }
 
-        internal async Task<Models.RestService> LoadServiceMetadata(HttpClient client, XmlIO parser, Models.RestService service, List<XmlFile> xmlFileList)
+        internal async Task<RestService> LoadServiceMetadata(HttpClient client, XmlIO parser, RestService service, List<XmlFile> xmlFileList)
         {
             string filename;
             List<XmlFile> serviceXmlFiles = new List<XmlFile>();
@@ -261,6 +261,9 @@ namespace BusinessLogic
                         break;
                     }
                 }
+                
+                xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name + "/template", service.Filepath, "template.xml"));
+                serviceXmlFiles.Add(xmlFile);
 
                 if (loadedWithErrors)
                 {

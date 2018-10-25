@@ -14,7 +14,7 @@ namespace BusinessLogic
 
         public bool AlreadyExists(int id)
         {
-            MetadataService profile = new ServerConn().GetServerConn(id);
+            RestConnection profile = new Connection().GetServerConn(id);
             Models.AppContext appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
             Logger.LogPath = appContext.RootLocalPath;
             XmlMetadata xmlMetadata = new XmlMetadata(appContext);
@@ -37,7 +37,7 @@ namespace BusinessLogic
 
         public bool DoTask(int metadataServiceId)
         {
-            if (new ServerConn().GetServerConn(metadataServiceId) != null)
+            if (new Connection().GetServerConn(metadataServiceId) != null)
             {
                 int processId = 1;
                 if (AppInfo.Processes.Count > 0)
@@ -76,7 +76,7 @@ namespace BusinessLogic
         {
             try
             {
-                MetadataService profile = new ServerConn().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
+                RestConnection profile = new Connection().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
                 this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
 
                 // Set the initial log path in root until the version folder is not known
@@ -114,7 +114,7 @@ namespace BusinessLogic
         private ServiceLoadState LoadRestServiceLoadState(int processId)
         {
             ServiceLoadState loadState = null;
-            List<Models.RestService> services = null;
+            List<RestService> services = null;
             try
             {
                 Logger.LogInfo("Getting REST service structure");
@@ -149,22 +149,12 @@ namespace BusinessLogic
         
         private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
         {
-            List<Models.RestService> services = loadState.Services;
-            try
-            {
-                Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
-                this.webResourceLoader.LoadServiceMetadata(services).Wait();
+            List<RestService> services = loadState.Services;
 
-                //   Logger.LogInfo("Generating json tree data");
-                //   JsonGenerator.generateJSONMetadata(this.rootLocalPath, this.metadataPath);
+            Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
+            this.webResourceLoader.LoadServiceMetadata(services).Wait();
 
-                this.LogState(loadState);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-                Logger.LogError(ex.StackTrace);
-            }
+            this.LogState(loadState);
 
             return loadState;
         }
@@ -179,11 +169,11 @@ namespace BusinessLogic
             Logger.LogInfo("Waiting for load: " + loadState.NotLoaded);
         }
 
-        private List<Models.RestService> GetPendingServices(List<Models.RestService> services)
+        private List<RestService> GetPendingServices(List<RestService> services)
         {
-            List<Models.RestService> result = new List<Models.RestService>();
+            List<RestService> result = new List<RestService>();
 
-            foreach (Models.RestService service in services)
+            foreach (RestService service in services)
             {
                 if (service.LoadStatus != ServiceLoadStatus.Loaded)
                 {

@@ -23,8 +23,21 @@ span.fancytree-node.service_changed span.fancytree-icon {
 
 span.fancytree-node.service_new span.fancytree-icon {
     background-position: 0 0;
-    background-image: url("skin-custom/newFolder.gif");
+    background-image: url("skin-custom/customFolder1.gif");
 }
+
+span.fancytree-node.service_error span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/error.png");
+}
+
+span.fancytree-node.service_deleted span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/cancel.png");
+}
+
+
+
 
 span.fancytree-node.doc_ok span.fancytree-icon {
     background-position: 0 0;
@@ -36,14 +49,14 @@ span.fancytree-node.doc_changed span.fancytree-icon {
     background-image: url("skin-custom/exclamation.png");
 }
 
+span.fancytree-node.doc_new span.fancytree-icon {
+    background-position: 0 0;
+    background-image: url("skin-custom/doc_with_children.gif");
+}
+
 span.fancytree-node.doc_error span.fancytree-icon {
     background-position: 0 0;
     background-image: url("skin-custom/error.png");
-}
-
-span.fancytree-node.doc_deleted span.fancytree-icon {
-    background-position: 0 0;
-    background-image: url("skin-custom/cancel.png");
 }
 
 span.fancytree-node.doc_deleted span.fancytree-icon {

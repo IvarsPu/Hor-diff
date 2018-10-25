@@ -1,61 +1,95 @@
-﻿<div style="text-align: center; overflow: auto;">
-    <input type="button" class="btn btn-primary mb-2" value="metadata servisi" onclick="window.open('/MetadataService', '_self')" style="float: left;" />
+﻿@model List<Models.RestConnection>
+
+<div style="text-align: center; overflow: auto;">
     <p id="message" style="color: red;"></p>
 </div>
 
-<br>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-default" style="height: 100%; display: block; overflow: auto;">
+            <div class="panel-heading">Saglabātie versiju laidieni<div style="float: right">@Html.ActionLink("Versiju salīdzināšana", "Index", "Change")</div></div>
 
-<div>
-<h3>Saraksts ar esošajām versijām un laidieniem</h3>
-<table class="table table-hover" style="width: 25%; border:solid;">
-    <thead style="background: #dedede;">
-        <tr>
-            <td scope="col"><p>Versija</p></td>
-            <td scope="col"><p>Laidieni</p></td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
-        {
-        <tr>
-            <td scope="col"><p>@version.Version</p></td>
-            <td scope="col">
-                <p>
-                    @{string releases = string.Join(", ", version.ReleaseList.Select(c => c.Release));}
-                    @releases
-                </p>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+            <div id="Releases" class="panel-body">
+                <div class="panel panel-default">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #f9f9f9;">
+                            <tr>
+                                <td scope="col"><p>Versija</p></td>
+                                <td scope="col"><p>Laidieni</p></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Models.HorizonVersion version in new DiffRest.Controllers.HomeController().GetVersions())
+                            {
+                                <tr>
+                                    <td scope="col"><p>@version.Version</p></td>
+                                    <td scope="col">
+                                        <p>
+                                            @string.Join(", ", version.ReleaseList.Select(c => c.Release))
+                                        </p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+         </div>
+    </div>
+
+    <div class="col-sm-9">
+        <div class="panel panel-default" style="overflow: auto;">
+            <div class="panel-heading">REST metadatu iegūšana<div style="float: right">@Html.ActionLink("REST servisi", "Index", "Connection")</div></div>
+
+            <div id="Services" class="panel-body">
+                <div class="panel-body">
+                    <b>REST servisu vārdi:</b><select class="form-control" style="display: inline; width: auto;" id="Conection">
+                        <option>--Select--</option>
+                        @foreach (Models.RestConnection con in Model)
+                        {
+                            <option value="@con.Id">@con.Name</option>
+                        }
+                    </select>
+                    <input type="button" class="btn btn-default" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
+                    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="display: inline; width: auto; float: right;" />
+                </div>
+
+                <div class="panel panel-default">
+                    <table id="RESTMetadataTable" class="table table-bordered">
+                        <thead style="background: #f9f9f9;">
+                            <tr>
+                                <td style='display: none;' scope="col"><p>Id</p></td>
+                                <td scope="col"><p>Sākuma laiks</p></td>
+                                <td scope="col"><p>Versija</p></td>
+                                <td scope="col"><p>Laidiens</p></td>
+                                <td scope="col"><p>Progress</p></td>
+                                <td scope="col"><p>Statusa teksts</p></td>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<br>
-
-<div>
-    <input type="text" class="form-control" id="metadataServiceId" placeholder="servisa ID">
-    <input type="button" class="btn btn-primary mb-2" onclick="window.open('/RESTMetadata/Exists?id=' + $('#metadataServiceId').val(), '_self')" value="Savākt metadatus">
-    <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="float: right;" />
-</div>
-
-<table id="RESTMetadataTable" class="table table-hover">
-    <thead style="background: #dedede;">
-        <tr>
-            <td style='display: none;' scope="col"><p>Id</p></td>
-            <td scope="col"><p>Sākuma laiks</p></td>
-            <td scope="col"><p>Versija</p></td>
-            <td scope="col"><p>Laidiens</p></td>
-            <td scope="col"><p>Progress</p></td>
-            <td scope="col"><p>Statusa teksts</p></td>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
 <script>
-    //Starts refresh method with selected time period
-    refresh(5000);
+    $(document).ready(function () {
+        refresh(10000);
+
+        setDivSize();
+
+        $(window).resize(function () {
+            setDivSize();
+        });
+    });
+
+    function setDivSize() {
+        var newHeight = $(window).height() - 120;
+
+        $('#Releases').height(newHeight);
+        $('#Services').height(newHeight);
+    }
 
     //refresh table
     function refresh(time) {
@@ -95,6 +129,7 @@
                         "</tr> ";
                 }
                 $("#RESTMetadataTable tbody").html(htmlText)
+                $("#message").text("");
             },
             error: function () {
                 $("#message").text("Kļūda iegūstot procesus");

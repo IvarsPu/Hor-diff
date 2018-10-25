@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Models;
@@ -7,83 +8,95 @@ namespace BusinessLogic
 {
     public class CompareFiles
     {
+        private static readonly string noChangeStatus = "not changed", addedStatus = "added", editStatus = "eddited", removeStatus = "removed";
+        private bool noChange, added, ignoreNamespaceChanges;
+
         public List<Service> Compare(string oldRelease, string newRelease, bool noChange, bool added, bool ignoreNamespaceChanges)
         {
             XmlDocument xml = new XmlDocument();
-            xml.Load(AppInfo.MetadataRootFolder + oldRelease + "/metadata.xml");//old file
-            CompareFiles changeDetection = new CompareFiles();
-            Dictionary<string, Service> services = changeDetection.GetServices(xml);
+            string path = AppInfo.MetadataRootFolder + oldRelease + "/metadata.xml";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            xml.Load(path);//old file
+            List<Service> services = GetServices(xml);
 
-            xml.Load(AppInfo.MetadataRootFolder + newRelease + "/metadata.xml");//new file
-            return changeDetection.CompareServices(services, xml, noChange, added, ignoreNamespaceChanges);
+            path = AppInfo.MetadataRootFolder + newRelease + "/metadata.xml";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            xml.Load(path);//new file
+
+            this.noChange = noChange;
+            this.added = added;
+            this.ignoreNamespaceChanges = ignoreNamespaceChanges;
+
+            return CompareServices(services, xml);
         }
 
-        #region Comapre
-        private Dictionary<string, Service> GetServices(XmlDocument xml)
+        #region Compare
+        //Services with resources created from xml
+        private List<Service> GetServices(XmlDocument xml)
         {
-            Dictionary<string, Service> services = new Dictionary<string, Service>();
+            List<Service> services = new List<Service>();
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
-                try
-                {
-                    services.Add(node.Attributes["name"].Value, AddService(node));
-                }
-                catch
-                {
-                    //element with this key already exists
-                }
+                services.Add(CreateService(node));
             }
             return services;
         }
 
-        private List<Service> CompareServices(Dictionary<string, Service> services, XmlDocument xml, bool noChange, bool added, bool ignoreNamespaceChanges)
+        //Compares services
+        private List<Service> CompareServices(List<Service> services, XmlDocument xml)
         {
             foreach (XmlNode node in xml.SelectNodes("//service"))
             {
-                Service service = services.TryGetValue(node.Attributes["name"].Value, out Service value) ? value : null;
+                Service service = services.Find(r => r.Name.Equals(node.Attributes["name"].Value));
                 if (service == null)//new service
                 {
                     if (added)
                     {
-                        service = AddService(node);
-                        service.Status = "added";
+                        service = CreateService(node);
+                        service.Status = addedStatus;
                         foreach (Resource resource in service.ResourceList)
                         {
-                            resource.Status = "added";
+                            resource.Status = addedStatus;
                         }
-                        services.Add(node.Attributes["name"].Value, service);
+                        services.Add(service);
                     }
                 }
                 else//existing
                 {
-                    service = GetService(CompareResources(node, service, ignoreNamespaceChanges), noChange, added);
+                    Service tempService = CompareResources(node, service);
+                    service = CheckService(tempService);
                     if (service == null)
                     {
-                        services.Remove(node.Attributes["name"].Value);
-                    }
-                    else
-                    {
-                        services[node.Attributes["name"].Value] = service;
+                        services.Remove(tempService);
                     }
                 }
             }
-
-            return services.Values.ToList();
+            List<Service> list = services.Where(r => r.ResourceList.Count == 0).ToList();
+            services = services.Except(list).ToList();
+            return services;
         }
 
-        private Service AddService(XmlNode node)
+        //Creates service from info in xml node
+        private Service CreateService(XmlNode node)
         {
-            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, "removed");
-            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
+            Service service = new Service(node.Attributes["name"].Value, node.Attributes["description"].Value, removeStatus);
+            foreach (XmlNode leaf in node.SelectNodes(".//*[not(child::*)]"))
             {
-                service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "removed"));
+                service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, removeStatus));
             }
             return service;
         }
 
-        private Service CompareResources(XmlNode node, Service service, bool ignoreNamespaceChanges)
+        //Compares resources of services
+        private Service CompareResources(XmlNode node, Service service)
         {
-            foreach (XmlNode leaf in node.SelectNodes("*[count(child::*) = 0]"))
+            foreach (XmlNode leaf in node.SelectNodes(".//*[not(child::*)]"))
             {
                 Resource resource = service.ResourceList.Find(r => r.Name.Equals(leaf.Attributes["name"].Value));
                 if (resource != null)
@@ -91,57 +104,37 @@ namespace BusinessLogic
                     if ((!ignoreNamespaceChanges && resource.HashCode.Equals(leaf.Attributes["hashCode"].Value)) ||
                         (ignoreNamespaceChanges && resource.NoNamspaceHashCode.Equals(leaf.Attributes["noNamspaceHashCode"].Value)))
                     {
-                        resource.Status = "no change";
+                        resource.Status = noChangeStatus;
                     }
                     else
                     {
-                        resource.Status = "eddited";
+                        resource.Status = editStatus;
                     }
                 }
                 else
                 {
-                    service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, "added"));
+                    service.ResourceList.Add(new Resource(leaf.Attributes["name"].Value, leaf.Attributes["hashCode"].Value, leaf.Attributes["noNamspaceHashCode"].Value, addedStatus));
                 }
             }
             return service;
         }
-        
-        private Service GetService(Service service, bool noChange, bool added)
+
+        //Sets status of service based on resource status
+        private Service CheckService(Service service)
         {
-            List<Resource> list = service.ResourceList;
-            if (list.All(o => o.Status.Equals(list[0].Status)))
+            List<Resource> list = service.ResourceList.Where(r => r.Status.Equals(editStatus) || (noChange && (r.Status.Equals(noChangeStatus) || r.Status.Equals(removeStatus))) || (added && r.Status.Equals(addedStatus))).ToList();
+            if (list.Count == 0)
             {
-                if (list.Count > 0)
-                {
-                    service.Status = list[0].Status;
-                    if ((!noChange && service.Status.Equals("no change")) ||
-                        (!added && service.Status.Equals("added")))
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return service;
-                    }
-                }
-                else
-                {
-                    if (!noChange)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        service.Status = "no change";
-                        return service;
-                    }
-                }
+                return null;
             }
-            else
+            string statusText = list[0].Status;
+            if (!list.All(o => o.Status.Equals(statusText)))
             {
-                service.Status = "eddited";
-                return service;
+                statusText = editStatus;
             }
+            service.Status = statusText;
+            service.ResourceList = list;
+            return service;
         }
         #endregion
     }

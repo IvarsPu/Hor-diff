@@ -25,12 +25,14 @@ namespace DiffRest.Controllers
         }
 
         [Route("LoadFile")]
+        [HttpGet]
         public HttpResponseMessage LoadFile(string first, string second)
         {
             return new BusinessLogic.ChangeController().LoadFile(first, second);
         }
 
-        [Route("firstFile")]
+        [Route("DiffColor")]
+        [HttpGet]
         public string DiffColor(string firstFile, string secondFile)
         {
             return new BusinessLogic.ChangeController().DiffColor(firstFile, secondFile);

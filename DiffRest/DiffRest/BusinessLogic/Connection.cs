@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using Models;
 
 namespace BusinessLogic
 {
-    public class ServerConn
+    public class Connection
     {
-        public MetadataService GetServerConn(int id)
+        public RestConnection GetServerConn(int id)
         {
             XmlDocument doc = new XmlDocument();
+            if (!File.Exists(AppInfo.path))
+            {
+                return null;
+            }
             doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
             if (node != null)
             {
 
-                MetadataService metadataService = new MetadataService();
+                RestConnection metadataService = new RestConnection();
                 metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
                 metadataService.Name = node.Attributes["Name"].Value;
                 metadataService.Url = node.Attributes["Url"].Value;
@@ -29,10 +34,10 @@ namespace BusinessLogic
             }
         }
 
-        public bool CreateServerConn(MetadataService service)
+        public bool CreateServerConn(RestConnection service)
         {
             XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(AppInfo.path))
+            if (File.Exists(AppInfo.path))
             {
                 doc.Load(AppInfo.path);
                 if (doc.SelectSingleNode("//MetadataServices/MetadataService[@Url='" + service.Url + "']") != null)
@@ -81,21 +86,31 @@ namespace BusinessLogic
             return true;
         }
 
-        public void DeleteServerConn(int id)
+        public bool DeleteServerConn(int id)
         {
             XmlDocument doc = new XmlDocument();
+            if (!File.Exists(AppInfo.path))
+            {
+                return false;
+            }
             doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + id + "']");
             if (node != null)
             {
                 node.ParentNode.RemoveChild(node);
                 doc.Save(AppInfo.path);
+                return true;
             }
+            return false;
         }
 
-        public bool EditServerConn(MetadataService service)
+        public bool EditServerConn(RestConnection service)
         {
             XmlDocument doc = new XmlDocument();
+            if (!File.Exists(AppInfo.path))
+            {
+                return false;
+            }
             doc.Load(AppInfo.path);
             XmlNode node = doc.SelectSingleNode("//MetadataServices/MetadataService[@ID='" + service.Id + "']");
             if (node != null)
@@ -114,18 +129,18 @@ namespace BusinessLogic
             return false;
         }
 
-        public List<MetadataService> GetMetadataServices()
+        public List<RestConnection> GetConnections()
         {
             XmlDocument doc = new XmlDocument();
-            if (System.IO.File.Exists(AppInfo.path))
+            if (File.Exists(AppInfo.path))
             {
                 doc.Load(AppInfo.path);
-                List<MetadataService> metadataServices = new List<MetadataService>();
+                List<RestConnection> metadataServices = new List<RestConnection>();
                 foreach (XmlNode node in doc.SelectNodes("//MetadataService"))
                 {
                     try
                     {
-                        MetadataService metadataService = new MetadataService();
+                        RestConnection metadataService = new RestConnection();
                         metadataService.Id = Int32.Parse(node.Attributes["ID"].Value);
                         metadataService.Name = node.Attributes["Name"].Value;
                         metadataService.Url = node.Attributes["Url"].Value;

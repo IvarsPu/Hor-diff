@@ -32,9 +32,11 @@ $(document).ready(function () {
     });
 
     $('#download').click(function () {
+        var first = $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val();
+        var second = $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val();
         if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
-            && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
-            window.location = "/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val() + "&second=" + $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val();
+            && first != second) {
+            window.location = "/Home/LoadFile?first=" + first + "&second=" + second;
         }
     });
 

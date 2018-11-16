@@ -7,25 +7,36 @@ var JsonVersion1 = { data: "", receivedOK: false };
 var JsonVersion2 = { data: "", receivedOK: false };
 var selectedId = 0;
 
+var versions;
 var JsonTree = [];
 
 $(document).ready(function () {
     loadVersionsAjax();
 
     $("#Version1").change(function () {
-        var url = "/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/metadata.xml";
+        PopulateReleaseSelect("#Release1", $("#Version1 option:selected").val());
+    });
+
+    $("#Release1").change(function () {
+        var url = "/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val() + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion1);		
     });
 
     $("#Version2").change(function () {
-        var url = "/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/metadata.xml";
-        getFileAjax(url, "xml", JsonVersion2);
+        PopulateReleaseSelect("#Release2", $("#Version2 option:selected").val());
+    });
+
+    $("#Release2").change(function () {
+        var url = "/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val() + "/metadata.xml";
+        getFileAjax(url, "xml", JsonVersion2);			
     });
 
     $('#download').click(function () {
+        var first = $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val();
+        var second = $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val();
         if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
-            && $("#Version2 option:selected").val() != $("#Version1 option:selected").val()) {
-            window.location = "/Home/LoadFile?first=" + $("#Version1 option:selected").val() + "&second=" + $("#Version2 option:selected").val();
+            && first != second) {
+            window.location = "/Home/LoadFile?first=" + first + "&second=" + second;
         }
     });
 
@@ -79,8 +90,8 @@ $(document).ready(function () {
                 });
 
             } else {
-                var path1 = $("#Version1 option:selected").val() + "/" + path;
-                var path2 = $("#Version2 option:selected").val() + "/" + path;
+                var path1 = $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val() + "/" + path;
+                var path2 = $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val() + "/" + path;
                 GetChanges(path1, path2);
                 selectedId = 0;
             }
@@ -164,10 +175,10 @@ function loadVersionsAjax() {
             showPage();
         },
         success: function (data) {
-            var versions = getVersionList(data);
+            versions = getVersionList(data);
 
-            PopulateVersionsSelect("#Version1", versions);
-            PopulateVersionsSelect("#Version2", versions);
+            PopulateVersionsSelect("#Version1");
+            PopulateVersionsSelect("#Version2");
             showPage();
         }
     });
@@ -178,20 +189,42 @@ function getVersionList(xmlVersions) {
 
     var xml = $(xmlVersions);
 
-    xml.find("Release").each(function () {
-        var releaseName = this.parentNode.parentNode.parentNode.lastChild.textContent + "/" + this.textContent;
-        versionArray.push(releaseName);
+    xml.find("Version").each(function () {
+        var name = this.textContent;
+        var releaseArray = [];
+        $(this.parentNode).find("Release").each(function () {
+            releaseArray.push(this.textContent);
+        });
+
+        let version = {
+            name: name,
+            releases: releaseArray
+        };
+        versionArray.push(version);
     });
 
     return versionArray;
 }
 
-function PopulateVersionsSelect(id, versionInfo) {
-    $(id).empty();
-    $(id).append("<option>--Select--</option>");
-    $(versionInfo).each(function (i, text) {
-        $(id).append("<option value=" + text + ">" + text + "</option>");
+function PopulateVersionsSelect(version) {
+    $(version).empty();
+    $(version).append("<option>--Select--</option>");
+    $(versions).each(function (i, data) {
+        $(version).append("<option value=" + data.name + ">" + data.name + "</option>");
     });
+}
+
+function PopulateReleaseSelect(release, selected) {
+    $(release).empty();
+
+    if (selected != "--Select--") {
+        var found = versions.filter(function (item) { return item.name === selected; });
+        found[0].releases.forEach(function (text) {
+            $(release).append("<option value=" + text + ">" + text + "</option>");
+        });
+    }
+
+    $(release).change();
 }
 
 function GetChanges(file1, file2) {

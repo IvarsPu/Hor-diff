@@ -8,21 +8,48 @@ using System.Linq;
 using System.Xml.Linq;
 using Models;
 using AppContext = Models.AppContext;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace BusinessLogic
 {
     internal class XmlMetadata
     {
+        bool disposed = false;
         private AppContext appContext;
+        private Logger Logger;
         private string prevRelease;
         private string prevVersionMetaXmlPath;
         private XmlDocument prevVersionMetaXml;
+        private MD5 md5Hash;
 
         public XmlMetadata(AppContext appContext)
         {
             this.appContext = appContext;
+            this.Logger = (Logger) this.appContext.Logger;
+            md5Hash = MD5.Create();
         }
-         
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                md5Hash.Dispose();
+            }
+
+            disposed = true;
+        }
+
+
         public List<RestService> InitServiceMetadata(WebResourceLoader webResourceLoader)
         {
             List<RestService> services = new List<RestService>();
@@ -51,7 +78,20 @@ namespace BusinessLogic
             XmlIO.CreateFolder(appContext.ReleaseLocalPath);
 
             appContext.MetaFilePath = appContext.ReleaseLocalPath + "metadata.xml";
-            XmlWriter xmlWriter = XmlWriter.Create(appContext.MetaFilePath);
+
+            XmlWriter xmlWriter;
+
+            if (File.Exists(appContext.MetaFilePath))
+            {
+                // do not owerwrite existing metadata file, write just in memory
+                StringBuilder builder = new StringBuilder();
+                xmlWriter = XmlWriter.Create(builder);
+            }
+            else
+            {
+                xmlWriter = XmlWriter.Create(appContext.MetaFilePath);
+            }
+
             xmlWriter.WriteStartDocument();
 
             xmlWriter.WriteStartElement("rest_api_metadata");
@@ -145,8 +185,8 @@ namespace BusinessLogic
             xmlWriter.WriteEndDocument();
             xmlWriter.Close();
 
-            this.DetectAndInitPreviousRelease();
 
+            this.DetectAndInitPreviousRelease();
             return services;
         }
 
@@ -195,12 +235,12 @@ namespace BusinessLogic
 
                     XmlElement newElem = xml.CreateElement(schema);
                     newElem.SetAttribute("name", xmlFile.Filename);
-
-
-                    int hashCode = -1;
-                    if (xmlFile.HttpResponse != null)
+                    
+                    string hashCode = "";
+                    if (String.IsNullOrEmpty(xmlFile.Error) && xmlFile.XDocument != null)
                     {
-                        hashCode = xmlFile.HttpResponse.GetHashCode();
+                        CleanUpXmlDoc(xmlFile);
+                        hashCode = GetMd5Hash(xmlFile.XDocument.ToString());
                     }
 
                     // If hash is equal to previous release hash, delete file and refer to previous release in metadata
@@ -208,9 +248,9 @@ namespace BusinessLogic
                     string release = GetFileStoredRelease(xmlFile, prevVersionMetaXml, fileXPath, hashCode);
                     newElem.SetAttribute("stored_release", release);
 
-                    newElem.SetAttribute("hashCode", hashCode.ToString());
-                    int noNamspaceHash = GetNoNamspaceHash(xmlFile);
-                    newElem.SetAttribute("noNamspaceHashCode", noNamspaceHash.ToString());
+                    newElem.SetAttribute("hashCode", hashCode);
+                    string noNamspaceHash = GetNoNamspaceHash(xmlFile);
+                    newElem.SetAttribute("noNamspaceHashCode", noNamspaceHash);
 
                     if ((xmlFile.Error != null) && (xmlFile.Error != string.Empty))
                     {
@@ -256,18 +296,28 @@ namespace BusinessLogic
                     releases.Add(Convert.ToInt32(el.Value));
                 }
                 releases.Sort();
-                int curIndex = releases.IndexOf(Convert.ToInt32(this.appContext.Release));
+                int lastUsableRelease = -1;
+                int currentRelease = Convert.ToInt32(this.appContext.Release);
 
-                if (curIndex < 1)
+                for (int i = releases.Count-1; i >= 0; i--)
+                {
+                    if (releases[i] < currentRelease)
+                    {
+                        lastUsableRelease = releases[i];
+                        break;
+                    }
+                }
+
+                if (lastUsableRelease < 0)
                 {
                     Logger.LogInfo("Previous release for file reuse was not found");
                     return;
                 }
-                int prevRelease = releases[curIndex - 1];
 
                 // Load prev metadata file
+                this.prevRelease = lastUsableRelease.ToString();
                 this.prevVersionMetaXmlPath = this.appContext.RootLocalPath + this.appContext.Version + "\\" + prevRelease.ToString() + "\\metadata.xml";
-                this.prevRelease = prevRelease.ToString();
+
 
                 this.prevVersionMetaXml = new XmlDocument();
                 if (this.prevVersionMetaXmlPath != null)
@@ -288,18 +338,18 @@ namespace BusinessLogic
             return this.appContext.RootLocalPath + "Versions.xml";
         }
 
-        private string GetFileStoredRelease(XmlFile xmlFile, XmlDocument prevVersionMetaXml, string fileXPath, int hashCode)
+        private string GetFileStoredRelease(XmlFile xmlFile, XmlDocument prevVersionMetaXml, string fileXPath, string hashCode)
         {
             string release = this.appContext.Release;
 
-            if (prevVersionMetaXml != null && hashCode != -1)
+            if (prevVersionMetaXml != null && !String.IsNullOrEmpty(hashCode))
             {
                 string xPath = fileXPath + "/@hashCode";
                 XmlNode node = prevVersionMetaXml.SelectSingleNode(xPath);
                 if (node != null)
                 {
                     string prevVerHashCode = node.Value;
-                    if (Convert.ToInt32(prevVerHashCode) == hashCode)
+                    if (hashCode.Equals(prevVerHashCode))
                     {
                         // Refer xml file to this release and remove loaded file
                         xPath = fileXPath + "/@stored_release";
@@ -323,9 +373,9 @@ namespace BusinessLogic
             return release;
         }
 
-        private int GetNoNamspaceHash(XmlFile xmlFile)
+        private string GetNoNamspaceHash(XmlFile xmlFile)
         {
-            int hash = -1;
+            string hash = "";
 
             if (xmlFile.Error == string.Empty && xmlFile.XDocument != null)
             {
@@ -340,15 +390,16 @@ namespace BusinessLogic
                         CleanUpTag(xmlFile.XDocument, "schema");
                         RemoveTags(xmlFile.XDocument, "import");
                     }
-                    else if (xmlFile.Filename.Contains(".xml"))
+                    else if (xmlFile.Filename.Contains("query.xml"))
                     {
                         CleanUpTag(xmlFile.XDocument, "collection");
                     }
+                    else if (xmlFile.Filename.Contains("template.xml"))
+                    {
+                        CleanUpTag(xmlFile.XDocument, "entity");
+                    }
 
-                    string result = xmlFile.XDocument.ToString();
-                    result = result.Replace(" ", "");
-                    result = result.Replace("\r\n", "");
-                    hash = result.GetHashCode();
+                    hash = GetMd5Hash(xmlFile.XDocument.ToString());
 
                 }
                 catch (Exception ex)
@@ -399,7 +450,7 @@ namespace BusinessLogic
               .Where(x => x.Name.LocalName == name)
               .Remove();
         }
-
+                
         private string GetSchema(string filename)
         {
             int i = filename.LastIndexOf(".");
@@ -418,6 +469,10 @@ namespace BusinessLogic
             {
                 schema = "query_schema";
             }
+            else if (filename == "template.xml")
+            {
+                schema = "template_schema";
+            }
 
             return schema;
         }
@@ -431,7 +486,7 @@ namespace BusinessLogic
             filename = filename.Replace(" ", "_");
         }
 
-        public void AddReleaseToVersionXmlFile()
+        public void AddReleaseToVersionXmlFile(ServiceLoadState serviceState)
         {
             XmlDocument xml = new XmlDocument();
             xml.Load(this.GetGlobalVerionFilePath());
@@ -447,15 +502,104 @@ namespace BusinessLogic
             }
 
             XmlNode release = version.SelectSingleNode(string.Format("release[@name={0}]", this.appContext.Release));
-            if (version == null)
-            {
-                XmlElement releaseEl = xml.CreateElement("release");
-                releaseEl.SetAttribute("name", this.appContext.Release);
-                releaseEl.Value = this.appContext.Release;
-                version.AppendChild(releaseEl);
-            }
 
+            if (release != null)
+            {
+                release.ParentNode.RemoveChild(release);
+            }
+            
+            XmlElement releaseEl = xml.CreateElement("release");
+            releaseEl.SetAttribute("name", this.appContext.Release);
+
+            releaseEl.SetAttribute("pendingLoad", Convert.ToString(serviceState.NotLoaded));
+            releaseEl.SetAttribute("loaded", Convert.ToString(serviceState.Loaded + serviceState.LoadedWithErrors));
+            releaseEl.SetAttribute("loadedWithErrors", Convert.ToString(serviceState.LoadedWithErrors));
+            releaseEl.SetAttribute("failed", Convert.ToString(serviceState.Failed));
+
+            version.AppendChild(releaseEl);
+            
             xml.Save(this.GetGlobalVerionFilePath());
         }
+
+        private string GetMd5Hash(string input)
+        {
+            string content = input.Replace(" ", "");
+            content = content.Replace("\r\n", "");
+            content = content.Replace("\t", "");
+
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = md5Hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(content));
+
+            // Create a new Stringbuilder to collect the bytes
+            // and create a string.
+            StringBuilder sBuilder = new StringBuilder();
+
+            // Loop through each byte of the hashed data 
+            // and format each one as a hexadecimal string.
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            // Return the hexadecimal string.
+            return sBuilder.ToString();
+        }
+
+        public void CleanUpXmlDoc(XmlFile xmlFile)
+        {
+            if (xmlFile.Filename == "query.xml")
+            {
+                CleanUpQuery(xmlFile.XDocument);
+            }
+            else if (xmlFile.Filename == "template.xml")
+            {
+                CleanUpTemplate(xmlFile.XDocument);
+            }
+            else if (xmlFile.Filename.Contains(".xsd"))
+            {
+                CleanUpXsd(xmlFile.XDocument);
+            }
+        }
+
+        private void CleanUpTemplate(XDocument doc)
+        {
+            List<XElement> clearNodes = new List<XElement>();
+
+            // Replace element with clear copy
+            clearNodes.AddRange(
+                from el in doc.Descendants()
+                where el.Value != null
+                select el);
+
+            foreach (XElement elem in clearNodes)
+            {
+                elem.SetValue("");
+            }
+        }
+
+        private void CleanUpQuery(XDocument doc)
+        {
+            List<XElement> clearNodes = new List<XElement>();
+
+            // Replace element with clear copy
+            clearNodes.AddRange(
+                from el in doc.Descendants()
+                where el.Name == "title"
+                select el);
+
+            foreach (XElement elem in clearNodes)
+            {
+                elem.SetValue("");
+            }
+        }
+
+        private void CleanUpXsd(XDocument doc)
+        {
+            doc.Descendants()
+              .Elements()
+              .Where(x => x.Name.LocalName == "annotation")
+              .Remove();
+        }
+        
     }
 }

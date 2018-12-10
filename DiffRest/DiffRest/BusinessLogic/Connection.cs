@@ -26,6 +26,16 @@ namespace BusinessLogic
                 metadataService.Url = node.Attributes["Url"].Value;
                 metadataService.Username = node.Attributes["Username"].Value;
                 metadataService.Password = node.Attributes["Password"].Value;
+               
+
+                try
+                {
+                    metadataService.LoadQuery = Convert.ToBoolean(node.Attributes["LoadQuery"].Value);
+                    metadataService.LoadTemplate = Convert.ToBoolean(node.Attributes["LoadTemplate"].Value);
+                    metadataService.ParallelThreads = Convert.ToInt32(node.Attributes["ParallelThreads"].Value);
+                }
+                catch (Exception) { }
+
                 return metadataService;
             }
             else
@@ -79,6 +89,18 @@ namespace BusinessLogic
             Password.Value = service.Password;
             metadataServiceNode.Attributes.SetNamedItem(Password);
 
+            XmlAttribute LoadTemplate = doc.CreateAttribute("LoadTemplate");
+            LoadTemplate.Value = Convert.ToString(service.LoadTemplate);
+            metadataServiceNode.Attributes.SetNamedItem(LoadTemplate);
+
+            XmlAttribute LoadQuery = doc.CreateAttribute("LoadQuery");
+            LoadQuery.Value = Convert.ToString(service.LoadQuery);
+            metadataServiceNode.Attributes.SetNamedItem(LoadQuery);
+
+            XmlAttribute ParallelThreads = doc.CreateAttribute("ParallelThreads");
+            ParallelThreads.Value = Convert.ToString(service.ParallelThreads);
+            metadataServiceNode.Attributes.SetNamedItem(ParallelThreads);
+
             metadataServiceNodes.AppendChild(metadataServiceNode);
             #endregion
 
@@ -122,6 +144,28 @@ namespace BusinessLogic
                     node.Attributes["Url"].Value = service.Url;
                     node.Attributes["Username"].Value = service.Username;
                     node.Attributes["Password"].Value = service.Password;
+
+                    if(node.Attributes.GetNamedItem("LoadQuery") == null)
+                    {
+                        XmlAttribute LoadTemplate = doc.CreateAttribute("LoadTemplate");
+                        node.Attributes.SetNamedItem(LoadTemplate);
+
+                        XmlAttribute LoadQuery = doc.CreateAttribute("LoadQuery");
+                        node.Attributes.SetNamedItem(LoadQuery);
+
+                        XmlAttribute ParallelThreads = doc.CreateAttribute("ParallelThreads");
+                        node.Attributes.SetNamedItem(ParallelThreads);                        
+                    }
+
+                    if (node.Attributes.GetNamedItem("ParallelThreads") == null)
+                    {
+                        XmlAttribute ParallelThreads = doc.CreateAttribute("ParallelThreads");
+                        node.Attributes.SetNamedItem(ParallelThreads);
+                    }
+                    node.Attributes["LoadQuery"].Value = Convert.ToString(service.LoadQuery);
+                    node.Attributes["LoadTemplate"].Value = Convert.ToString(service.LoadTemplate);
+                    node.Attributes["ParallelThreads"].Value = Convert.ToString(service.ParallelThreads);
+
                     doc.Save(AppInfo.path);
                     return true;
                 }
@@ -146,6 +190,14 @@ namespace BusinessLogic
                         metadataService.Url = node.Attributes["Url"].Value;
                         metadataService.Username = node.Attributes["Username"].Value;
                         metadataService.Password = node.Attributes["Password"].Value;
+
+                        try
+                        {   // not available?
+                            metadataService.LoadQuery = Convert.ToBoolean(node.Attributes["LoadQuery"].Value);
+                            metadataService.LoadTemplate = Convert.ToBoolean(node.Attributes["LoadTemplate"].Value);
+                            metadataService.ParallelThreads = Convert.ToInt32(node.Attributes["ParallelThreads"].Value);                            
+                        }
+                        catch (Exception) { }
                         metadataServices.Add(metadataService);
                     }
                     catch { }

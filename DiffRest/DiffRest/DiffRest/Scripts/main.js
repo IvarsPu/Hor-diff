@@ -90,8 +90,8 @@ $(document).ready(function () {
                 });
 
             } else {
-                var path1 = $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val() + "/" + path;
-                var path2 = $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val() + "/" + path;
+                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.storedRelease + "/" + path;
+                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.storedRelease2 + "/" + path;
                 GetChanges(path1, path2);
                 selectedId = 0;
             }
@@ -388,9 +388,11 @@ function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, 
             if (isDifferent) {
                 jsonVer1Doc.extraClasses = TreeExtraClasses.DocumentChanged;
             }
+            jsonVer1Doc.storedRelease2 = jsonVer2Doc.storedRelease;
         } else {
             isDifferent = true;
             jsonVer1Doc.extraClasses = TreeExtraClasses.DocumentDeleted;
+            jsonVer1Doc.storedRelease2 = -1;            
         }
     }
 
@@ -583,6 +585,7 @@ function addJsonFileMetadata(xmlNode, jsonServiceFiles) {
     fileNode.hashCode = xmlNode.attr('hashCode');
     fileNode.noNamspaceHashCode = xmlNode.attr('noNamspaceHashCode');
     fileNode.type = xmlNode.get(0).tagName;
+    fileNode.storedRelease = xmlNode.attr('stored_release');
 
     if (xmlNode.attr('description')) {
         fileNode.description = xmlNode.attr('description');

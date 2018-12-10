@@ -20,7 +20,7 @@ namespace DiffRest.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create([Bind(Include = "Name,Url,Username,Password")] RestConnection service)
+        public ActionResult Create([Bind(Include = "Name,Url,Username,Password,LoadQuery,LoadTemplate,ParallelThreads")] RestConnection service)
         {
             if (new Connection().CreateServerConn(service))
             {
@@ -48,7 +48,7 @@ namespace DiffRest.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit([Bind(Include = "Id,Name,Url,Username,Password")] RestConnection service)
+        public ActionResult Edit([Bind(Include = "Id,Name,Url,Username,Password,LoadQuery,LoadTemplate,ParallelThreads")] RestConnection service)
         {
             if(new Connection().EditServerConn(service))
             {

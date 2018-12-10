@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 using Models;
+using System.Linq;
+
 
 namespace BusinessLogic
 {
@@ -40,5 +43,9 @@ namespace BusinessLogic
                 throw new Exception(string.Format("Exception: {0} while parsing {1}", ex.Message, xmlFile.HttpResponse));
             }
         }
+
+
+
     }
+
 }

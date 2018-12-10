@@ -7,12 +7,16 @@ namespace Models
 {
     public class AppContext
     {
-        public AppContext(string rootUrl, string username, string password, string rootLocalPath)
+        public AppContext(RestConnection profile, string rootLocalPath, Object logger)
         {
-            this.RootUrl = rootUrl;
-            this.Username = username;
-            this.Password = password;
+            this.RootUrl = profile.Url;
+            this.Username = profile.Username;
+            this.Password = profile.Password;
             this.RootLocalPath = rootLocalPath;
+            this.Logger = logger;
+            this.LoadQuery = profile.LoadQuery;
+            this.LoadTemplate = profile.LoadTemplate;
+            this.ParallelThreads = profile.ParallelThreads;
         }
 
         public string RootUrl { get; set; }
@@ -30,5 +34,13 @@ namespace Models
         public string Release { get; set; }
 
         public string MetaFilePath { get; set; }
+
+        public Object Logger { get; set; }
+
+        public bool LoadQuery { get; set; }
+
+        public bool LoadTemplate { get; set; }
+
+        public int ParallelThreads { get; set; } = 2;
     }
 }

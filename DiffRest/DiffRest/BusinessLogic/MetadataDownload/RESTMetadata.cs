@@ -11,12 +11,12 @@ namespace BusinessLogic
     {
         private Models.AppContext appContext;
         private WebResourceLoader webResourceLoader;
+        private Logger Logger;
 
         public bool AlreadyExists(int id)
         {
             RestConnection profile = new Connection().GetServerConn(id);
-            Models.AppContext appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
-            Logger.LogPath = appContext.RootLocalPath;
+            Models.AppContext appContext = new Models.AppContext(profile, AppInfo.MetadataRootFolder, new Logger(AppInfo.MetadataRootFolder));
             XmlMetadata xmlMetadata = new XmlMetadata(appContext);
             WebResourceLoader webResourceLoader = new WebResourceLoader(appContext, xmlMetadata, 0);
             System.Threading.Tasks.Task t = System.Threading.Tasks.Task.Run(() => xmlMetadata.InitServiceMetadata(webResourceLoader));
@@ -25,14 +25,7 @@ namespace BusinessLogic
             doc.Load(AppInfo.MetadataRootFolder + "Versions.xml");
             t.Wait();
             XmlNode node = doc.SelectSingleNode("//version[@name='" + appContext.Version + "']/release[@name='" + appContext.Release + "']");
-            if (node == null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return node != null;
         }
 
         public bool DoTask(int metadataServiceId)
@@ -77,30 +70,33 @@ namespace BusinessLogic
             try
             {
                 RestConnection profile = new Connection().GetServerConn(AppInfo.Processes[processId].MetadataServiceId);
-                this.appContext = new Models.AppContext(profile.Url, profile.Username, profile.Password, AppInfo.MetadataRootFolder);
+                this.Logger = new Logger(AppInfo.MetadataRootFolder);
+                this.appContext = new Models.AppContext(profile, AppInfo.MetadataRootFolder, Logger);
 
-                // Set the initial log path in root until the version folder is not known
-                Logger.LogPath = this.appContext.RootLocalPath;
 
                 // ServiceLoadState serviceState = this.LoadRestServiceTestState();
                 ServiceLoadState serviceState = this.LoadRestServiceLoadState(processId);
 
+                int totalServiceCount = serviceState.Services.Count;
                 //serviceState.Services.RemoveRange(10, serviceState.Services.Count - 10);
                 //serviceState.CalcStatistics();
                 int remainingServiceCount = 0;
-                Logger.LogPath = this.appContext.ReleaseLocalPath;
+                ((Logger)this.appContext.Logger).LogPath = this.appContext.ReleaseLocalPath;
 
                 AppInfo.Processes[processId].Status.Total = serviceState.PendingLoadServices;
-
-                while (serviceState.PendingLoadServices > 0 && remainingServiceCount != serviceState.PendingLoadServices)
+                int loadCount = 0;
+                do
                 {
                     remainingServiceCount = serviceState.PendingLoadServices;
-                    serviceState = this.LoadRestServiceMetadata(serviceState);
-                    serviceState.Services = this.GetPendingServices(serviceState.Services);
-                    serviceState.CalcStatistics();
-                }
+                    serviceState = this.LoadRestServiceMetadata(serviceState, totalServiceCount);
+                    this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile(serviceState);
 
-                this.webResourceLoader.xmlMetadata.AddReleaseToVersionXmlFile();
+                    serviceState.CalcStatistics();
+                    loadCount++; 
+                } while (serviceState.PendingLoadServices > 0 && loadCount < 2);
+
+                Process process = AppInfo.Processes[processId];
+                process.Progress = Convert.ToInt32((process.Status.Loaded + serviceState.LoadedWithErrors) * 100 / totalServiceCount);
             }
             catch
             {
@@ -147,12 +143,12 @@ namespace BusinessLogic
             return loadState;
         }
         
-        private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState)
+        private ServiceLoadState LoadRestServiceMetadata(ServiceLoadState loadState, int totalServiceCount)
         {
             List<RestService> services = loadState.Services;
 
             Logger.LogInfo(string.Format("Loading REST metadata for {0} services", loadState.PendingLoadServices));
-            this.webResourceLoader.LoadServiceMetadata(services).Wait();
+            this.webResourceLoader.LoadServiceMetadata(services, totalServiceCount).Wait();
 
             this.LogState(loadState);
 

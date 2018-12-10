@@ -17,6 +17,7 @@ namespace BusinessLogic
     {
         private Models.AppContext appContext;
         private int processId;
+        private Logger Logger;
 
         public XmlMetadata xmlMetadata { get; set; }
 
@@ -25,6 +26,7 @@ namespace BusinessLogic
             this.appContext = appContext;
             this.xmlMetadata = xmlMetadata;
             this.processId = processId;
+            this.Logger = (Logger) this.appContext.Logger;
         }
 
         internal async Task<WebResponse> GetResponseFromSite(string urlPath)
@@ -37,7 +39,7 @@ namespace BusinessLogic
             return response;
         }
 
-        internal async Task<List<RestService>> LoadServiceMetadata(List<RestService> services)
+        internal async Task<List<RestService>> LoadServiceMetadata(List<RestService> services, int totalServiceCount)
         {
             List<XmlFile> xmlFileList = new List<XmlFile>();
             int currentService, serviceCount = 10;
@@ -74,7 +76,7 @@ namespace BusinessLogic
                         taskList.Add(this.LoadServiceMetadata(httpClients[currentService], xmlIOs[currentService], service, xmlFileList));
 
                         // Log status
-                        if (currentRestService > 1 && currentRestService % 10 == 0)
+                        if (currentRestService > 1 && currentRestService % appContext.ParallelThreads == 0)
                         {
                             await Task.WhenAll(taskList.ToArray());
                         }
@@ -95,9 +97,9 @@ namespace BusinessLogic
                     else
                     {
                         service.LoadStatus = ServiceLoadStatus.Loaded;
-                        process.Status.Loaded++;
+                       // process.Status.Loaded++;
                     }
-                    process.Progress = Convert.ToInt32(process.Status.Loaded * 100 / servicesCount);
+                    process.Progress = Convert.ToInt32(process.Status.Loaded * 100 / totalServiceCount);
                 }
 
                 await Task.WhenAll(taskList.ToArray());
@@ -207,6 +209,11 @@ namespace BusinessLogic
             List<XElement> queries = new List<XElement>();
             List<XmlFile> loadTasks = new List<XmlFile>();
 
+            if(!appContext.LoadQuery)
+            {
+                return loadTasks;
+            }
+
             queries.AddRange(
                 from el in wadlXmFile.XDocument.Descendants()
                 where el.Name.LocalName == "resource" && el.Attribute("path") != null && el.Attribute("path").Value == "query"
@@ -219,6 +226,32 @@ namespace BusinessLogic
                 loadTasks.Add(fileLoad);
             }
 
+            return loadTasks;
+        }
+
+        internal List<XmlFile> GetTemplateLoadTask(RestService service, XmlFile catalogXmFile)
+        {
+            List<XElement> queries = new List<XElement>();
+            List<XmlFile> loadTasks = new List<XmlFile>();
+            List<string> pkTemplates = new List<string>();
+
+
+            if (!String.IsNullOrEmpty(catalogXmFile.Error))
+            {
+                return loadTasks;
+            }
+
+            IEnumerable<XElement> templateElems = catalogXmFile.XDocument.Descendants("templates");
+
+            if(templateElems.Count() > 0)
+            {
+                string templateUrl = templateElems.First().Descendants("href").First().Value.Replace("/rest/", "");
+
+                string url = this.appContext.RootUrl + templateUrl;
+                XmlFile fileLoad = new XmlFile(service.Name, url, service.Filepath, "template.xml");
+                loadTasks.Add(fileLoad);
+            }           
+                       
             return loadTasks;
         }
 
@@ -242,6 +275,12 @@ namespace BusinessLogic
                 {
                     List<XmlFile> loadTasks = this.GetAttachmentLoadTasks(service, xmlFile);
                     loadTasks.AddRange(this.GetQueryLoadTask(service, xmlFile));
+
+                    if (appContext.LoadTemplate)
+                    {
+                        XmlFile serviceCatalog = await this.LoadXmlFileWithoutSave(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name, service.Filepath, filename));
+                        loadTasks.AddRange(this.GetTemplateLoadTask(service, serviceCatalog));
+                    }                    
                     await this.LoadXmlFiles(client, parser, loadTasks);
 
                     serviceXmlFiles.AddRange(loadTasks);
@@ -261,19 +300,20 @@ namespace BusinessLogic
                         break;
                     }
                 }
-                
-                xmlFile = await this.LoadXmlFile(client, parser, new XmlFile(service.Name, this.appContext.RootUrl + service.Name + "/template", service.Filepath, "template.xml"));
-                serviceXmlFiles.Add(xmlFile);
-
-                if (loadedWithErrors)
-                {
-                    status.Loaded++;
-                }
 
                 if (service.LoadStatus == ServiceLoadStatus.NotLoaded)
                 {
-                    service.LoadStatus = ServiceLoadStatus.Loaded;
-                    status.Loaded++;
+
+                    if (!loadedWithErrors)
+                    {
+                        status.Loaded++; // Will retry
+                        service.LoadStatus = ServiceLoadStatus.Loaded;
+                    }
+                    else
+                    {
+                        service.LoadStatus = ServiceLoadStatus.LoadedWithErrors;
+                    }
+                    
                 }
 
                 lock (xmlFileList)
@@ -321,6 +361,23 @@ namespace BusinessLogic
             else
             {
                 xmlFile.LoadLocalFile();
+            }
+
+            return xmlFile;
+        }
+
+        private async Task<XmlFile> LoadXmlFileWithoutSave(HttpClient client, XmlIO parser, XmlFile xmlFile)
+        {
+
+
+            try
+            {
+                await this.GetHttpResonse(client, xmlFile);
+                parser.ParseXml(xmlFile);
+            }
+            catch (Exception ex)
+            {
+                xmlFile.Error = ex.Message;
             }
 
             return xmlFile;
@@ -387,18 +444,17 @@ namespace BusinessLogic
                     Logger.LogError(string.Format("Timeout while fetching {0}", xmlFile.Url));
                 }
 
-                await Task.Delay(1000);
-                await this.GetHttpResonse(client, xmlFile, ++tryCount);
+          //      await Task.Delay(1000);
+         //       await this.GetHttpResonse(client, xmlFile, ++tryCount);
             }
             catch (Exception ex)
             {
                 if (tryCount == 0)
                 {
                     Logger.LogError(string.Format("Exception: {0} ont try {1} while attempting to fetch {2}", ex.Message, tryCount + 1, xmlFile.Url));
+                    await Task.Delay(1000);
+                    await this.GetHttpResonse(client, xmlFile, ++tryCount);
                 }
-
-                await Task.Delay(1000);
-                await this.GetHttpResonse(client, xmlFile, ++tryCount);
             }
 
             if (xmlFile.Error != string.Empty)

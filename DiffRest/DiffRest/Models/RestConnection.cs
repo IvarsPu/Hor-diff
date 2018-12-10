@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Models
@@ -26,5 +27,17 @@ namespace Models
         [DataMember(Name = "Password")]
         [DisplayName("Parole")]
         public string Password { get; set; }
+
+        [DataMember(Name = "ParallelThreads")]
+        [DisplayName("Paralēli ielādes procesi")]
+        public int ParallelThreads { get; set; } = 2;
+
+        [DataMember(Name = "LoadQuery")]
+        [DisplayName("Ielādēt query struktūru")]
+        public bool LoadQuery { get; set; } = false;
+
+        [DataMember(Name = "LoadTemplate")]
+        [DisplayName("Ielādēt template struktūru")]
+        public bool LoadTemplate { get; set; } = false;
     }
 }

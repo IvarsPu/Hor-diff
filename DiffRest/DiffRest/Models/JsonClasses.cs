@@ -16,10 +16,10 @@ namespace Models
         public string ExtraClasses { get; set; } = "doc_changed";
 
         [DataMember(Name = "hashCode")]
-        public int HashCode { get; set; }
+        public string HashCode { get; set; }
 
         [DataMember(Name = "noNamspaceHashCode")]
-        public int NoNamspaceHashCode { get; set; }
+        public string NoNamspaceHashCode { get; set; }
 
         [DataMember(Name = "type")]
         public string Type { get; set; }

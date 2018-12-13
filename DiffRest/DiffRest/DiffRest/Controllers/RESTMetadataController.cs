@@ -5,6 +5,7 @@ using Models;
 namespace DiffRest.Controllers
 {
     [RoutePrefix("RESTMetadata")]
+    [Authorize(Roles = "HorizonRestDiffAdmin")]
     public class RESTMetadataController : Controller
     {
         public ActionResult Index()

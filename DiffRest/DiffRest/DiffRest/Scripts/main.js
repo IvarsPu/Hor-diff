@@ -18,7 +18,7 @@ $(document).ready(function () {
     });
 
     $("#Release1").change(function () {
-        var url = "/Home/GetFile?filePath=" + $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val() + "/metadata.xml";
+        var url = "Home/GetFile?filePath=" + encodeURIComponent($("#Version1 option:selected").val()) + "/" + encodeURIComponent($("#Release1 option:selected").val()) + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion1);		
     });
 
@@ -27,16 +27,16 @@ $(document).ready(function () {
     });
 
     $("#Release2").change(function () {
-        var url = "/Home/GetFile?filePath=" + $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val() + "/metadata.xml";
+        var url = "Home/GetFile?filePath=" + encodeURIComponent($("#Version2 option:selected").val()) + "/" + encodeURIComponent($("#Release2 option:selected").val()) + "/metadata.xml";
         getFileAjax(url, "xml", JsonVersion2);			
     });
 
     $('#download').click(function () {
-        var first = $("#Version1 option:selected").val() + "/" + $("#Release1 option:selected").val();
-        var second = $("#Version2 option:selected").val() + "/" + $("#Release2 option:selected").val();
+        var first = encodeURIComponent($("#Version1 option:selected").val()) + "/" + encodeURIComponent($("#Release1 option:selected").val());
+        var second = encodeURIComponent($("#Version2 option:selected").val()) + "/" + encodeURIComponent($("#Release2 option:selected").val());
         if ($("#Version1 option:selected").val() != "--Select--" && $("#Version2 option:selected").val() != "--Select--"
             && first != second) {
-            window.location = "/Home/LoadFile?first=" + first + "&second=" + second;
+            window.location = "Home/LoadFile?first=" + first + "&second=" + second;
         }
     });
 
@@ -90,8 +90,8 @@ $(document).ready(function () {
                 });
 
             } else {
-                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.storedRelease + "/" + path;
-                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.storedRelease2 + "/" + path;
+                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.storedRelease + path;
+                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.storedRelease2 + path;
                 GetChanges(path1, path2);
                 selectedId = 0;
             }
@@ -169,7 +169,7 @@ function showLoad() {
 function loadVersionsAjax() {
     showLoad();
     $.ajax({
-        url: '/Home/GetVersions/',
+        url: 'Home/GetVersions/',
         dataType: 'xml',
         error: function () {
             showPage();
@@ -229,8 +229,9 @@ function PopulateReleaseSelect(release, selected) {
 
 function GetChanges(file1, file2) {
     showLoad();
+    var path = "Home/DiffColor?firstFile=" + encodeURIComponent(file1) + "&secondFile=" + encodeURIComponent(file2);
     $.ajax({
-        url: "/Home/DiffColor?firstFile=" + file1 + "&secondFile=" + file2,
+        url: path,
         error: function () {
             showPage();
         },
@@ -421,6 +422,8 @@ function markTreeAsNew(root, parantPath) {
     root.restPath = parantPath;
     if (root.extraClasses === TreeExtraClasses.DocumentType) {
         root.extraClasses = TreeExtraClasses.DocumentNew;
+        root.storedRelease2 = root.storedRelease;
+        root.storedRelease = "";
     } else {
         root.extraClasses = TreeExtraClasses.ServiceNew;
 

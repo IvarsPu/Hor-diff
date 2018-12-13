@@ -245,8 +245,8 @@ namespace BusinessLogic
                 {
                     Schema schema = new Schema();
                     schema.Title = child.Attributes["name"].Value;
-                    schema.HashCode = Int32.Parse(child.Attributes["hashCode"].Value);
-                    schema.NoNamspaceHashCode = Int32.Parse(child.Attributes["noNamspaceHashCode"].Value);
+                    schema.HashCode = child.Attributes["hashCode"].Value;
+                    schema.NoNamspaceHashCode = child.Attributes["noNamspaceHashCode"].Value;
                     schema.Type = child.Name;
                     schema.ExtraClasses = "doc_changed";
                     elements.Add(schema);
@@ -306,7 +306,7 @@ namespace BusinessLogic
                         {
                             //exists
                             found = true;
-                            if (schema1.HashCode == schema2.HashCode || schema1.HashCode == -1 || schema2.HashCode == -1)
+                            if (schema1.HashCode == schema2.HashCode || String.IsNullOrEmpty(schema1.HashCode) || String.IsNullOrEmpty(schema2.HashCode))
                             {
                                 //no change
                                 remove.Add(schema2);

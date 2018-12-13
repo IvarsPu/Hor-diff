@@ -43,14 +43,14 @@
 
             <div id="Services" class="panel-body">
                 <div class="panel-body">
-                    <b>REST servisu vārdi:</b><select class="form-control" style="display: inline; width: auto;" id="Conection">
+                    <b>REST servisi:</b><select class="form-control" style="display: inline; width: auto;" id="Conection">
                         <option>--Select--</option>
                         @foreach (Models.RestConnection con in Model)
                         {
                             <option value="@con.Id">@con.Name</option>
                         }
                     </select>
-                    <input type="button" class="btn btn-default" onclick="window.open('/RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
+                    <input type="button" class="btn btn-default" onclick="window.open('RESTMetadata/Exists?id=' + $('#Conection option:selected').val(), '_self')" value="Savākt metadatus">
                     <input type="text" class="form-control" id="nrOfRows" placeholder="10" onchange="refreshTable()" style="display: inline; width: auto; float: right;" />
                 </div>
 
@@ -103,10 +103,10 @@
     function refreshTable() {
         var path;
         if ($("#nrOfRows").val() == "" || isNaN($("#nrOfRows").val())) {
-            path = '/List/GetRESTMetadataList';
+            path = 'List/GetRESTMetadataList';
         }
         else {
-            path = '/List/GetRESTMetadataList?noOfProcesses=' + $("#nrOfRows").val();
+            path = 'List/GetRESTMetadataList?noOfProcesses=' + $("#nrOfRows").val();
         }
         $.ajax({
             type: "GET",
@@ -139,6 +139,6 @@
 
     //table row clicked
     $("#RESTMetadataTable tbody").delegate('tr', 'click', function () {
-        window.open('/RESTMetadata/Info?processID=' + $(this).find('td:first').text(), '_self');
+        window.open('RESTMetadata/Info?processID=' + $(this).find('td:first').text(), '_self');
     });
 </script>

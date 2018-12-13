@@ -4,6 +4,7 @@ using Models;
 
 namespace DiffRest.Controllers
 {
+    [Authorize(Roles = "HorizonRestDiffAdmin")]
     public class ConnectionController : Controller
     {
         #region Main page

@@ -3,8 +3,8 @@ var TreeExtraClasses = {
     DocumentType: "doc_ok", DocumentChanged: "doc_changed", DocumentDeleted: "doc_deleted", DocumentNew: "doc_new", DocumentError: "doc_error"
 };
 
-var JsonVersion1 = { data: "", receivedOK: false };
-var JsonVersion2 = { data: "", receivedOK: false };
+var JsonVersion1 = { data: "", services: "", receivedOK: false };
+var JsonVersion2 = { data: "", services: "", receivedOK: false };
 var selectedId = 0;
 
 var versions;
@@ -302,7 +302,9 @@ function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {
     for (var i = 0; i < jsonVer1Array.length; i++) {
         MarkServiceDifferences(jsonVer1Array[i], jsonVer2Array, "", rootContainer);
     }
-    CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, "");
+    for (var k = 0; k < jsonVer2Array.length; k++) {
+        CheckForNewTreeItems(jsonVer2Array[k], jsonVer1Array, "", rootContainer);
+    }
 }
 
 function FindItemByTitle(JsonArray, title) {
@@ -323,6 +325,20 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     if (ver1Service.children && ver1Service.title) {
         var ver2Service = FindItemByTitle(jsonVer2Array, ver1Service.title);
 
+        if (!ver2Service) {
+
+            // Handle case when service group is renamed. 
+            if (ver1Service.type === 'service_group') {
+
+                //Mark group as deleted and create fake group with empty children list
+                ver1Service.extraClasses = TreeExtraClasses.ServiceDeleted;
+                ver2Service = { children: [] };
+
+            } else if (ver1Service.type === 'service') {
+                // Find service in flat service array
+                ver2Service = FindItemByTitle(JsonVersion2.services, ver1Service.title);
+            }
+        }
 
         if (ver2Service && ver2Service.children) {
 
@@ -340,7 +356,7 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
             // Check the new ones
             isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title) || isDifferent;
 
-            if (isDifferent) {
+            if (isDifferent && ver1Service.extraClasses !== TreeExtraClasses.ServiceDeleted) {
                 ver1Service.extraClasses = TreeExtraClasses.ServiceChanged;
             }
 
@@ -352,17 +368,33 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
     return isDifferent;
 }
 
-function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, parantPath) {
+function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, parentPath, errStatusContainer) {
+    var isDifferent = false;
+
     for (var f = 0; f < jsonVer2Array.length; f++) {
         var ver2ServiceChild = jsonVer2Array[f];
 
         var ver1ServiceChild = FindItemByTitle(jsonVer1Array, ver2ServiceChild.title);
 
         if (!ver1ServiceChild) {
-            markTreeAsNew(ver2ServiceChild, parantPath);
+            // Handle case when service group is renamed. 
+            if (ver2ServiceChild.type === 'service_group') {
+
+                //Mark group as deleted and create fake group with empty children list
+                ver2ServiceChild.extraClasses = TreeExtraClasses.ServiceNew;
+                ver1ServiceChild = { children: [] };
+
+            } else if (ver2ServiceChild.type === 'service') {
+                // Find service in flat service array
+                ver1ServiceChild = FindItemByTitle(JsonVersion1.services, ver2ServiceChild.title);
+            }
+        }
+        if (!ver1ServiceChild) {
+            markTreeAsNew(ver2ServiceChild, parentPath);
             jsonVer1Array.push(ver2ServiceChild);
         }
     }
+    return isDifferent;
 }
 
 function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, parentWebPath, statusContainer) {
@@ -527,14 +559,16 @@ function getFileAjax(path, datatype, ResultObject) {
                 ResultObject.data = data;
                 DiffRecieved();
             } else if (datatype == "xml") {
-                ResultObject.data = getTreeJsonFromXmlMetadata(data);
+                var services = [];
+                ResultObject.data = getTreeJsonFromXmlMetadata(data, services);
+                ResultObject.services = services;
                 DocumentReceived();
             }
         }
     });
 }
 
-function getTreeJsonFromXmlMetadata(xmlMetadata) {
+function getTreeJsonFromXmlMetadata(xmlMetadata, services) {
     var json = [];
  
     var $xml = $(xmlMetadata);
@@ -544,14 +578,14 @@ function getTreeJsonFromXmlMetadata(xmlMetadata) {
     if (rest_api_metadata) {
 
         rest_api_metadata.children().each(function () {
-            addJsonServiceMetadata($(this), json);
+            addJsonServiceMetadata($(this), json, services);
         });
     }
     
     return json;
 }
 
-function addJsonServiceMetadata(xmlNode, jsonNode) {
+function addJsonServiceMetadata(xmlNode, jsonNode, services) {
 
     var serviceNode = {};
     serviceNode.title = xmlNode.attr('name');
@@ -577,7 +611,12 @@ function addJsonServiceMetadata(xmlNode, jsonNode) {
     } else {
         serviceNode.children = null;
     }
+
     jsonNode.push(serviceNode);
+    if (serviceNode.type == "service") {
+        services.push(serviceNode);
+    } 
+    services
 }
 
 function addJsonFileMetadata(xmlNode, jsonServiceFiles) {

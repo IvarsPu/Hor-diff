@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv="content-type" content="text/html"; charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Horizon REST servisu izmaiņas</title>
+
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-theme.min.css">
+
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<script src="js/bootstrap.min.js" ></script>
+
+	<script src="jquery-ui-dependencies/jquery.fancytree.ui-deps.js"></script> 
+
+	<link href="skin-win8/ui.fancytree.css" rel="stylesheet">
+	<script src="js/jquery.fancytree.js"></script>
+	<script src="js/jquery.fancytree.filter.js"></script>
+	
+	<script src="tree_data.js"></script>	
+	<script src="js/main.js"></script>	
+
+	<style type="text/css">
+	span.fancytree-node.service_ok span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/folder_page.gif");
+	}
+
+	span.fancytree-node.service_changed span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/customFolder1.gif");
+	}
+
+	span.fancytree-node.service_new span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/new.png");
+	}
+
+	span.fancytree-node.service_deleted span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/cancel.png");
+	}
+
+
+
+
+	span.fancytree-node.doc_ok span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/accept.png");
+	}
+
+	span.fancytree-node.doc_changed span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/exclamation.png");
+	}
+
+	span.fancytree-node.doc_new span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/doc_with_children.gif");
+	}
+
+	span.fancytree-node.doc_error span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/error.png");
+	}
+
+	span.fancytree-node.doc_deleted span.fancytree-icon {
+		background-position: 0 0;
+		background-image: url("skin-custom/cancel.png");
+	}
+
+    cancel.png
+        body {
+            padding-top: 20px;
+        }
+	
+	.col-sm-3, .col-sm-5 {
+		padding-right: 0px;
+	}
+
+	.link-panel-body {
+	  padding-top: 5px;	
+	  padding-right: 10px;
+	}
+	
+	.tree-panel {
+		padding-top: 0px; 
+	}	
+    .pre {
+
+    white-space: pre-wrap;
+	font-family: "Courier New";
+	font-size: 16px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	line-height: 19.2px;
+	}	
+	</style>
+</head>
+
+<body height="100%">
+	<div class="container-fluid">
+		<div class="row">
+			<div id="VersionControl" class="col-sm-3">
+				<div class="panel panel-default" style="height: 130px; overflow: hidden;">
+					<div class="panel-heading" style="clear:both;">Horizon versiju izmaiņas</div>
+
+					<div class="panel-body" style="padding-left: 20px;">
+						<b>1. Versija:</b>&nbsp;&nbsp;<select id="Version1" class="form-control" style="display: inline; width: auto;"> </select>
+						<br />
+						<b>2. Versija:</b>&nbsp;&nbsp;<select id="Version2" class="form-control" style="display: inline; width: auto;"> </select>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-5">
+				<div class="panel panel-default" style="height: 130px">
+					<div class="panel-heading">Servisa informācija</div>
+
+					<div class="panel-body">
+						<b>Shēma:</b>&nbsp;&nbsp;<span id="restPath"></span><br />
+						<b>Izmaiņu statuss:</b>&nbsp;&nbsp;<span id="changeStatus"></span><br />
+
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="panel panel-default" style="height: 130px">
+					<div class="panel-heading">Servisu filtri</div>
+
+					<div class="panel-body" style="padding-top: 0px;">
+						<div class="radio">
+							<label><input type="radio" id="chars" name="optradio" value="1" disabled>Visi</label>
+						</div>
+						<div class="radio">
+							<label><input type="radio" id="lines" name="optradio" value="2" checked="true">Modificētie</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="panel panel-default">
+					<div class="panel-heading" style="overflow: hidden;">
+						Horizon REST servisi
+						<input name="search" type="text" class="form-control" placeholder="service name" style="width: 40%; float: right; width: 50%;" />
+					</div>
+					<div id="treeControl" style="overflow: auto;">
+						<div class="link-panel-body" align="right">
+							<a href="#" id="expand_tree">Izvērst visu</a>&nbsp;\&nbsp;<a href="#" id="colapse_tree">Sakļaut visu</a>
+						</div>
+
+						<div class="panel-body tree-panel" id="tree">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-9">
+				<div class="panel panel-default">
+					<div id="change_header" class="panel-heading" style="overflow: hidden;">
+						Izmaiņas
+						<input id="next" type="button" class="btn btn-default" value="Nākamais" style="float: right;" />
+						<input id="previous" type="button" class="btn btn-default" value="Iepriekšējais" style="float: right;" />
+					</div>
+					<div id="htmlControl">
+						<iframe id="diff_frame" style="width: 100%; height: 100%; overflow: auto; border: none;" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -3,6 +3,11 @@ var TreeExtraClasses = {
     DocumentType: "doc_ok", DocumentChanged: "doc_changed", DocumentDeleted: "doc_deleted", DocumentNew: "doc_new", DocumentError: "doc_error"
 };
 
+var MissingItemOperation = {
+    New: "new", Deleted: "deleted"
+};
+
+
 var JsonVersion1 = { data: "", services: "", receivedOK: false };
 var JsonVersion2 = { data: "", services: "", receivedOK: false };
 var selectedId = 0;
@@ -90,8 +95,8 @@ $(document).ready(function () {
                 });
 
             } else {
-                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.storedRelease + path;
-                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.storedRelease2 + path;
+                var path1 = $("#Version1 option:selected").val() + "/" + data.node.data.storedRelease + data.node.data.metaPath;
+                var path2 = $("#Version2 option:selected").val() + "/" + data.node.data.storedRelease2 + data.node.data.metaPath2;
                 GetChanges(path1, path2);
                 selectedId = 0;
             }
@@ -296,15 +301,35 @@ function setChangeStatus(treeNode) {
     $("#changeStatus").append(status);
 }
 
+function SetTreeMetadataPath(jsonArray) {
+
+    for (var i = 0; i < jsonArray.length; i++) {
+        SetTreeItemMetadataPath("", jsonArray[i]);
+    }
+}
+
+function SetTreeItemMetadataPath(parentPath, treeItem) {
+    treeItem.metaPath = parentPath + "/" + treeItem.title;
+
+    if (treeItem.type === 'service_group' || treeItem.type === 'service') {
+
+        if (treeItem.children) {            
+            for (var f = 0; f < treeItem.children.length; f++) {
+                SetTreeItemMetadataPath(treeItem.metaPath, treeItem.children[f]);
+            }
+        }
+    }
+
+}
+
 function MarkSchemaDifferences(jsonVer1Array, jsonVer2Array) {
     var rootContainer = { isError: false };
 
     for (var i = 0; i < jsonVer1Array.length; i++) {
-        MarkServiceDifferences(jsonVer1Array[i], jsonVer2Array, "", rootContainer);
+        MarkServiceDifferences(jsonVer1Array[i], jsonVer2Array, "", rootContainer, JsonVersion2.services, MissingItemOperation.Deleted);
     }
-    for (var k = 0; k < jsonVer2Array.length; k++) {
-        CheckForNewTreeItems(jsonVer2Array[k], jsonVer1Array, "", rootContainer);
-    }
+
+    CheckForNewTreeItems(jsonVer2Array, jsonVer1Array, "", rootContainer);
 }
 
 function FindItemByTitle(JsonArray, title) {
@@ -315,7 +340,7 @@ function FindItemByTitle(JsonArray, title) {
     }
 }
 
-function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errStatusContainer) {
+function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errStatusContainer, services, missingItemOperation) {
     var isDifferent = false;
     ver1Service.restPath = "";
     ver1Service.isError = false;
@@ -331,76 +356,68 @@ function MarkServiceDifferences(ver1Service, jsonVer2Array, parentRestPath, errS
             if (ver1Service.type === 'service_group') {
 
                 //Mark group as deleted and create fake group with empty children list
-                ver1Service.extraClasses = TreeExtraClasses.ServiceDeleted;
+                ver1Service.extraClasses = GetMissingItemStatus(ver1Service.type, missingItemOperation);
                 ver2Service = { children: [] };
 
             } else if (ver1Service.type === 'service') {
                 // Find service in flat service array
-                ver2Service = FindItemByTitle(JsonVersion2.services, ver1Service.title);
+                ver2Service = FindItemByTitle(services, ver1Service.title);
             }
         }
 
         if (ver2Service && ver2Service.children) {
 
-            // Check modified and deleted
+            // Check modified and new\deleted
             for (var f = 0; f < ver1Service.children.length; f++) {
                 var ver1ServiceChild = ver1Service.children[f];
 
-                if (ver1ServiceChild.extraClasses === TreeExtraClasses.DocumentType) {
-                    isDifferent = MarkDocumentDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title, ver1Service.title, ver1Service) || isDifferent;
+                if (ver1ServiceChild.type === 'service' || ver1ServiceChild.type === 'service_group') {
+                    isDifferent = MarkServiceDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath, ver1Service, services, missingItemOperation) || isDifferent;
                 } else {
-                    isDifferent = MarkServiceDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title, ver1Service) || isDifferent;
+                    isDifferent = MarkDocumentDifferences(ver1ServiceChild, ver2Service.children, ver1Service.restPath, ver1Service.title, ver1Service, missingItemOperation) || isDifferent;
                 }
             }
 
             // Check the new ones
-            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title) || isDifferent;
+            isDifferent = CheckForNewTreeItems(ver1Service.children, ver2Service.children, ver1Service.restPath + "/" + ver1Service.title, ver1Service) || isDifferent;
 
-            if (isDifferent && ver1Service.extraClasses !== TreeExtraClasses.ServiceDeleted) {
+            if (isDifferent && ver1Service.extraClasses == TreeExtraClasses.ServiceType) {
                 ver1Service.extraClasses = TreeExtraClasses.ServiceChanged;
             }
 
         } else {
-            ver1Service.extraClasses = TreeExtraClasses.ServiceDeleted;
+            ver1Service.extraClasses = GetMissingItemStatus(ver1Service.type, missingItemOperation);
         }
     }
     errStatusContainer.isError = ver1Service.isError || errStatusContainer.isError;
     return isDifferent;
 }
 
-function CheckForNewTreeItems(jsonVer1Array, jsonVer2Array, parentPath, errStatusContainer) {
+function CheckForNewTreeItems(jsonVer2Array, jsonVer1Array, parentPath, errStatusContainer) {
     var isDifferent = false;
 
     for (var f = 0; f < jsonVer2Array.length; f++) {
         var ver2ServiceChild = jsonVer2Array[f];
 
         var ver1ServiceChild = FindItemByTitle(jsonVer1Array, ver2ServiceChild.title);
+        var emptyServiceArray = [];        
 
         if (!ver1ServiceChild) {
-            // Handle case when service group is renamed. 
-            if (ver2ServiceChild.type === 'service_group') {
-
-                //Mark group as deleted and create fake group with empty children list
-                ver2ServiceChild.extraClasses = TreeExtraClasses.ServiceNew;
-                ver1ServiceChild = { children: [] };
-
-            } else if (ver2ServiceChild.type === 'service') {
-                // Find service in flat service array
-                ver1ServiceChild = FindItemByTitle(JsonVersion1.services, ver2ServiceChild.title);
-            }
-        }
-        if (!ver1ServiceChild) {
-            markTreeAsNew(ver2ServiceChild, parentPath);
+            isDifferent = MarkServiceDifferences(ver2ServiceChild, emptyServiceArray, parentPath + "/" + ver2ServiceChild.title, errStatusContainer, JsonVersion1.services, MissingItemOperation.New);
             jsonVer1Array.push(ver2ServiceChild);
+            isDifferent = true;
         }
     }
     return isDifferent;
 }
 
-function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, parentWebPath, statusContainer) {
+function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, parentWebPath, statusContainer, missingItemOperation) {
     jsonVer1Doc.restPath = parentRestPath;
     jsonVer1Doc.parentName = parentWebPath;
     
+    if (jsonVer1Doc.metaPath2) { //Allready handled
+        return jsonVer1Doc.extraClasses === TreeExtraClasses.DocumentChanged;
+    }
     var jsonVer2Doc = FindItemByTitle(jsonVer2DocArray, jsonVer1Doc.title);
 
     if (jsonVer1Doc.errorMessage || (jsonVer2Doc && jsonVer2Doc.errorMessage)) {
@@ -412,6 +429,7 @@ function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, 
 
         if (jsonVer2Doc) {
             var isDifferent;
+            jsonVer1Doc.metaPath2 = jsonVer2Doc.metaPath;
             if ($("#ignore_namespaces").is(':checked')) {
                 isDifferent = (jsonVer1Doc.noNamspaceHashCode != jsonVer2Doc.noNamspaceHashCode);
             } else {
@@ -424,12 +442,39 @@ function MarkDocumentDifferences(jsonVer1Doc, jsonVer2DocArray, parentRestPath, 
             jsonVer1Doc.storedRelease2 = jsonVer2Doc.storedRelease;
         } else {
             isDifferent = true;
-            jsonVer1Doc.extraClasses = TreeExtraClasses.DocumentDeleted;
-            jsonVer1Doc.storedRelease2 = -1;            
+            jsonVer1Doc.extraClasses = GetMissingItemStatus(jsonVer1Doc.type, missingItemOperation);
+            jsonVer1Doc.storedRelease2 = '';            
+        }
+
+        if (missingItemOperation === MissingItemOperation.New) {
+            var storedRelease2 = jsonVer1Doc.storedRelease2;
+            var metaPath2 = jsonVer1Doc.metaPath2;
+            jsonVer1Doc.storedRelease2 = jsonVer1Doc.storedRelease;
+            jsonVer1Doc.metaPath2 = jsonVer1Doc.metaPath;
+            jsonVer1Doc.storedRelease = storedRelease2;
+            jsonVer1Doc.metaPath2 = metaPath2;
         }
     }
 
     return isDifferent;
+}
+
+function GetMissingItemStatus(itemType, missingItemOperation) {
+
+    if (itemType === 'service' || itemType === 'service_group') {
+
+        if (missingItemOperation === MissingItemOperation.New) {
+            return TreeExtraClasses.ServiceNew;
+        } else {
+            return TreeExtraClasses.ServiceDeleted;
+        }
+    } else {
+        if (missingItemOperation === MissingItemOperation.New) {
+            return TreeExtraClasses.DocumentNew;
+        } else {
+            return TreeExtraClasses.DocumentDeleted;
+        }
+    }
 }
 
 function getErrorDiff(jsonVer1Doc, jsonVer2Doc) {
@@ -562,6 +607,7 @@ function getFileAjax(path, datatype, ResultObject) {
                 var services = [];
                 ResultObject.data = getTreeJsonFromXmlMetadata(data, services);
                 ResultObject.services = services;
+                SetTreeMetadataPath(ResultObject.data);
                 DocumentReceived();
             }
         }
@@ -603,9 +649,9 @@ function addJsonServiceMetadata(xmlNode, jsonNode, services) {
             var tagName = $(this).get(0).tagName;
 
             if (tagName == "service_group" || tagName == "service" || tagName == "resource") {
-                addJsonServiceMetadata($(this), serviceNode.children);
+                addJsonServiceMetadata($(this), serviceNode.children, services);
             } else {
-                addJsonFileMetadata($(this), serviceNode.children);
+                addJsonFileMetadata($(this), serviceNode.children, services);
             }
         });
     } else {
@@ -616,8 +662,7 @@ function addJsonServiceMetadata(xmlNode, jsonNode, services) {
     if (serviceNode.type == "service") {
         services.push(serviceNode);
     } 
-    services
-}
+ }
 
 function addJsonFileMetadata(xmlNode, jsonServiceFiles) {
 

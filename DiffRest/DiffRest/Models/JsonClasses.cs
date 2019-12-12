@@ -32,6 +32,13 @@ namespace Models
 
         [DataMember(Name = "errorMessage")]
         public String ErrorMessage { get; set; }
+
+        [DataMember(Name = "schemaFile")]
+        public String SchemaFile { get; set; }
+
+        public String StoredRelease { get; set; }
+        
+        public String Path { get; set; }
     }
 
     [Serializable]
@@ -50,5 +57,9 @@ namespace Models
 
         [DataMember(Name = "children")]
         public List<object> Children { get; set; }
+
+        public String Version;
+
+        public String Path { get; set; }
     }
 }

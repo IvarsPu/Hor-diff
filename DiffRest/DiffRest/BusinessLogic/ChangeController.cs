@@ -18,7 +18,7 @@ namespace BusinessLogic
 {
     public class ChangeController
     {
-        public string Result, First, Second;
+        public string Result, First, Second, FirstVersion, SecondVersion;
 
         public List<HorizonVersion> GetHorizonVersions()
         {
@@ -56,7 +56,7 @@ namespace BusinessLogic
                 Result = (first + "_" + second).Replace('/', '.');
 
                 string path = AppInfo.FolderLocation + Result + ".zip";
-                if (!File.Exists(path))
+                if (true) //!File.Exists(path))
                 {
                     GenerateReport(first, second);
                 }
@@ -71,7 +71,7 @@ namespace BusinessLogic
                 result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
                 return result;
             }
-            catch
+            catch(Exception ex)
             {
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
@@ -187,9 +187,9 @@ namespace BusinessLogic
             return sb.ToString();
         }
 
-        private string GenerateHtmlDiff(Schema schema, string path)
+        private string GenerateHtmlDiff(Schema firstSchema, Schema secondSchema, string path)
         {
-            String fileName = schema.Title;
+            String fileName = secondSchema.Title;
             String filePath = path;
 
             string exportFolder = AppInfo.FolderLocation + Result + "/" + AppInfo.HtmlRootFolder + "/" + filePath;
@@ -198,9 +198,10 @@ namespace BusinessLogic
                 Directory.CreateDirectory(exportFolder);
             }
 
-            string firstFilePath = AppInfo.MetadataRootFolder + First + "/" + filePath + fileName;
-            string secondFilePath = AppInfo.MetadataRootFolder + Second + "/" + filePath + fileName;
+            string firstFilePath = AppInfo.MetadataRootFolder + FirstVersion + "/" + firstSchema?.StoredRelease + firstSchema?.Path + fileName;
+            string secondFilePath = AppInfo.MetadataRootFolder + SecondVersion + "/" + secondSchema?.StoredRelease + secondSchema.Path + fileName;
 
+            secondSchema.SchemaFile = secondSchema.Path + fileName;
             string htmlFileName = fileName.Replace('.', '_') + ".html";
             string htmlFilePath = exportFolder + "/" + htmlFileName;
 
@@ -223,6 +224,7 @@ namespace BusinessLogic
             folder.Title = "root";
             folder.Type = node.Name;
             folder.Children = GetChildren(node);
+            folder.Version = node.Attributes["version"].Value;
 
             return folder;
         }
@@ -249,6 +251,7 @@ namespace BusinessLogic
                     schema.NoNamspaceHashCode = child.Attributes["noNamspaceHashCode"].Value;
                     schema.Type = child.Name;
                     schema.ExtraClasses = "doc_changed";
+                    schema.StoredRelease = child.Attributes["stored_release"].Value;
                     elements.Add(schema);
                 }
             }
@@ -266,73 +269,187 @@ namespace BusinessLogic
             secondXml.Load(AppInfo.MetadataRootFolder + second + "/metadata.xml");
 
             Folder firstObjects = AddClass(firstXml);
+            FirstVersion = firstObjects.Version; 
             Folder secondObjects = AddClass(secondXml);
-            Test(firstObjects, secondObjects, "");
-            
+            SecondVersion = secondObjects.Version;
+
+            Dictionary<String, Folder> allServices = new Dictionary<String, Folder>();
+            CollectAllServices(firstObjects, allServices);
+
+            SetTreeMetadataPath("", firstObjects);
+            SetTreeMetadataPath("", secondObjects);
+
+            Test(firstObjects, secondObjects, "", allServices);
+
+          //  UpdateTree(secondObjects);
+
             string json = "var JsonTree = " + JsonConvert.SerializeObject(secondObjects);
             File.WriteAllText(AppInfo.FolderLocation + Result + "/" + AppInfo.JsonTreeFileName, json);
 
             MakeLocalZip(first, second);
         }
-        
-        private void Test(Folder first, Folder second, string path)
+
+        private void CollectAllServices(Folder parentFolder, Dictionary<String, Folder> allServices)
+        {
+            foreach (object element in parentFolder.Children)
+            {
+                if (element.GetType() == typeof(Folder))
+                {
+                    Folder folder = (Folder)element;
+                    if (folder.Type.Equals("service"))
+                    {
+                        try
+                        {
+                            allServices.Add(folder.Title, folder);
+                        }
+                        catch (Exception)
+                        { }
+                    } 
+                    else
+                    {
+                        CollectAllServices((Folder)element, allServices);
+                    }
+                }
+            }
+        }
+
+        private bool UpdateTree(Object treeObject)
+        {
+
+            if (treeObject.GetType() == typeof(Schema))
+            {
+                return false;
+            }
+
+            Folder folder = (Folder) treeObject;
+            folder.ExtraClasses = folder.Type;
+
+            List<object> newChilds = new List<object>();
+            foreach (Object child in folder.Children)
+            {
+                if(UpdateTree(child))
+                {
+                    newChilds.Add(child);
+                }
+            }
+            folder.Children = newChilds;
+            return true;
+        }
+
+        private void SetTreeMetadataPath(String parentPath, Object treeObject)
+        {
+            if (treeObject.GetType() == typeof(Schema))
+            {
+                Schema schema = (Schema)treeObject;
+                schema.Path = parentPath + "/";
+            }
+            else if(treeObject.GetType() == typeof(Folder))
+            {
+                Folder folder = (Folder)treeObject;
+                if (folder.Title.Equals("root"))
+                {
+                    folder.Path = "";
+                } else
+                {
+                    folder.Path = parentPath + "/" + folder.Title;
+                }                
+
+                foreach (Object child in folder.Children)
+                {
+                    SetTreeMetadataPath(folder.Path, child);
+                }
+            }
+
+        }
+
+        private void Test(Folder first, Folder second, string path, Dictionary<String, Folder> allServices)
         {
             List<object> remove = new List<object>();
             foreach (object element2 in second.Children)
             {
                 bool found = false;
-                foreach (object element1 in first.Children)
+
+                if (first != null)
                 {
-                    if (element1.GetType() == typeof(Folder) && element2.GetType() == typeof(Folder))
+                    foreach (Object element1 in first.Children)
                     {
-                        Folder folder1 = (Folder)element1;
-                        Folder folder2 = (Folder)element2;
-                        if (folder1.Title.Equals(folder2.Title))
+                        if (element1.GetType() == typeof(Folder) && element2.GetType() == typeof(Folder))
                         {
-                            //exists
-                            found = true;
-                            Test(folder1, folder2, path + folder2.Title + "/");
-                            if (folder2.Children.Count == 0)
+                            Folder folder1 = (Folder)element1;
+                            Folder folder2 = (Folder)element2;
+                            if (folder1.Title.Equals(folder2.Title))
                             {
-                                remove.Add(folder2);
+                                //exists
+                                found = true;
+                                Test(folder1, folder2, path + folder2.Title + "/", allServices);
+                                if (folder2.Children.Count == 0)
+                                {
+                                    remove.Add(folder2);
+                                }
+                                break;
                             }
                         }
-                    }
-                    else if (element1.GetType() == typeof(Schema) && element2.GetType() == typeof(Schema))
-                    {
-                        Schema schema1 = (Schema)element1;
-                        Schema schema2 = (Schema)element2;
-                        if (schema1.Title.Equals(schema2.Title))
+                        else if (element2.GetType() == typeof(Schema) && element1.GetType() == typeof(Schema))
                         {
-                            //exists
-                            found = true;
-                            if (schema1.HashCode == schema2.HashCode || String.IsNullOrEmpty(schema1.HashCode) || String.IsNullOrEmpty(schema2.HashCode))
+                            Schema schema1 = (Schema)element1;
+                            Schema schema2 = (Schema)element2;
+
+                            if (schema1.Title.Equals(schema2.Title))
                             {
-                                //no change
-                                remove.Add(schema2);
+                                found = true;
+                                if (schema1.HashCode == schema2.HashCode || String.IsNullOrEmpty(schema1.HashCode) || String.IsNullOrEmpty(schema2.HashCode))
+                                {
+                                    //no change
+                                    remove.Add(schema2);
+                                }
+                                else
+                                {
+                                    //change
+                                    schema2.DiffHtmlFile = GenerateHtmlDiff(schema1, schema2, path);
+                                }
                             }
-                            else
+
+                        }
+
+                    }
+                }
+
+                if (!found && element2.GetType() == typeof(Folder)) //moved service
+                {
+                    Folder service2 = (Folder) element2;
+                    if (service2.Type.Equals("service"))
+                    {
+                        Folder service1 = null;
+                        found = allServices.TryGetValue(service2.Title, out service1);
+
+                        if (found)
+                        {
+                            Test(service1, service2, path + service2.Title + "/", allServices);
+                            if (service2.Children.Count == 0)
                             {
-                                //change
-                                schema2.DiffHtmlFile = GenerateHtmlDiff(schema2, path);
+                                remove.Add(element2);
                             }
                         }
                     }
                 }
+
                 if (!found)
                 {
-                    //added
-                    if (element2.GetType() == typeof(Folder))
+                    if(element2.GetType() == typeof(Schema))
+                    {
+                        Schema schema2 = (Schema)element2;
+                        schema2.DiffHtmlFile = GenerateHtmlDiff(null, schema2, path);
+                        schema2.ExtraClasses = "doc_new";
+                    }
+                    else
                     {
                         Folder folder2 = (Folder)element2;
                         folder2.ExtraClasses = "service_new";
-                        MarkElements(folder2, path + folder2.Title + "/");
-                    }
-                    else if (element2.GetType() == typeof(Schema))
-                    {
-                        Schema schema2 = (Schema)element2;
-                        schema2.DiffHtmlFile = GenerateHtmlDiff(schema2, path);
-                        schema2.ExtraClasses = "doc_new";
+                        Test(null, folder2, path + folder2.Title + "/", allServices);
+                        if (folder2.Children.Count == 0)
+                        {
+                            remove.Add(element2);
+                        }
                     }
                 }
             }
@@ -349,12 +466,6 @@ namespace BusinessLogic
                     Folder childFolder = (Folder)element;
                     childFolder.ExtraClasses = "service_new";
                     MarkElements(childFolder, path + childFolder.Title + "/");
-                }
-                else if (element.GetType() == typeof(Schema))
-                {
-                    Schema schema = (Schema)element;
-                    schema.DiffHtmlFile = GenerateHtmlDiff(schema, path);
-                    schema.ExtraClasses = "doc_new";
                 }
             }
         }
